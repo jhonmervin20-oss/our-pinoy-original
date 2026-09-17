@@ -1,0 +1,5 @@
+﻿EmployeeID,EmployeeName,Date,Time,Status
+1001,"John Doe",2026-07-23,08:00:00,I
+1001,"John Doe",2026-07-23,12:00:00,O
+1001,"John Doe",2026-07-23,13:00:00,I
+1001,"John Doe",2026-07-23,17:00:00,O

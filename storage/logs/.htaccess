@@ -1,0 +1,3 @@
+# Cron sweep log lines could reveal internal timing/error details and have
+# no reason to be reachable over HTTP -- same deny-all as storage/cache/.
+Require all denied

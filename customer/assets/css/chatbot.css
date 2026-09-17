@@ -1,0 +1,712 @@
+/* ==========================================================================
+   chatbot.css
+   Floating assistant widget (customer/includes/navbar.php). Built on
+   customer-app.css's --ca-* tokens.
+
+   Desktop: a floating panel anchored above the toggle button, like the
+   notification/profile dropdowns elsewhere in this app.
+   Mobile (<=767px): a true bottom sheet -- full width, ~85dvh, rounded top
+   corners, a dimming scrim behind it, slide up/down. Panel visibility is
+   class-based (.is-open, opacity/visibility/transform), not the [hidden]
+   attribute, specifically so the slide transition has something to
+   animate -- toggling [hidden] jumps straight to display:none with no
+   transition possible.
+   ========================================================================== */
+
+.ca-chatbot{
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 400;
+}
+
+.ca-chatbot-toggle{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    /* This is a <button> and nothing here declared border/padding/cursor, so
+       it was falling through to the UA defaults: a 2px outset border drew a
+       ring around the gold circle, the padding was 1px 6px, and the pointer
+       stayed an arrow. With border-box sizing the ring also ate 2px a side,
+       leaving a 52px (46px on phones) circle inside the intended 56px. */
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 50%;
+    background: var(--ca-gold);
+    color: #fff;
+    font-size: 1.4rem;
+    box-shadow: 0 14px 30px -10px rgba(156,119,52,0.55);
+    overflow: hidden;
+    transition: transform 0.15s var(--ca-ease), filter 0.15s var(--ca-ease);
+}
+
+.ca-chatbot-toggle:hover{ filter: brightness(1.06); transform: translateY(-2px); }
+.ca-chatbot-toggle:focus-visible{ outline: 2px solid var(--ca-gold); outline-offset: 3px; }
+
+.ca-chatbot-toggle-icon,
+.ca-chatbot-toggle-close{
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.15s var(--ca-ease), transform 0.15s var(--ca-ease);
+}
+
+.ca-chatbot-toggle-icon{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.ca-chatbot-toggle-close{ opacity: 0; transform: scale(0.6); }
+
+.ca-chatbot-toggle.is-open .ca-chatbot-toggle-icon{ opacity: 0; transform: scale(0.6); }
+.ca-chatbot-toggle.is-open .ca-chatbot-toggle-close{ opacity: 1; transform: scale(1); }
+
+/* -- Scrim (mobile only) -- display:none here, not just opacity:0, so it's
+   fully inert (no hit-testing) on desktop regardless of .is-open; JS
+   toggles that class unconditionally on open/close, viewport-blind, so the
+   viewport gating has to happen entirely in CSS. Actual opacity/visibility
+   transition lives in the mobile media query at the bottom. ------------- */
+.ca-chatbot-scrim{
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(20,15,10,0.45);
+    z-index: 399;
+}
+
+/* -- Panel ------------------------------------------------------------------ */
+.ca-chatbot-panel{
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 14px);
+    /* Explicit z-index, higher than the scrim's 399 -- without one, an
+       auto-z-index positioned element stacks BELOW any sibling with a
+       set z-index regardless of DOM order, so the scrim was painting
+       (and hit-testing) on top of the panel including its own input
+       field, blocking every tap on mobile. */
+    z-index: 401;
+    width: 380px;
+    height: 520px;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--ca-surface);
+    border: 1px solid var(--ca-border);
+    border-radius: 20px;
+    box-shadow: 0 24px 60px -20px rgba(30,24,16,0.32);
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition: opacity 0.2s var(--ca-ease), visibility 0.2s var(--ca-ease), transform 0.2s var(--ca-ease);
+}
+
+.ca-chatbot-panel.is-open{
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.ca-chatbot-sheet-handle{ display: none; }
+
+/* -- Header ------------------------------------------------------------------- */
+.ca-chatbot-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 16px;
+    min-height: 64px;
+    background: var(--ca-gold);
+    flex-shrink: 0;
+}
+
+.ca-chatbot-header-identity{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.ca-chatbot-header-avatar-wrap{ position: relative; flex-shrink: 0; }
+
+.ca-chatbot-header-avatar{
+    display: block;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,0.55);
+    background: #fff;
+}
+
+.ca-chatbot-status-dot{
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #4a7c59;
+    border: 2px solid var(--ca-gold-light);
+    box-shadow: 0 0 0 0 rgba(74,124,89,0.5);
+    animation: caChatbotStatusPulse 2.4s infinite;
+}
+
+@keyframes caChatbotStatusPulse{
+    0%, 100%{ box-shadow: 0 0 0 0 rgba(74,124,89,0.45); }
+    50%{ box-shadow: 0 0 0 4px rgba(74,124,89,0); }
+}
+
+.ca-chatbot-header-text{
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.3;
+}
+
+.ca-chatbot-header-title{
+    font-family: 'Lexend', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ca-chatbot-header-subtitle{
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.85);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ca-chatbot-header-actions{
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-shrink: 0;
+}
+
+.ca-chatbot-icon-btn{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1rem;
+    transition: background 0.15s var(--ca-ease), transform 0.15s var(--ca-ease);
+}
+
+.ca-chatbot-icon-btn:hover{ background: rgba(255,255,255,0.16); }
+.ca-chatbot-icon-btn:focus-visible{ outline: 2px solid #fff; outline-offset: -2px; }
+.ca-chatbot-icon-btn:not(.is-on){ color: rgba(255,255,255,0.55); }
+
+/* -- Message list -------------------------------------------------------------- */
+/* Wrap is the flex/scroll-budget owner; the scroll-to-bottom button is its
+   absolutely-positioned sibling so it floats above the scrolling content
+   instead of scrolling away with it (position:absolute inside the
+   scrolling element itself would scroll with everything else). */
+.ca-chatbot-messages-wrap{
+    position: relative;
+    flex: 1;
+    min-height: 0;
+}
+
+.ca-chatbot-messages{
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--ca-surface);
+}
+
+.ca-chatbot-row{
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    max-width: 80%;
+}
+
+/* Applied by JS at the moment a row actually needs to appear -- every
+   freshly-inserted row gets it immediately, and the static server-rendered
+   welcome row gets it once on the panel's first open. A plain unconditional
+   animation on .ca-chatbot-row would silently finish before that row is
+   ever visible, since the closed panel is opacity:0/visibility:hidden
+   (not display:none), not display:none -- CSS animations keep running on a
+   hidden-but-rendered element instead of waiting for it to become visible. */
+.ca-anim-in{ animation: caChatbotMsgIn 0.35s var(--ca-ease) both; }
+
+.ca-chatbot-row.is-bot{ align-self: flex-start; }
+.ca-chatbot-row + .ca-chatbot-row.is-bot{ margin-top: -10px; }
+
+@keyframes caChatbotMsgIn{
+    from{ opacity: 0; transform: translateY(8px); }
+    to{ opacity: 1; transform: translateY(0); }
+}
+
+.ca-chatbot-avatar,
+.ca-chatbot-avatar-initial{
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-bottom: 2px;
+}
+
+.ca-chatbot-avatar{ object-fit: cover; }
+
+.ca-chatbot-avatar-initial{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ca-gold);
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    font-family: 'Lexend', sans-serif;
+}
+
+.ca-chatbot-bubble-wrap{
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.ca-chatbot-msg{
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+    text-align: left;
+}
+
+.ca-chatbot-msg.is-bot{
+    background: #faefdc;
+    border: 1px solid var(--ca-border);
+    box-shadow: 0 2px 8px -4px rgba(30,24,16,0.14);
+    color: var(--ca-ink);
+    border-bottom-left-radius: 4px;
+}
+
+.ca-chatbot-row.is-user{
+    align-self: flex-end;
+    flex-direction: row-reverse;
+    max-width: 82%;
+}
+
+.ca-chatbot-row.is-user .ca-chatbot-bubble-wrap{ align-items: flex-end; }
+
+.ca-chatbot-msg.is-user{
+    background: var(--ca-gold);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+}
+
+.ca-chatbot-msg-time{
+    font-size: 0.68rem;
+    color: var(--ca-ink-faint);
+    padding: 0 4px;
+}
+
+.ca-chatbot-msg.is-typing{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    padding: 11px 16px;
+}
+
+.ca-chatbot-typing-label{
+    font-size: 0.68rem;
+    font-style: italic;
+    color: var(--ca-ink-faint);
+}
+
+.ca-chatbot-typing-dots{ display: flex; gap: 4px; }
+
+.ca-chatbot-typing-dots span{
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ca-gold);
+    animation: caChatbotTyping 1.1s infinite ease-in-out;
+}
+.ca-chatbot-typing-dots span:nth-child(2){ animation-delay: 0.15s; }
+.ca-chatbot-typing-dots span:nth-child(3){ animation-delay: 0.3s; }
+
+@keyframes caChatbotTyping{
+    0%, 60%, 100%{ transform: translateY(0); opacity: 0.5; }
+    30%{ transform: translateY(-4px); opacity: 1; }
+}
+
+/* -- Menu item cards -- rendered under a bot message after get_menu, real
+   data only (name/category/price/image straight from menu_items), same
+   "../owner/" image path convention customer/menu.php uses. Horizontal
+   scroll rather than a grid -- the panel is only 380px (desktop) / full
+   mobile width, too narrow for a multi-column grid to read well. --------- */
+.ca-chatbot-cards{
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    margin-top: 4px;
+    max-width: 100%;
+}
+
+.ca-chatbot-card{
+    flex: 0 0 148px;
+    background: var(--ca-surface);
+    border: 1px solid var(--ca-border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px -8px rgba(30,24,16,0.2);
+    transition: transform 0.15s var(--ca-ease), box-shadow 0.15s var(--ca-ease);
+}
+
+.ca-chatbot-card:hover{ transform: translateY(-2px); box-shadow: 0 10px 20px -10px rgba(30,24,16,0.28); }
+
+.ca-chatbot-card-img-wrap{
+    width: 100%;
+    height: 84px;
+    background: var(--ca-canvas);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.ca-chatbot-card-img{ width: 100%; height: 100%; object-fit: cover; }
+.ca-chatbot-card-img-wrap i{ font-size: 1.5rem; color: var(--ca-ink-faint); }
+
+.ca-chatbot-card-body{ padding: 8px 10px 10px; }
+
+.ca-chatbot-card-name{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--ca-ink);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ca-chatbot-card-category{ font-size: 0.66rem; color: var(--ca-ink-faint); margin-top: 2px; }
+
+.ca-chatbot-card-desc{
+    font-size: 0.68rem;
+    color: var(--ca-ink-soft);
+    margin-top: 4px;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.ca-chatbot-card-price{ font-size: 0.8rem; font-weight: 600; color: var(--ca-gold); margin-top: 4px; }
+
+/* -- Quick-reply cards (shown until the first message is sent) ------------------ */
+/* The 32px indent is the bot bubble's own left offset inside .ca-chatbot-row
+   (24px avatar + the row's 8px gap), so the chips start on the same vertical
+   line as every bot message above them rather than hanging out to their left. */
+.ca-chatbot-chips{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-left: 32px;
+}
+
+.ca-chatbot-chips[hidden]{ display: none; }
+
+/* Matches the message body's own background (.ca-chatbot-messages) so the
+   chips sit flush against it, with a gold outline/text to stay legible and
+   on-brand; inverts to solid gold on hover as the "this is clickable" cue
+   that used to be the resting state. */
+.ca-chatbot-chip{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 34px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: var(--ca-surface);
+    border: 1px solid var(--ca-gold-soft-2);
+    color: var(--ca-gold);
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.2;
+    transition: background 0.18s var(--ca-ease), color 0.18s var(--ca-ease), transform 0.18s var(--ca-ease), border-color 0.18s var(--ca-ease), box-shadow 0.18s var(--ca-ease);
+}
+
+.ca-chatbot-chip:hover{
+    background: var(--ca-gold);
+    border-color: var(--ca-gold);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px -10px rgba(156,119,52,0.55);
+}
+.ca-chatbot-chip:focus-visible{ outline: 2px solid var(--ca-gold); outline-offset: 2px; }
+
+.ca-chatbot-chip-label{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* The per-reply action row is gone entirely -- copy and thumbs-up/down went
+   with the feedback endpoint nothing read, and the "AI" badge after them.
+   The header already says "Restaurant AI Assistant · Powered by OpenAI". */
+
+/* -- Follow-up suggestion chips, appended under every completed reply ---- */
+.ca-chatbot-followups{ margin-top: 6px; display: flex; flex-direction: column; gap: 6px; }
+
+.ca-chatbot-followups-label{
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--ca-ink-faint);
+}
+
+.ca-chatbot-followups-row{ display: flex; flex-wrap: wrap; gap: 6px; }
+
+.ca-chatbot-followup-chip{
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--ca-surface);
+    border: 1px solid var(--ca-border);
+    color: var(--ca-ink-soft);
+    font-size: 0.74rem;
+    transition: background 0.15s var(--ca-ease), border-color 0.15s var(--ca-ease), color 0.15s var(--ca-ease);
+}
+
+.ca-chatbot-followup-chip:hover{ background: var(--ca-gold-soft); border-color: var(--ca-gold-soft-2); color: var(--ca-gold); }
+
+/* -- Scroll-to-bottom button (see .ca-chatbot-messages-wrap above) -------- */
+.ca-chatbot-scroll-btn{
+    position: absolute;
+    right: 16px;
+    bottom: 14px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ca-surface);
+    border: 1px solid var(--ca-border);
+    color: var(--ca-gold);
+    box-shadow: 0 8px 20px -10px rgba(30,24,16,0.35);
+    transition: opacity 0.15s var(--ca-ease), transform 0.15s var(--ca-ease);
+    z-index: 2;
+}
+
+.ca-chatbot-scroll-btn:hover{ transform: translateY(-2px); }
+.ca-chatbot-scroll-btn[hidden]{ display: none; }
+
+/* -- Input bar --------------------------------------------------------------- */
+.ca-chatbot-input-row{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--ca-border);
+    background: var(--ca-surface);
+    flex-shrink: 0;
+}
+
+.ca-chatbot-input-wrap{
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+.ca-chatbot-mic{
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    color: var(--ca-ink-faint);
+    transition: color 0.15s var(--ca-ease), background 0.15s var(--ca-ease);
+}
+
+.ca-chatbot-mic:hover{ color: var(--ca-gold); background: var(--ca-gold-soft); }
+.ca-chatbot-mic:focus-visible{ outline: 2px solid var(--ca-gold); outline-offset: 1px; }
+
+.ca-chatbot-mic.is-listening{
+    color: #fff;
+    background: var(--ca-danger);
+    animation: caChatbotPulse 1.2s infinite;
+}
+
+@keyframes caChatbotPulse{
+    0%, 100%{ box-shadow: 0 0 0 0 rgba(207,90,68,0.45); }
+    50%{ box-shadow: 0 0 0 6px rgba(207,90,68,0); }
+}
+
+.ca-chatbot-input{
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 14px 10px 40px;
+    border-radius: 999px;
+    border: 1px solid var(--ca-border);
+    background: var(--ca-canvas);
+    color: var(--ca-ink);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.88rem;
+    transition: border-color 0.15s var(--ca-ease), box-shadow 0.15s var(--ca-ease), background 0.15s var(--ca-ease);
+}
+
+.ca-chatbot-input:focus{
+    outline: none;
+    border-color: var(--ca-gold-soft-2);
+    background: var(--ca-surface);
+    box-shadow: 0 0 0 4px var(--ca-gold-soft);
+}
+.ca-chatbot-input:focus-visible{ outline: none; }
+
+.ca-chatbot-send{
+    /* No border, and no UA chrome. Nothing here ever set a border, so what
+       showed as a ring around the circle was the browser's own default button
+       border -- there is no global button reset in this stylesheet to strip it.
+       appearance:none also stops iOS Safari re-adding its own styling. */
+    border: none;
+    padding: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: var(--ca-gold);
+    color: #fff;
+    font-size: 1.05rem;
+    flex-shrink: 0;
+    transition: filter 0.15s var(--ca-ease), transform 0.15s var(--ca-ease), background 0.15s var(--ca-ease), opacity 0.15s var(--ca-ease);
+}
+
+.ca-chatbot-send:hover:not(:disabled){ filter: brightness(1.06); transform: translateY(-1px); }
+.ca-chatbot-send:focus-visible{ outline: 2px solid var(--ca-gold); outline-offset: 2px; }
+
+.ca-chatbot-send:disabled{
+    background: var(--ca-ink-faint);
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* -- Mobile: true bottom sheet ------------------------------------------------- */
+@media (max-width: 767px){
+    .ca-chatbot{
+        right: 16px;
+        bottom: calc(var(--ca-bottom-h) + 16px);
+    }
+
+    .ca-chatbot-toggle{ width: 50px; height: 50px; font-size: 1.3rem; }
+
+    .ca-chatbot-scrim{
+        display: block;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s var(--ca-ease), visibility 0.2s var(--ca-ease);
+    }
+
+    .ca-chatbot-scrim.is-open{ opacity: 1; visibility: visible; }
+
+    .ca-chatbot-panel{
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: auto;
+        width: 100%;
+        height: 85dvh;
+        max-height: none;
+        border-radius: 20px 20px 0 0;
+        /* No border at all here (unlike the desktop panel's full 1px
+           outline) -- the sheet sits flush against the screen edges, and a
+           border-top alone showed as a thin, out-of-place seam between the
+           page behind it and the rounded gold handle bar right below it. */
+        border: none;
+        /* Slide up from off-screen instead of the desktop fade+nudge --
+           translateY(12px) barely reads as "sliding" on a full-height
+           sheet, so this overrides both the resting and open transforms. */
+        transform: translateY(100%);
+    }
+
+    .ca-chatbot-panel.is-open{ transform: translateY(0); }
+
+    /* The handle strip is a SIBLING above the header, so it used to paint in
+       the panel's own surface colour -- that was the white band sitting between
+       the sheet's rounded top edge and the gold banner, making the banner look
+       detached from the panel. Painting the strip gold and giving it the top
+       corners makes the header read as one continuous bar from the very edge
+       of the sheet. The grab pill is drawn inside it via ::before. */
+    .ca-chatbot-sheet-handle{
+        display: block;
+        background: var(--ca-gold);
+        border-radius: 20px 20px 0 0;
+        padding: 8px 0 0;
+        flex-shrink: 0;
+    }
+
+    .ca-chatbot-sheet-handle::before{
+        content: '';
+        display: block;
+        width: 36px;
+        height: 4px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.5);
+        margin: 0 auto;
+    }
+
+    /* Two per row here too -- one full-width chip per line pushed the
+       conversation off the screen. That comes from the base rule's
+       grid-template-columns, so nothing to restate here; the 32px indent
+       that lines the chips up with the bot's bubble stays as well (it used
+       to be zeroed here purely to reclaim width, which left the chips
+       starting 32px to the LEFT of every message above them). */
+
+    /* The sheet sits flush against the bottom edge here (unlike the
+       floating desktop panel), so the input row needs the same
+       safe-area-inset-bottom clearance the bottom tab bar already uses --
+       otherwise the send button ends up crowded against (or under) a
+       notched/gesture-nav phone's home indicator. */
+    .ca-chatbot-input-row{
+        padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    }
+}

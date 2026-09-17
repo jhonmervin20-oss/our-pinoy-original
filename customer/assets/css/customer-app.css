@@ -1,0 +1,962 @@
+/* ==========================================================================
+   customer-app.css
+   Shell for the logged-in customer app (nav + bottom tab bar + page frame).
+
+   Deliberately its own light/warm theme — not the dark premium landing
+   page (index.php) and not the flat admin design system (owner-panel.css).
+   Same brand accent as the rest of the app for continuity.
+   ========================================================================== */
+
+:root{
+    --ca-gold:         #9c7734;
+    --ca-gold-light:   #c9a24e;
+    --ca-gold-soft:    rgba(156,119,52,0.10);
+    --ca-gold-soft-2:  rgba(156,119,52,0.22);
+
+    --ca-canvas:       #f6f3ec;
+    --ca-surface:      #ffffff;
+    --ca-ink:          #241f1a;
+    --ca-ink-soft:     #6f6355;
+    --ca-ink-faint:    #a39a8c;
+    --ca-border:       #ece6d8;
+    --ca-border-soft:  #f1ece0;
+
+    --ca-danger:       #cf5a44;
+    --ca-danger-soft:  rgba(207,90,68,0.10);
+
+    --ca-topbar-h:     76px;
+    --ca-bottom-h:     72px;
+    --ca-radius:       14px;
+    --ca-radius-sm:    10px;
+    --ca-shadow:       0 16px 40px -20px rgba(30,24,16,0.22);
+    --ca-ease:         cubic-bezier(.4,0,.2,1);
+}
+
+*{ box-sizing: border-box; }
+
+/* Native checkboxes/radios in the restaurant gold rather than the browser
+   default blue -- same reason as the panel stylesheet. */
+input[type="checkbox"],
+input[type="radio"]{
+    accent-color: var(--ca-gold);
+}
+
+
+body.ca-body{
+    margin: 0;
+    background: var(--ca-canvas);
+    color: var(--ca-ink);
+    font-family: 'Poppins', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding-top: var(--ca-topbar-h);
+}
+
+a{ text-decoration: none; color: inherit; }
+
+/* ---------------------------------------------------------------------- */
+/* Top bar                                                                 */
+/* ---------------------------------------------------------------------- */
+
+.ca-topbar{
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--ca-topbar-h);
+    background: var(--ca-surface);
+    border-bottom: 1px solid var(--ca-border);
+    z-index: 200;
+}
+
+.ca-topbar-inner{
+    position: relative;
+    max-width: 1280px;
+    margin: 0 auto;
+    height: 100%;
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.ca-topbar-left{
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* Nav + Book button as one group, pinned to the true center of the bar via
+   absolute positioning against .ca-topbar-inner -- not flex:1 equal-width
+   zones (tried first, but the logo is far narrower than the bell+avatar
+   cluster, so forcing both to the same width let the CTA button's own
+   content overflow its zone and visually collide with the nav). Absolute
+   centering is exact regardless of how wide either side naturally is. */
+.ca-topbar-center{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.ca-logo{
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.ca-logo img{
+    height: 46px;
+    width: auto;
+    object-fit: contain;
+}
+
+/* Mobile-only (see @media max-width:767px below, which is what actually
+   shows it) -- hidden here so it doesn't leak onto desktop, where the logo
+   always shows regardless of page. */
+.ca-mobile-title{
+    display: none;
+}
+
+/* -- Pill nav (desktop only, text-only) ----------------------------------- */
+
+/* Sits at the true center of the bar via the equal-width .ca-topbar-left/
+   .ca-topbar-right flex:1 zones on either side (see those rules above) --
+   not margin:auto, which only centers within a single flex row's own free
+   space and previously produced uneven rhythm since the CTA button wasn't
+   grouped with the right-side actions cluster yet. */
+.ca-pill-nav{
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 4px;
+    background: var(--ca-canvas);
+    border-radius: var(--ca-radius-sm);
+    padding: 5px;
+}
+
+/* Padding tightened from the icon+label version -- text-only links read as
+   loose/unanchored at the old 18px with nothing to visually anchor them. */
+.ca-pill-link{
+    display: flex;
+    align-items: center;
+    padding: 9px 16px;
+    border-radius: var(--ca-radius-sm);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--ca-ink-soft);
+    white-space: nowrap;
+    transition: background 0.15s var(--ca-ease), color 0.15s var(--ca-ease), box-shadow 0.15s var(--ca-ease);
+}
+
+.ca-pill-link:hover{ color: var(--ca-ink); }
+
+/* Brown text (not just the white pill background) so the active item reads
+   at a glance instead of relying on a subtle white-on-cream shift. */
+.ca-pill-link.is-active{
+    background: var(--ca-surface);
+    color: var(--ca-gold);
+    font-weight: 600;
+    box-shadow: 0 4px 14px -6px rgba(30,24,16,0.25);
+}
+
+/* Filter chip (All/Unread/Read on notifications.php) -- var(--ca-radius-sm),
+   not a fully-round pill, matching owner-panel.css's .owner-chip after that
+   was fixed to use the same radius as every other button/input. */
+.ca-chip{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    border-radius: var(--ca-radius-sm);
+    background: var(--ca-canvas);
+    color: var(--ca-ink-soft);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.15s var(--ca-ease), color 0.15s var(--ca-ease);
+}
+
+.ca-chip:hover{ background: var(--ca-gold-soft); color: var(--ca-ink); }
+.ca-chip.is-active{ background: var(--ca-gold); color: #fff; }
+
+/* Prev/Next pager (notifications.php) -- same shape as owner-panel.css's
+   .owner-pagination. */
+.ca-pagination{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 20px;
+}
+
+.ca-pagination-info{
+    font-size: 0.84rem;
+    color: var(--ca-ink-soft);
+}
+
+.ca-pagination .ca-btn:disabled{
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* -- Book a Reservation CTA ------------------------------------------------ */
+
+.ca-btn-reserve{
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 22px;
+    border-radius: var(--ca-radius-sm);
+    background: var(--ca-gold);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: filter 0.15s var(--ca-ease), transform 0.15s var(--ca-ease);
+}
+
+.ca-btn-reserve:hover{ filter: brightness(0.93); }
+
+.ca-btn-reserve-short{ display: none; }
+
+/* -- Right: notifications + profile --------------------------------------- */
+
+.ca-topbar-actions{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.ca-icon-btn{
+    position: relative;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid var(--ca-border);
+    background: var(--ca-surface);
+    color: var(--ca-ink-soft);
+    font-size: 1.05rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s var(--ca-ease), border-color 0.15s var(--ca-ease), color 0.15s var(--ca-ease);
+}
+
+.ca-icon-btn:hover{
+    background: var(--ca-canvas);
+    border-color: var(--ca-gold-soft-2);
+    color: var(--ca-gold);
+}
+
+/* Sized to match the owner/manager/admin panel's .owner-badge exactly
+   (19px/0.68rem), not the customer app's own smaller icon-button scale --
+   same reasoning as the notif panel below: this is the same component,
+   not a customer-specific variant. */
+.ca-badge{
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--ca-danger);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border: 2px solid var(--ca-surface);
+    font-variant-numeric: tabular-nums;
+}
+.ca-badge[hidden]{ display: none; }
+
+.ca-dropdown{ position: relative; }
+
+.ca-profile-btn{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 12px 4px 4px;
+    border: 1px solid var(--ca-border);
+    background: var(--ca-surface);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s var(--ca-ease), border-color 0.15s var(--ca-ease);
+}
+
+.ca-profile-btn:hover{
+    background: var(--ca-canvas);
+    border-color: var(--ca-gold-soft-2);
+}
+
+.ca-avatar{
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--ca-gold);
+    color: #fff;
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.ca-profile-text{
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+    text-align: left;
+    min-width: 0;
+}
+
+.ca-profile-name{
+    font-family: 'Lexend', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ca-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+}
+
+.ca-profile-caret{
+    font-size: 0.6rem;
+    color: var(--ca-ink-faint);
+    transition: transform 0.15s var(--ca-ease);
+    flex-shrink: 0;
+}
+
+.ca-profile-btn.is-open .ca-profile-caret{ transform: rotate(180deg); }
+
+.ca-dropdown-panel{
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 220px;
+    background: var(--ca-surface);
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius);
+    box-shadow: var(--ca-shadow);
+    padding: 8px;
+    z-index: 250;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.15s var(--ca-ease), transform 0.15s var(--ca-ease), visibility 0.15s var(--ca-ease);
+}
+
+.ca-dropdown-panel.is-open{
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.ca-dropdown-header{
+    display: flex;
+    flex-direction: column;
+    padding: 8px 10px 10px;
+    line-height: 1.35;
+}
+
+.ca-dropdown-header strong{
+    font-family: 'Lexend', sans-serif;
+    font-size: 0.88rem;
+    color: var(--ca-ink);
+}
+
+.ca-dropdown-divider{
+    height: 1px;
+    background: var(--ca-border);
+    margin: 6px 4px;
+}
+
+.ca-dropdown-panel a{
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 9px 10px;
+    border-radius: var(--ca-radius-sm);
+    font-size: 0.85rem;
+    color: var(--ca-ink);
+    transition: background 0.14s var(--ca-ease);
+}
+
+.ca-dropdown-panel a i{
+    width: 16px;
+    text-align: center;
+    color: var(--ca-ink-faint);
+}
+
+.ca-dropdown-panel a:hover{ background: var(--ca-canvas); }
+
+.ca-dropdown-panel a.ca-logout-link{ color: var(--ca-danger); }
+.ca-dropdown-panel a.ca-logout-link i{ color: var(--ca-danger); }
+.ca-dropdown-panel a.ca-logout-link:hover{ background: var(--ca-danger-soft); }
+
+/* Width, radius, and padding match .owner-notif-panel exactly (320px /
+   12px, not this app's own 14px --ca-radius default) -- overridden here
+   rather than by changing --ca-radius itself, since that token is shared
+   by every other card/button/modal in the customer app and isn't part of
+   what should change. The scroll cap lives on .ca-notif-list below (also
+   matching the owner panel), not on this outer element. */
+.ca-notif-panel{
+    width: 320px;
+    padding: 6px 0 0;
+    border-radius: 12px;
+}
+
+.ca-notif-header{
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px 10px;
+    /* Match owner-panel.css's .owner-dropdown-header exactly -- the type
+       styling lives on the container itself (not just the nested span),
+       so the header text renders identically to the Owner panel's. */
+    font-family: 'Lexend', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ca-ink);
+}
+
+/* Match owner-panel.css's .owner-dropdown-header a exactly -- a plain
+   inline Poppins mark-all link in gold, no underline until hover. Scoped
+   under .ca-dropdown-panel so it beats the generic .ca-dropdown-panel a
+   rule (which would otherwise turn it into a padded flex icon-row link). */
+.ca-dropdown-panel .ca-notif-mark-all{
+    display: inline;
+    padding: 0;
+    border-radius: 0;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--ca-gold);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.ca-dropdown-panel .ca-notif-mark-all:hover{
+    background: none;
+    text-decoration: underline;
+}
+
+/* Same shape as owner-panel.css's .owner-dropdown-footer -- the bell
+   dropdown's "View all notifications" link, sat below the scrollable list.
+   Scoped under .ca-dropdown-panel so it beats the generic
+   .ca-dropdown-panel a rule (which would otherwise turn it into a padded
+   flex icon-row link instead of the owner-style centered block footer). */
+.ca-dropdown-panel .ca-dropdown-footer{
+    display: block;
+    text-align: center;
+    padding: 11px;
+    border-radius: 0;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--ca-gold);
+    text-decoration: none;
+    border-top: 1px solid var(--ca-border-soft);
+}
+
+.ca-dropdown-panel .ca-dropdown-footer:hover{
+    background: var(--ca-canvas);
+}
+
+/* Identical to the owner/manager/admin panel (owner-panel.css's
+   .owner-notif-list/.owner-notif-item/.owner-notif-icon/.owner-notif-body)
+   down to the exact border-soft color and unread-tint opacity, plain
+   uniform-weight message text (no bold lead-in), and icon circle
+   size/color -- this isn't "same design language," it's the same rules,
+   so the two dropdowns render pixel-identical. notification.title and
+   notification.message are just concatenated into one plain string here,
+   same as owner's activity_logs description/action fallback. */
+.ca-notif-list{
+    max-height: 300px;
+    overflow-y: auto;
+    border-top: 1px solid var(--ca-border-soft);
+}
+
+.ca-notif-empty{
+    padding: 22px 16px;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--ca-ink-faint);
+}
+
+.ca-notif-panel .ca-notif-item{
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--ca-border-soft);
+    border-radius: 0;
+    transition: background 0.14s var(--ca-ease);
+}
+
+.ca-notif-panel .ca-notif-item:last-child{ border-bottom: none; }
+
+.ca-notif-item-icon{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--ca-canvas);
+    color: var(--ca-ink-faint);
+    font-size: 0.95rem;
+    flex-shrink: 0;
+    transition: background 0.14s var(--ca-ease), color 0.14s var(--ca-ease);
+}
+
+.ca-notif-item-content{
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.ca-notif-item-message{
+    margin: 0 0 4px;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--ca-ink);
+}
+
+.ca-notif-item-time{
+    font-size: 0.7rem;
+    color: var(--ca-ink-faint);
+}
+
+.ca-notif-item.is-unread{ background: rgba(156,119,52,0.08); }
+.ca-notif-item.is-unread .ca-notif-item-icon{ background: var(--ca-gold); color: #fff; }
+
+.ca-notif-panel .ca-notif-item:hover{ background: var(--ca-canvas); }
+.ca-notif-item.is-unread:hover{ background: rgba(156,119,52,0.20); }
+
+/* notifications.php's full page. Unlike the bell dropdown -- a scroll box of
+   tight rows inside one panel -- the page is a stack of standalone cards laid
+   straight on the canvas, one card per notification, with the All/Unread/Read
+   filter as a tab strip above them. The dropdown's .ca-notif-item rows are
+   untouched by any of this; only the icon bubble is shared.
+
+   The base rule is written .ca-card.ca-notif-card so its padding beats plain
+   .ca-card no matter which of the two is declared first in the file. */
+.ca-notif-tabs{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border-bottom: 1px solid var(--ca-border);
+    margin-bottom: 14px;
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.ca-notif-tab{
+    padding: 10px 16px;
+    margin-bottom: -1px;
+    border-bottom: 2px solid transparent;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ca-ink-soft);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.14s var(--ca-ease), border-color 0.14s var(--ca-ease);
+}
+.ca-notif-tab:hover{ color: var(--ca-ink); }
+.ca-notif-tab.is-active{ color: var(--ca-gold); border-bottom-color: var(--ca-gold); }
+
+.ca-notif-cards{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ca-card.ca-notif-card{
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px;
+    text-decoration: none;
+    transition: border-color 0.14s var(--ca-ease), box-shadow 0.14s var(--ca-ease), background 0.14s var(--ca-ease);
+}
+.ca-card.ca-notif-card:hover{
+    border-color: var(--ca-gold);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+.ca-card.ca-notif-card.is-unread{ background: rgba(156,119,52,0.08); }
+.ca-notif-card.is-unread .ca-notif-item-icon{ background: var(--ca-gold); color: #fff; }
+
+.ca-notif-card-title{
+    margin-bottom: 2px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--ca-ink);
+}
+
+.ca-notif-card-msg{
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--ca-ink-soft);
+    overflow-wrap: anywhere;
+}
+
+.ca-notif-card .ca-notif-item-time{ margin-top: 4px; }
+
+@media (max-width: 560px){
+    .ca-card.ca-notif-card{ gap: 11px; padding: 14px; }
+}
+
+/* Below 767px the notif panel switches from "absolute, anchored to the
+   bell icon" to "fixed, anchored to the viewport" -- anchoring to the bell
+   put the panel's left edge off-screen on real phones, since the bell sits
+   well right-of-center (profile avatar further right of it eats into the
+   space a right:0 panel would have to expand into). Viewport-fixed insets
+   sidestep that arithmetic entirely instead of chasing icon positions. */
+@media (max-width: 767px){
+    .ca-notif-panel{
+        position: fixed;
+        /* max-height (shrink-to-content, capped), NOT top+bottom pinning --
+           pinning both edges forces the panel to always be exactly that
+           tall even with only 1-2 notifications, leaving a big dead white
+           gap below the last item. max-height built from 100dvh (the real
+           visible mobile viewport, unlike 100vh which is the
+           largest-possible one with the address bar collapsed) with a
+           generous margin gets both right: short lists stay short, long
+           lists still get capped and scroll instead of overflowing. */
+        top: calc(var(--ca-topbar-h) - 2px);
+        left: 12px;
+        right: 12px;
+        width: auto;
+        max-width: none;
+        max-height: calc(100dvh - var(--ca-topbar-h) - var(--ca-bottom-h) - 32px);
+    }
+}
+
+.ca-menu-toggle{
+    display: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid var(--ca-border);
+    background: var(--ca-surface);
+    color: var(--ca-ink-soft);
+    font-size: 1.1rem;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Bottom tab bar (mobile only)                                            */
+/* ---------------------------------------------------------------------- */
+
+.ca-bottom-nav{
+    display: none;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Page content frame                                                      */
+/* ---------------------------------------------------------------------- */
+
+.ca-content{
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 28px;
+}
+
+.ca-card{
+    background: var(--ca-surface);
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius);
+    padding: 24px;
+}
+
+.ca-welcome-title{
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--ca-ink);
+    margin: 0 0 6px;
+}
+
+.ca-welcome-sub{
+    font-size: 0.92rem;
+    color: var(--ca-ink-soft);
+    margin: 0;
+}
+
+/* -- Page head: title block left, one action right -------------------------
+   Lives here rather than in reservations.css: notifications.php, profile.php
+   and menu.php all use .ca-res-page-head but none of them load that
+   stylesheet, so on those three the head had no layout at all and the action
+   dropped flush under the subtitle. ---------------------------------------- */
+.ca-res-page-head{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 20px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+/* Once the action wraps onto its own line it is the only item there, so
+   space-between has nothing to push it against and it falls back to the
+   left. margin-left keeps it right in both the one-line and wrapped cases. */
+.ca-res-page-head > :last-child:not(:first-child){
+    margin-left: auto;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Responsive — tablets (768-1199px) keep the top nav but condensed;       */
+/* only phones (<768px) collapse to the bottom tab bar. A tablet has       */
+/* plenty of width for a top nav, just not the ~1100px+ the full desktop  */
+/* spacing/labels need — confirmed against a real iPad screenshot showing */
+/* the old 900px cutoff wasting most of the topbar as empty space there.   */
+/* ---------------------------------------------------------------------- */
+
+@media (min-width: 768px) and (max-width: 1199px){
+    .ca-topbar-inner{ padding: 0 18px; gap: 10px; }
+
+    .ca-topbar-center{ gap: 12px; }
+
+    .ca-pill-nav{ gap: 2px; padding: 4px; }
+    .ca-pill-link{ padding: 8px 12px; font-size: 0.78rem; }
+
+    .ca-btn-reserve{ padding: 9px 14px; gap: 6px; }
+    .ca-btn-reserve-full{ display: none; }
+    .ca-btn-reserve-short{ display: inline; }
+
+    .ca-profile-text{ display: none; }
+    .ca-profile-caret{ display: none; }
+    .ca-profile-btn{ padding: 3px; }
+}
+
+@media (max-width: 767px){
+    body.ca-body{
+        padding-top: calc(var(--ca-topbar-h) - 12px);
+        padding-bottom: calc(var(--ca-bottom-h) + 16px);
+    }
+
+    .ca-topbar{ height: calc(var(--ca-topbar-h) - 12px); }
+
+    .ca-topbar-inner{ padding: 0 16px; gap: 12px; }
+
+    .ca-logo img{ height: 38px; }
+
+    /* Contextual page title -- replaces the logo (not shown alongside it)
+       once away from Home, so the header still says where you are. Hidden
+       by default; .has-page-title (set server-side in navbar.php, since it
+       already knows whether a title applies) swaps which of the two shows. */
+    .ca-mobile-title{
+        display: none;
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--ca-ink);
+        margin: 0;
+    }
+
+    .ca-topbar-inner.has-page-title .ca-logo{ display: none; }
+    .ca-topbar-inner.has-page-title .ca-mobile-title{ display: block; }
+
+    .ca-pill-nav,
+    .ca-btn-reserve{ display: none; }
+
+    .ca-profile-text{ display: none; }
+    .ca-profile-caret{ display: none; }
+    .ca-profile-btn{ padding: 3px; }
+
+    .ca-content{ padding: 18px; }
+
+    .ca-bottom-nav{
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        height: var(--ca-bottom-h);
+        background: var(--ca-surface);
+        border-top-left-radius: 22px;
+        border-top-right-radius: 22px;
+        box-shadow: 0 -10px 30px -14px rgba(30,24,16,0.28);
+        padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+        z-index: 300;
+    }
+
+    .ca-bottom-link{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+        color: var(--ca-ink-faint);
+        font-size: 0.66rem;
+        font-weight: 500;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .ca-bottom-link i{ font-size: 1.25rem; }
+
+    .ca-bottom-link.is-active{ color: var(--ca-gold); font-weight: 600; }
+
+    /* Plus icon (not calendar-plus) so it doesn't read as a near-duplicate
+       of the calendar-check "Reservations" tab sitting right next to it. */
+    .ca-bottom-fab{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 54px;
+        height: 54px;
+        margin-top: -34px;
+        border-radius: 50%;
+        background: var(--ca-gold);
+        color: #fff;
+        font-size: 1.4rem;
+        box-shadow: 0 10px 24px -8px rgba(156,119,52,0.55);
+        flex-shrink: 0;
+        transition: transform 0.15s var(--ca-ease), filter 0.15s var(--ca-ease);
+    }
+
+    .ca-bottom-fab:hover{ filter: brightness(0.95); }
+}
+
+@media (max-width: 380px){
+    .ca-topbar-inner{ gap: 8px; }
+    .ca-icon-btn{ width: 38px; height: 38px; }
+    .ca-avatar{ width: 34px; height: 34px; font-size: 0.8rem; }
+}
+
+
+/* ---------------------------------------------------------------------- */
+/* Scrolling panes                                                         */
+/* ---------------------------------------------------------------------- */
+/* The notification dropdown, the chatbot, the reservation cart and the tab
+   strips were all falling back to the operating system's scrollbar -- a wide
+   grey track with stepper arrows, which looks nothing like the rest of the
+   app. This matches the treatment .ca-feedback-scroll already had, and the
+   sidebar navs in the staff panels: a thin rounded thumb that appears when the
+   pane is hovered or focused and stays out of the way otherwise.
+
+   width covers the vertical scrollers, height the horizontal ones -- the tab
+   strips scroll sideways.
+
+   Lives in customer-app.css because every customer page loads it; the panes
+   themselves are defined across several files. */
+.ca-notif-list,
+.ca-chatbot-messages,
+.ca-chatbot-cards,
+.ca-order-panel,
+.ca-cart-sheet-body,
+.ca-item-sheet,
+.ca-res-tabs{
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.18s var(--ca-ease);
+}
+
+.ca-notif-list:hover, .ca-notif-list:focus-within,
+.ca-chatbot-messages:hover, .ca-chatbot-messages:focus-within,
+.ca-chatbot-cards:hover, .ca-chatbot-cards:focus-within,
+.ca-order-panel:hover, .ca-order-panel:focus-within,
+.ca-cart-sheet-body:hover, .ca-cart-sheet-body:focus-within,
+.ca-item-sheet:hover, .ca-item-sheet:focus-within,
+.ca-res-tabs:hover, .ca-res-tabs:focus-within{
+    scrollbar-color: var(--ca-border) transparent;
+}
+
+.ca-notif-list::-webkit-scrollbar,
+.ca-chatbot-messages::-webkit-scrollbar,
+.ca-chatbot-cards::-webkit-scrollbar,
+.ca-order-panel::-webkit-scrollbar,
+.ca-cart-sheet-body::-webkit-scrollbar,
+.ca-item-sheet::-webkit-scrollbar,
+.ca-res-tabs::-webkit-scrollbar{ width: 6px; height: 6px; }
+
+.ca-notif-list::-webkit-scrollbar-track,
+.ca-chatbot-messages::-webkit-scrollbar-track,
+.ca-chatbot-cards::-webkit-scrollbar-track,
+.ca-order-panel::-webkit-scrollbar-track,
+.ca-cart-sheet-body::-webkit-scrollbar-track,
+.ca-item-sheet::-webkit-scrollbar-track,
+.ca-res-tabs::-webkit-scrollbar-track{ background: transparent; }
+
+.ca-notif-list::-webkit-scrollbar-thumb,
+.ca-chatbot-messages::-webkit-scrollbar-thumb,
+.ca-chatbot-cards::-webkit-scrollbar-thumb,
+.ca-order-panel::-webkit-scrollbar-thumb,
+.ca-cart-sheet-body::-webkit-scrollbar-thumb,
+.ca-item-sheet::-webkit-scrollbar-thumb,
+.ca-res-tabs::-webkit-scrollbar-thumb{
+    background: transparent;
+    border-radius: 3px;
+    transition: background 0.18s var(--ca-ease);
+}
+
+.ca-notif-list:hover::-webkit-scrollbar-thumb, .ca-notif-list:focus-within::-webkit-scrollbar-thumb,
+.ca-chatbot-messages:hover::-webkit-scrollbar-thumb, .ca-chatbot-messages:focus-within::-webkit-scrollbar-thumb,
+.ca-chatbot-cards:hover::-webkit-scrollbar-thumb, .ca-chatbot-cards:focus-within::-webkit-scrollbar-thumb,
+.ca-order-panel:hover::-webkit-scrollbar-thumb, .ca-order-panel:focus-within::-webkit-scrollbar-thumb,
+.ca-cart-sheet-body:hover::-webkit-scrollbar-thumb, .ca-cart-sheet-body:focus-within::-webkit-scrollbar-thumb,
+.ca-item-sheet:hover::-webkit-scrollbar-thumb, .ca-item-sheet:focus-within::-webkit-scrollbar-thumb,
+.ca-res-tabs:hover::-webkit-scrollbar-thumb, .ca-res-tabs:focus-within::-webkit-scrollbar-thumb{
+    background: var(--ca-border);
+}
+
+
+/* ---------------------------------------------------------------------- */
+/* The page's own scrollbar                                                */
+/* ---------------------------------------------------------------------- */
+/* Customer pages scroll in the browser window rather than inside a pane,
+   rather than inside a pane -- and that window scrollbar is the one nothing had
+   touched. Every styled bar so far was inside a panel, which is why the thin
+   ones and the operating system's wide grey one appeared side by side.
+
+   Deliberately always visible, unlike the panel scrollbars. Those hide until
+   hovered because they sit inside a component; this one is the page's own
+   position indicator, and hover would mean nothing for it -- the pointer is
+   inside the window whenever anyone is reading. */
+html{
+    scrollbar-width: thin;
+    scrollbar-color: var(--ca-border) transparent;
+}
+
+html::-webkit-scrollbar{ width: 10px; height: 10px; }
+html::-webkit-scrollbar-track{ background: transparent; }
+html::-webkit-scrollbar-thumb{
+    background: var(--ca-border);
+    border-radius: 5px;
+    border: 2px solid var(--ca-canvas);
+    background-clip: padding-box;
+    transition: background 0.18s var(--ca-ease);
+}
+html::-webkit-scrollbar-thumb:hover{
+    background: var(--ca-gold-soft-2);
+    background-clip: padding-box;
+}
+
+
+/* A reservation that was actually lost -- red, so it is not mistaken for one
+   of the routine updates in the same list. Set after .is-unread above so it
+   wins on a notification that is both unread and negative, which is exactly
+   when the customer most needs to notice it. */
+.ca-notif-item .ca-notif-item-icon.is-negative,
+.ca-notif-item.is-unread .ca-notif-item-icon.is-negative{
+    background: var(--ca-danger-soft);
+    color: var(--ca-danger);
+}

@@ -1,0 +1,291 @@
+/* ==========================================================================
+   feedback.css
+   Customer feedback submission + history. Built on customer-app.css /
+   make-reservation.css tokens and form controls (.ca-select/.ca-textarea/
+   .ca-form-group already exist there — not redefined here).
+   ========================================================================== */
+
+.ca-card-title{
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ca-ink);
+    margin: 0 0 16px;
+}
+.ca-form-optional{
+    font-weight: 400;
+    color: var(--ca-ink-faint);
+}
+/* Wide enough for the two feedback panels to sit side by side, but still
+   capped -- the app's full 1280px left the form's stars and textarea
+   marooned in empty space. */
+.ca-feedback-page{ max-width: 1140px; }
+
+/* -- Hero ------------------------------------------------------------------- */
+/* Flat surface, no gradient: the icon tile is the only saturated element,
+   which is what makes the title read as the page's anchor. */
+.ca-feedback-hero{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 24px;
+    margin-bottom: 20px;
+    background: var(--ca-surface);
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius);
+}
+.ca-feedback-hero-icon{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    border-radius: 14px;
+    background: var(--ca-gold);
+    color: #fff;
+    font-size: 1.6rem;
+}
+.ca-feedback-hero-text h1{
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--ca-ink);
+    margin: 0 0 3px;
+}
+.ca-feedback-hero-text p{
+    font-size: 0.88rem;
+    color: var(--ca-ink-soft);
+    margin: 0;
+}
+
+.ca-feedback-form-card{ margin-bottom: 20px; }
+
+/* Section titles carry a small leading icon, so they need to be a flex row
+   rather than the plain block .ca-card-title is. */
+.ca-feedback-card-title{
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+.ca-feedback-card-title i{ color: var(--ca-gold); font-size: 1.15rem; }
+.ca-feedback-form-sub{
+    font-size: 0.85rem;
+    color: var(--ca-ink-soft);
+    margin: -10px 0 18px;
+}
+
+/* The interactive star-rating widget lived here. Star ratings were removed
+   2026-09-17 -- feedback is a written comment only. */
+
+/* -- Comment box + counter ---------------------------------------------------- */
+.ca-feedback-textarea{ min-height: 104px; resize: vertical; }
+.ca-feedback-counter{
+    margin-top: 6px;
+    text-align: right;
+    font-size: 0.72rem;
+    color: var(--ca-ink-faint);
+}
+.ca-feedback-counter.is-near-limit{ color: var(--ca-warning); font-weight: 600; }
+
+/* A disabled submit mirrors the server's existing "rating required" rule --
+   it doesn't introduce a new one. */
+.ca-btn-primary:disabled{
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: none;
+}
+
+/* The read-only star strip on history cards lived here, removed with the
+   rating itself. */
+
+/* -- The two side-by-side panels ------------------------------------------------- */
+/* align-items:stretch (grid default) so both panels share the taller one's
+   height -- two lists of different lengths would otherwise leave one card
+   floating short beside the other. */
+.ca-feedback-columns{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+.ca-feedback-panel{
+    display: flex;
+    flex-direction: column;
+    min-width: 0;      /* lets long words wrap instead of widening the column */
+}
+.ca-feedback-panel-head{
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 14px;
+}
+.ca-feedback-panel-head h2{
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ca-ink);
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+}
+.ca-feedback-panel-head h2 i{ color: var(--ca-gold); font-size: 1.15rem; flex-shrink: 0; }
+
+/* The list scrolls inside its own panel rather than growing the page, so
+   both headings stay exactly where they are however much feedback there is.
+   This replaces the "View All" hop to a separate screen. */
+.ca-feedback-scroll{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 440px;
+    overflow-y: auto;
+    /* Room for the scrollbar so it never sits on top of a card's edge. */
+    padding-right: 8px;
+    margin-right: -4px;
+}
+.ca-feedback-scroll:focus-visible{
+    outline: 2px solid var(--ca-gold-light);
+    outline-offset: 4px;
+    border-radius: var(--ca-radius);
+}
+.ca-feedback-scroll::-webkit-scrollbar{ width: 6px; }
+.ca-feedback-scroll::-webkit-scrollbar-track{ background: transparent; }
+.ca-feedback-scroll::-webkit-scrollbar-thumb{
+    background: var(--ca-border);
+    border-radius: 3px;
+}
+.ca-feedback-scroll::-webkit-scrollbar-thumb:hover{ background: var(--ca-gold-soft-2); }
+/* Firefox has no ::-webkit- equivalents; these two are its whole API. */
+.ca-feedback-scroll{ scrollbar-width: thin; scrollbar-color: var(--ca-border) transparent; }
+/* Count of what's already on screen -- no extra query, just a label for the
+   list directly beneath it. */
+.ca-feedback-count{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 6px;
+    background: var(--ca-gold-soft);
+    color: var(--ca-gold);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.74rem;
+    font-weight: 600;
+}
+/* These sit INSIDE a white .ca-card panel, so a white card on a white panel
+   left nothing but a hairline border to separate one review from the next --
+   the list read as one flat sheet. Filling them with the site's warm canvas
+   tone makes each review a distinct tile against the panel behind it, without
+   an accent bar or a gradient. */
+.ca-feedback-card{
+    background: var(--ca-canvas);
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius);
+    padding: 16px 18px;
+    transition: background 0.15s var(--ca-ease), border-color 0.15s var(--ca-ease), box-shadow 0.15s var(--ca-ease);
+}
+.ca-feedback-card:hover{
+    background: var(--ca-gold-soft);
+    border-color: var(--ca-gold-soft-2);
+    box-shadow: 0 6px 18px -14px rgba(30, 24, 16, 0.3);
+}
+
+/* Avatar + (author/stars) + date. align-items:flex-start keeps the date on
+   the first line when an author name stacks above the stars. */
+.ca-feedback-card-head{
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    margin-bottom: 9px;
+}
+.ca-feedback-card-meta{ flex: 1; min-width: 0; }
+
+/* Initial-only, from the name already rendered beside it -- no image, no
+   upload, nothing new stored. */
+.ca-feedback-avatar{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    /* Solid, not the 10% tint: on a cream card the tinted version was nearly
+       invisible, and the initial is the only colour anchor at the top of a
+       review. */
+    background: var(--ca-gold);
+    color: #fff;
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.ca-feedback-date{
+    font-size: 0.75rem;
+    color: var(--ca-ink-faint);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.ca-feedback-author{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 600;
+    font-size: 0.86rem;
+    color: var(--ca-ink);
+    margin-bottom: 3px;
+}
+.ca-feedback-comment{
+    font-size: 0.88rem;
+    color: var(--ca-ink);
+    line-height: 1.55;
+    margin: 0;
+}
+/* A masked (moderated) comment set in normal body type reads as a rendering
+   fault; muted and letter-spaced, the asterisks read as a deliberate
+   redaction. Styling only -- the masking itself is unchanged. */
+.ca-feedback-comment.is-masked{
+    color: var(--ca-ink-faint);
+    letter-spacing: 0.12em;
+}
+
+/* Shown under the author's OWN flagged review, telling them it is withheld.
+   Deliberately quiet -- this is an explanation, not a reprimand, and it sits
+   on the customer's own page under words they wrote themselves. */
+.ca-feedback-status{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 0 0;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: var(--ca-ink-faint);
+}
+.ca-feedback-status i{ flex-shrink: 0; font-size: 0.95rem; }
+
+/* -- Responsive --------------------------------------------------------------- */
+@media (max-width: 900px){
+    /* Stacked, the panels no longer need to match each other's height -- but
+       they do still need a cap. Twelve entries run past 1,300px here, which
+       puts the second panel (and everything after it) a long way down the
+       page. Roughly five cards then scroll internally: 620 covers five at
+       the 99px one-line height plus the 12px gaps, with enough headroom that
+       a couple of two-line comments (121px) don't push the fifth out of view.
+       Scroll chaining is left at its default, so reaching the end of a list
+       carries straight on into the page rather than trapping the finger. */
+    .ca-feedback-columns{ grid-template-columns: 1fr; gap: 16px; }
+    .ca-feedback-scroll{
+        max-height: 620px;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+@media (max-width: 520px){
+    .ca-feedback-hero{ padding: 18px; gap: 13px; }
+    .ca-feedback-hero-icon{ width: 44px; height: 44px; font-size: 1.35rem; border-radius: 12px; }
+    .ca-feedback-hero-text h1{ font-size: 1.35rem; }
+    .ca-feedback-hero-text p{ font-size: 0.83rem; }
+}
+

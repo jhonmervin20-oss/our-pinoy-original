@@ -1,0 +1,259 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; background: #fff; }
+  svg { display: block; }
+  body.solo svg { display: none; }
+  body.solo svg.on { display: block; }
+</style></head>
+<body>
+<div id="host"></div>
+<script>
+const NS = 'http://www.w3.org/2000/svg';
+const FONT = 'Arial, Helvetica, sans-serif';
+const INK = '#111111';
+const LINE = '#333333';
+const LABEL = '#1a1a1a';
+const SYSTEM_NAME = ['Website with Restaurant', 'Management and Reservation', 'System'];
+
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+
+function newSvg(id, title, w, h) {
+  const svg = el('svg', { xmlns: NS, id, width: w, height: h, viewBox: `0 0 ${w} ${h}`, 'font-family': FONT });
+  el('title', {}, svg).textContent = title;
+  const defs = el('defs', {}, svg);
+  const m = el('marker', { id: id + '-ah', viewBox: '0 0 10 10', refX: '2', refY: '5',
+    markerWidth: '10', markerHeight: '10', markerUnits: 'userSpaceOnUse', orient: 'auto' }, defs);
+  el('path', { d: 'M0,1 L10,5 L0,9 Z', fill: LINE }, m);
+  el('rect', { x: 0, y: 0, width: w, height: h, fill: '#ffffff' }, svg);
+  const d = { svg, id, w, h };
+  d.gLines = el('g', {}, svg);
+  d.gBoxes = el('g', {}, svg);
+  d.gLabels = el('g', {}, svg);
+  document.getElementById('host').appendChild(svg);
+  return d;
+}
+
+function textBlock(g, cx, cy, lines, size, weight, fill) {
+  const lh = Math.round(size * 1.22);
+  const t = el('text', { 'text-anchor': 'middle', 'font-size': size, 'font-weight': weight, fill }, g);
+  const n = lines.length;
+  lines.forEach((ln, i) => {
+    const baseline = cy - ((n - 1) * lh) / 2 + i * lh + size * 0.35;
+    el('tspan', { x: cx, y: baseline.toFixed(1) }, t).textContent = ln;
+  });
+  return t;
+}
+
+function entity(d, x, y, w, h, label) {
+  el('rect', { x, y, width: w, height: h, rx: 3, ry: 3, fill: '#ffffff', stroke: INK, 'stroke-width': 1.6 }, d.gBoxes);
+  textBlock(d.gBoxes, x + w / 2, y + h / 2, [label], 21, 400, INK);
+}
+
+function processBox(d, x, y, w, h) {
+  const headH = 40;
+  el('rect', { x, y, width: w, height: h, rx: 14, ry: 14, fill: '#ffffff', stroke: INK, 'stroke-width': 1.8 }, d.gBoxes);
+  el('line', { x1: x, y1: y + headH, x2: x + w, y2: y + headH, stroke: INK, 'stroke-width': 1.4 }, d.gBoxes);
+  textBlock(d.gBoxes, x + w / 2, y + headH / 2, ['0'], 20, 400, INK);
+  textBlock(d.gBoxes, x + w / 2, y + headH + (h - headH) / 2, SYSTEM_NAME, 19, 400, INK);
+}
+
+// pts: orthogonal polyline, arrowhead at the last point. The last segment is
+// pulled back 8px and the marker's refX pushes the tip forward the same 8px,
+// so the line's square end hides inside the arrowhead instead of poking out.
+function flow(d, pts, label, lx, ly) {
+  const p = pts.map(q => q.slice());
+  const a = p[p.length - 2], b = p[p.length - 1];
+  b[0] -= Math.sign(b[0] - a[0]) * 8;
+  b[1] -= Math.sign(b[1] - a[1]) * 8;
+  el('polyline', { points: p.map(q => q.join(',')).join(' '), fill: 'none', stroke: LINE,
+    'stroke-width': 1.4, 'stroke-linejoin': 'miter', 'marker-end': `url(#${d.id}-ah)` }, d.gLines);
+  const t = textBlock(d.gLabels, lx, ly, Array.isArray(label) ? label : [label], 15, 700, LABEL);
+  const bb = t.getBBox();
+  const r = el('rect', { x: (bb.x - 7).toFixed(1), y: (bb.y - 3).toFixed(1),
+    width: (bb.width + 14).toFixed(1), height: (bb.height + 6).toFixed(1), fill: '#ffffff' });
+  d.gLabels.insertBefore(r, t);
+}
+
+// ---------------------------------------------------------------------------
+// Context flow diagram -- same six entities and arrangement as the template.
+// ---------------------------------------------------------------------------
+function buildContext() {
+  const d = newSvg('context', 'Context Flow Diagram', 1200, 780);
+  flow(d, [[460, 320], [460, 100], [210, 100]], ['Operational, payroll,', 'and performance reports'], 335, 100);
+  flow(d, [[160, 160], [160, 345], [420, 345]], ['Inventory, receiving,', 'attendance, and payroll data'], 287, 345);
+  flow(d, [[550, 160], [550, 320]], ['User and', 'employee data'], 550, 214);
+  flow(d, [[650, 320], [650, 160]], ['Account summary', 'and activity logs'], 650, 266);
+  flow(d, [[990, 100], [740, 100], [740, 320]], ['Booking request, advance', 'order, and feedback'], 865, 100);
+  flow(d, [[780, 345], [1040, 345], [1040, 160]], ['Receipt and confirmation'], 913, 345);
+  flow(d, [[95, 620], [95, 445], [420, 445]], ['Sales transactions and', 'shift cash count'], 255, 445);
+  flow(d, [[460, 470], [460, 680], [210, 680]], ['Receipts and shift', 'remittance report'], 335, 680);
+  flow(d, [[550, 470], [550, 620]], ['Payment request'], 550, 522);
+  flow(d, [[650, 620], [650, 470]], ['Payment status', 'update'], 650, 570);
+  flow(d, [[740, 470], [740, 680], [990, 680]], ['Analytics, forecasts,', 'and reports'], 865, 680);
+  flow(d, [[1105, 620], [1105, 445], [780, 445]], ['Menu, supplier, purchase', 'order, and settings data'], 945, 445);
+  entity(d, 40, 40, 170, 120, 'Manager');
+  entity(d, 515, 40, 170, 120, 'Admin');
+  entity(d, 990, 40, 170, 120, 'Customer');
+  entity(d, 40, 620, 170, 120, 'Cashier');
+  entity(d, 515, 620, 170, 120, 'PayMongo');
+  entity(d, 990, 620, 170, 120, 'Owner');
+  processBox(d, 420, 320, 360, 150);
+}
+
+// ---------------------------------------------------------------------------
+// Per-user-level CFD: user on the left, system on the right. Inputs arch over
+// the top into the system, outputs arch under the bottom back to the user --
+// nested so no line ever crosses another or a label.
+// ---------------------------------------------------------------------------
+function buildRole(id, title, name, inputs, outputs, withPayMongo) {
+  const EX = 60, EW = 180, EH = 120;
+  const PX = 660, PW = 360, PH = 150;
+  const GAP1 = 50, STEP = 40, MARGIN = 34;
+  const nIn = inputs.length, nOut = outputs.length;
+  const cy = MARGIN + 12 + GAP1 + (nIn - 1) * STEP + PH / 2;
+  const H = Math.round(cy + PH / 2 + GAP1 + (nOut - 1) * STEP + 12 + MARGIN);
+  const W = withPayMongo ? 1470 : 1080;
+  const d = newSvg(id, title, W, H);
+  const LX = (EX + EW + PX) / 2;
+  const ex = (i, n) => n === 1 ? EX + EW / 2 : (EX + EW - 20) - i * ((EW - 40) / (n - 1));
+  const px = (i, n) => n === 1 ? PX + PW / 2 : (PX + 28) + i * ((PW - 56) / (n - 1));
+  const eTop = cy - EH / 2, eBot = cy + EH / 2, pTop = cy - PH / 2, pBot = cy + PH / 2;
+
+  // First input reads at the top, so it takes the outermost arch.
+  inputs.forEach((lab, k) => {
+    const i = nIn - 1 - k;
+    const y = pTop - GAP1 - i * STEP;
+    flow(d, [[ex(i, nIn), eTop], [ex(i, nIn), y], [px(i, nIn), y], [px(i, nIn), pTop]], lab, LX, y);
+  });
+  outputs.forEach((lab, i) => {
+    const y = pBot + GAP1 + i * STEP;
+    flow(d, [[px(i, nOut), pBot], [px(i, nOut), y], [ex(i, nOut), y], [ex(i, nOut), eBot]], lab, LX, y);
+  });
+
+  if (withPayMongo) {
+    const GX = 1240, GW = 170;
+    flow(d, [[PX + PW, cy - 28], [GX, cy - 28]], 'Payment request', (PX + PW + GX) / 2, cy - 28);
+    flow(d, [[GX, cy + 28], [PX + PW, cy + 28]], 'Payment status update', (PX + PW + GX) / 2, cy + 28);
+    entity(d, GX, cy - EH / 2, GW, EH, 'PayMongo');
+  }
+  entity(d, EX, eTop, EW, EH, name);
+  processBox(d, PX, pTop, PW, PH);
+}
+
+buildContext();
+
+buildRole('admin', 'Context Flow Diagram of the Admin', 'Admin', [
+  'Login credentials',
+  'User account details and role',
+  'Account activation or deactivation',
+  'Employee records',
+  'Department and position details',
+  'Work schedules and holidays',
+], [
+  'Account summary dashboard',
+  'User account list',
+  'Activity logs',
+  'Employee, department, and position records',
+  'Schedule and holiday calendar',
+  'Notifications',
+]);
+
+buildRole('owner', 'Context Flow Diagram of the Owner', 'Owner', [
+  'Login credentials',
+  'Menu items, recipes, and prices',
+  'Supplier details',
+  'Purchase orders',
+  'Inventory items and stock adjustments',
+  'Void request decisions',
+  'Feedback moderation decisions',
+  'System settings (tax, pricing, reservation, payroll)',
+], [
+  'Operational dashboard',
+  'Sales, inventory, reservation, and payroll reports',
+  'Analytics with AI-generated insights',
+  'Demand forecasts and reorder suggestions',
+  'Customer sentiment analysis results',
+  'Menu costing and suggested prices',
+  'Purchase order documents',
+  'Notifications',
+]);
+
+buildRole('manager', 'Context Flow Diagram of the Manager', 'Manager', [
+  'Login credentials',
+  'Inventory items, adjustments, and wastage',
+  'Received stock from purchase orders',
+  'Void request decisions',
+  'Biometric attendance file',
+  'Leave, overtime, and pay adjustments',
+  'Payroll run processing and approval',
+], [
+  'Operational dashboard',
+  'Order and reservation records',
+  'Stock levels and inventory status',
+  'Employee records and work schedules',
+  'Attendance records and DTR',
+  'Payroll summaries and payslips',
+  'Performance monitoring reports',
+  'Notifications',
+]);
+
+buildRole('cashier', 'Context Flow Diagram of the Cashier', 'Cashier', [
+  'Login credentials',
+  'Opening cash float',
+  'Order items, order type, and discount',
+  'Payment details (cash or GCash)',
+  'Reservation number for advance orders',
+  'Void requests',
+  'Counted cash at shift close',
+], [
+  'Menu catalog with live stock',
+  'Order total and change due',
+  'Printed receipt',
+  'Today’s confirmed reservations',
+  'Order history',
+  'Cash balance and shift report',
+]);
+
+buildRole('customer', 'Context Flow Diagram of the Customer', 'Customer', [
+  'Registration and login details',
+  'Reservation details (date, time slot, guests)',
+  'Advance food order',
+  'Food preferences for the AI menu filter',
+  'Reservation cancellation',
+  'Feedback and rating',
+  'Chatbot inquiries',
+], [
+  'Menu items and prices',
+  'Available time slots',
+  'AI-matched menu suggestions',
+  'Reservation confirmation with QR code',
+  'Reservation history and status',
+  'Feedback history and public reviews',
+  'Chatbot replies',
+  'Notifications',
+], true);
+
+window.exportSvg = (id) => {
+  const src = document.getElementById(id);
+  const clone = src.cloneNode(true);
+  clone.removeAttribute('class');
+  return {
+    svg: '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(clone),
+    w: Number(src.getAttribute('width')),
+    h: Number(src.getAttribute('height')),
+  };
+};
+window.show = (id) => {
+  document.body.classList.add('solo');
+  document.querySelectorAll('svg').forEach(s => s.classList.toggle('on', s.id === id));
+  window.scrollTo(0, 0);
+};
+window.__built = true;
+</script>
+</body></html>

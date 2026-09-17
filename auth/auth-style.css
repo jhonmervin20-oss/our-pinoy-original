@@ -1,0 +1,464 @@
+/* ============================================================
+   auth-style.css — premium redesign
+   Shared look for login / sign up / forgot / reset password pages.
+   Split-screen layout, dark brown + charcoal + gold accents.
+
+   NOTE: all original class names are preserved 1:1 so this file
+   is a drop-in replacement — no HTML/PHP/backend changes needed.
+   ============================================================ */
+:root{
+    /* -------- core palette -------- */
+    --brown-dark:#000000;
+    --brown-mid:#241d18;
+    --brown-deep:#120d0a;
+    --brown-card:#241d18;
+    --charcoal:#1b1613;
+
+    --gold-accent:#c9a24e;
+    --gold-light:#e8cb85;
+    --gold-deep:#9c7734;
+    --gold-soft:rgba(201,162,78,0.12);
+    --gold-glow:rgba(201,162,78,0.16);
+
+    --cream-light:#f5efe4;
+    --cream-dim:rgba(245,239,228,0.68);
+    --white-soft:#fffdf8;
+    --text-muted:#9a8f83;
+
+    --danger:#e0745a;
+    --danger-bg:rgba(224,116,90,0.1);
+    --success:#8fc07c;
+    --success-bg:rgba(143,192,124,0.1);
+
+    /* -------- design tokens -------- */
+    --radius-card:22px;
+    --radius-input:12px;
+    --radius-btn:12px;
+    --input-height:50px;
+    --card-pad:38px;
+    --card-max-w:420px;
+
+    --border-hairline:rgba(255,255,255,0.09);
+    --shadow-card:0 24px 56px -28px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.05) inset;
+    --shadow-btn:0 10px 20px -12px rgba(201,162,78,0.3);
+    --focus-ring:0 0 0 4px rgba(201,162,78,0.22);
+
+    --ease:cubic-bezier(.22,.61,.36,1);
+    --ease-spring:cubic-bezier(.34,1.56,.64,1);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{
+    background:var(--brown-dark);
+    color:var(--cream-light);
+    font-family:'Poppins',sans-serif;
+    min-height:100vh;
+    min-height:100dvh;
+    -webkit-font-smoothing:antialiased;
+}
+
+/* -------- global accessible focus state -------- */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+.checkbox-row input:focus-visible{
+    outline:none;
+    box-shadow:var(--focus-ring);
+    border-radius:6px;
+}
+
+/* ---------------------------------------------------------------
+   Split screen: form on one side, full-bleed photo on the other.
+   --------------------------------------------------------------- */
+.auth-page{
+    display:flex;
+    height:100vh;
+    height:100dvh;
+    width:100%;
+}
+
+/* -------- stretched image side -------- */
+.auth-visual{
+    position:relative;
+    flex:1 1 60%;
+    height:100vh;
+    height:100dvh;
+    background:url('../assets/images/bg.jpg') center/cover no-repeat;
+    overflow:hidden;
+    overflow-y:auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:40px 0;
+    animation:fadeIn .6s var(--ease) both;
+}
+/* depth gradient so the caption stays legible over any photo — 60% overlay,
+   plus a fade along the shared edge with .auth-form-side so the photo
+   blends into the page background instead of ending in a hard vertical
+   seam. */
+.auth-visual::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    /* The vertical darkening band uses neutral black (not a warm brown
+       tint) specifically so it never fights with the right-edge fade
+       below -- both must resolve to the exact same color at the seam
+       with .auth-form-side, or the boundary shows as a visible line even
+       when both sides are individually very dark. The edge fade itself
+       reaches full solid var(--brown-dark) by 65% (not 100%) so there's a
+       wide flat buffer of pixel-identical color right at the panel
+       boundary, not just an asymptotic approach to it. */
+    background:
+        linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.68) 30%, rgba(0,0,0,0.68) 65%, rgba(0,0,0,0.88) 100%),
+        linear-gradient(135deg, rgba(201,162,78,0.08), transparent 45%),
+        linear-gradient(to right, transparent 25%, var(--brown-dark) 65%, var(--brown-dark) 100%);
+    pointer-events:none;
+}
+/* the caption panel no longer has a decorative cursor-following glow — kept
+   the element (and its unused --spot-x/--spot-y removal) simple/static */
+.auth-visual-glow{
+    display:none;
+}
+.auth-visual-caption{
+    width:100%;
+    max-width:460px;
+    padding:0 56px;
+    text-align:center;
+    color:var(--white-soft);
+    z-index:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    animation:fadeSlideUp .9s var(--ease) .15s both;
+}
+/* -------- logo badge over the photo panel -------- */
+.auth-visual-logo{
+    width:84px;
+    height:84px;
+    object-fit:cover;
+    border-radius:20px;
+    margin-bottom:26px;
+    filter:brightness(0) invert(1);
+}
+.auth-visual-caption strong{
+    display:block;
+    font-family:'Lexend',sans-serif;
+    font-size:2.6rem;
+    font-weight:800;
+    letter-spacing:0.3px;
+    line-height:1.15;
+    color:var(--white-soft);
+}
+.auth-visual-caption span{
+    display:block;
+    margin:12px auto 0;
+    font-size:0.92rem;
+    color:var(--cream-dim);
+    max-width:400px;
+    line-height:1.7;
+}
+.auth-visual-rule{
+    width:64px;
+    height:3px;
+    border-radius:999px;
+    background:var(--gold-accent);
+    margin:20px auto 0;
+}
+/* -------- form side (scrolls independently so content never gets
+   clipped when the viewport is shorter than the form's natural height —
+   the photo panel stays put instead of the whole page scrolling) -------- */
+.auth-form-side{
+    flex:1 1 40%;
+    height:100vh;
+    height:100dvh;
+    overflow-y:auto;
+    display:flex;
+    /* plain "center" clips the top of any form taller than the viewport --
+       once a flex item overflows its container, centering pushes half that
+       overflow above the scrollable area where it's unreachable even with
+       overflow-y:auto. "safe center" (the fix -- centers only when the
+       content actually fits, otherwise behaves like flex-start so the top
+       is always reachable) is progressive enhancement: the plain "center"
+       line above is what older browsers without safe/unsafe support fall
+       back to. Bit sign_up.php specifically, since it's the tallest form
+       on this shared layout (six fields + two buttons). */
+    align-items:center;
+    align-items:safe center;
+    justify-content:center;
+    padding:40px 32px;
+    background:
+        radial-gradient(ellipse 900px 700px at 50% 0%, rgba(201,162,78,0.06), transparent 70%),
+        var(--brown-dark);
+}
+
+.auth-wrap{
+    width:100%;
+    max-width:var(--card-max-w);
+    animation:fadeSlideUp .7s var(--ease) both;
+}
+
+.auth-logo{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    margin-bottom:32px;
+    text-align:center;
+}
+.auth-logo-img{
+    width:52px;
+    height:52px;
+    border-radius:14px;
+    object-fit:cover;
+    filter:brightness(0) invert(1);
+    box-shadow:0 12px 26px -10px rgba(0,0,0,0.6);
+}
+.auth-logo strong{
+    font-family:'Lexend',sans-serif;
+    font-size:1.4rem;
+    font-weight:900;
+    color:var(--white-soft);
+    letter-spacing:2px;
+}
+.auth-logo span{
+    font-size:0.6rem;
+    color:var(--gold-accent);
+    letter-spacing:3px;
+    font-weight:700;
+    text-transform:uppercase;
+}
+
+/* -------- card -------- */
+.auth-card{
+    background:rgba(28,22,18,0.75);
+    border:1px solid var(--border-hairline);
+    border-radius:var(--radius-card);
+    padding:var(--card-pad);
+    box-shadow:var(--shadow-card);
+    backdrop-filter:blur(10px) saturate(120%);
+    -webkit-backdrop-filter:blur(10px) saturate(120%);
+}
+
+/* Tablet is treated exactly like desktop (same split-screen layout, no
+   separate tablet-only sizing) in landscape -- the photo panel only
+   disappears (form takes the full width) in portrait, regardless of how
+   wide the device is, or on any genuinely narrow/phone-width viewport. */
+@media (orientation:portrait), (max-width:600px){
+    .auth-page{ height:auto; }
+    /* The split-screen photo panel doesn't fit next to the form at this
+       width, but the photo itself is worth keeping -- the glass card
+       (.auth-card's backdrop-filter:blur) is built to sit over an image,
+       and a flat solid colour behind it was blurring nothing. Same photo,
+       now painted straight onto .auth-form-side with its own fade instead
+       of .auth-visual's, so it reads as one deliberate mobile background
+       rather than a leftover desktop panel squeezed to fit. */
+    .auth-visual{ display:none; }
+    .auth-form-side{
+        flex:1 1 100%; height:auto; min-height:100vh; min-height:100dvh; overflow-y:visible;
+        background:
+            linear-gradient(180deg, rgba(21,16,13,0.55) 0%, rgba(21,16,13,0.84) 55%, var(--brown-dark) 92%),
+            url('../assets/images/bg.jpg') center/cover no-repeat;
+    }
+}
+
+@media (max-width:480px){
+    :root{ --card-pad:28px; --radius-card:18px; }
+    .auth-form-side{ padding:28px 16px; }
+}
+
+.auth-title{
+    font-family:'Lexend',sans-serif;
+    font-size:1.6rem;
+    font-weight:800;
+    color:var(--white-soft);
+    margin-bottom:6px;
+    text-align:center;
+    letter-spacing:0.3px;
+}
+.auth-subtitle{
+    font-size:0.84rem;
+    color:var(--text-muted);
+    margin-bottom:28px;
+    line-height:1.6;
+    text-align:center;
+}
+
+.form-group{margin-bottom:20px;}
+.form-row{display:flex;gap:14px;}
+.form-row .form-group{flex:1;}
+@media (max-width:480px){
+    .form-row{flex-direction:column;gap:0;}
+}
+.form-group label{
+    display:block;
+    font-size:0.7rem;
+    letter-spacing:1.2px;
+    text-transform:uppercase;
+    color:var(--gold-light);
+    font-weight:600;
+    margin-bottom:9px;
+}
+
+/* -------- inputs: 56px height, 14px radius -------- */
+.form-control{
+    width:100%;
+    height:var(--input-height);
+    background:rgba(0,0,0,0.24);
+    border:1px solid rgba(255,255,255,0.09);
+    border-radius:var(--radius-input);
+    padding:0 16px;
+    color:var(--cream-light);
+    font-size:0.92rem;
+    font-family:'Poppins',sans-serif;
+    transition:border-color .25s var(--ease), box-shadow .25s var(--ease), background .25s var(--ease);
+}
+.form-control:hover{
+    border-color:rgba(201,162,78,0.4);
+}
+.form-control:focus{
+    outline:none;
+    border-color:var(--gold-accent);
+    box-shadow:var(--focus-ring);
+    background:rgba(0,0,0,0.32);
+}
+.form-control::placeholder{color:var(--text-muted);}
+
+/* -------- leading field icon (envelope, lock, user, phone…) -------- */
+.input-wrap,
+.password-field{position:relative;}
+.leading-icon{
+    position:absolute;
+    left:16px;
+    top:50%;
+    transform:translateY(-50%);
+    color:var(--text-muted);
+    font-size:0.9rem;
+    pointer-events:none;
+    z-index:2;
+    transition:color .3s var(--ease);
+}
+.input-wrap:focus-within .leading-icon,
+.password-field:focus-within .leading-icon{color:var(--gold-accent);}
+.form-control.has-leading{padding-left:44px;}
+.form-control.has-icon{padding-right:46px;}
+
+/* -------- inline field validation -------- */
+.form-control.email-valid{border-color:var(--success) !important;}
+.form-control.email-invalid{border-color:var(--danger) !important;}
+.validation-hint{
+    font-size:0.72rem;
+    margin-top:8px;
+    padding:9px 12px;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+.validation-hint:empty{display:none;padding:0;margin-top:0;}
+.validation-hint.valid{color:var(--success);background:var(--success-bg);}
+.validation-hint.invalid{color:var(--danger);background:var(--danger-bg);}
+
+/* -------- password strength meter -------- */
+.pw-strength{margin-top:9px;display:flex;gap:4px;}
+.pw-bar{flex:1;height:3px;border-radius:10px;background:rgba(201,162,78,0.15);transition:background .3s var(--ease);}
+.pw-bar.weak{background:var(--danger);}
+.pw-bar.fair{background:#e0b870;}
+.pw-bar.strong{background:var(--success);}
+.pw-hint{font-size:0.7rem;color:var(--text-muted);margin-top:6px;min-height:1em;}
+
+.password-toggle{
+    position:absolute;right:14px;top:50%;transform:translateY(-50%);
+    background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.9rem;
+    padding:4px;
+    transition:color .2s var(--ease);
+}
+.password-toggle:hover{color:var(--gold-light);}
+
+.form-row-between{display:flex;justify-content:space-between;align-items:center;margin:22px 0 26px;font-size:0.8rem;}
+.form-row-between a{color:var(--gold-light);text-decoration:none;transition:color .2s var(--ease);}
+.form-row-between a:hover{color:var(--white-soft);text-decoration:underline;}
+
+.checkbox-row{display:flex;align-items:center;gap:9px;font-size:0.8rem;color:var(--text-muted);}
+.checkbox-row input[type="checkbox"]{
+    width:16px;height:16px;
+    accent-color:var(--gold-accent);
+    cursor:pointer;
+}
+
+/* -------- primary button: gold gradient, elevation, hover lift -------- */
+.btn-auth{
+    width:100%;
+    height:var(--input-height);
+    background:linear-gradient(135deg,var(--gold-light),var(--gold-accent));
+    border:1px solid var(--gold-accent);
+    color:var(--brown-deep);
+    padding:0 13px;
+    border-radius:var(--radius-btn);
+    font-size:0.82rem;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 10px 24px -14px rgba(201,162,78,0.55);
+    transition:transform .25s var(--ease-spring), box-shadow .25s var(--ease), filter .2s var(--ease);
+}
+.btn-auth:hover{
+    transform:translateY(-2px);
+    box-shadow:var(--shadow-btn);
+    filter:brightness(1.04);
+}
+.btn-auth:active{transform:translateY(0);}
+.btn-auth:disabled{opacity:0.6;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* shown briefly on submit to prevent double-submits and give feedback
+   that the request is in flight */
+.btn-auth.is-loading{color:transparent;position:relative;pointer-events:none;}
+.btn-auth.is-loading::before{
+    content:'';
+    position:absolute;
+    top:50%;left:50%;
+    width:17px;height:17px;
+    margin:-8.5px 0 0 -8.5px;
+    border:2px solid rgba(25,20,16,0.35);
+    border-top-color:var(--brown-deep);
+    border-radius:50%;
+    animation:btnSpin .7s linear infinite;
+}
+@keyframes btnSpin{ to{ transform:rotate(360deg); } }
+
+.divider{display:flex;align-items:center;gap:14px;margin:28px 0;color:var(--text-muted);font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(201,162,78,0.16);}
+
+.auth-footer{text-align:center;margin-top:28px;font-size:0.84rem;color:var(--text-muted);}
+.auth-footer a{color:var(--gold-light);font-weight:600;text-decoration:none;}
+.auth-footer a:hover{text-decoration:underline;}
+
+.alert{
+    padding:13px 16px;
+    border-radius:12px;
+    font-size:0.82rem;
+    margin-bottom:20px;
+    line-height:1.5;
+    border:1px solid transparent;
+    animation:fadeSlideUp .4s var(--ease) both;
+}
+.alert-error{background:var(--danger-bg);border-color:rgba(224,116,90,0.32);color:#e6a08c;}
+.alert-success{background:var(--success-bg);border-color:rgba(143,192,124,0.32);color:#b3d6a3;}
+.field-error{color:var(--danger);font-size:0.74rem;margin-top:7px;}
+
+/* ---------------------------------------------------------------
+   Page-load motion — fade + slide, respects reduced-motion
+   --------------------------------------------------------------- */
+@keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+@keyframes fadeSlideUp{
+    from{ opacity:0; transform:translateY(10px); }
+    to{ opacity:1; transform:translateY(0); }
+}
+@media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{
+        animation-duration:0.001ms !important;
+        animation-iteration-count:1 !important;
+        transition-duration:0.001ms !important;
+    }
+}

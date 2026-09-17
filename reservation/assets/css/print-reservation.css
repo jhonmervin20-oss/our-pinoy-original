@@ -1,0 +1,301 @@
+/* ==========================================================================
+   print-reservation.css
+   Standalone printable confirmation document (reservation/print_reservation.php).
+
+   Deliberately NOT owner-panel.css's interactive shell — this follows
+   cashier/receipt.php's convention instead: a self-contained document page
+   with its own small token set, no sidebar/topbar, optimized for A4 paper.
+   Same brand hex values as owner-panel.css's --op-gold/--op-ink, used
+   sparingly (mostly black text, minimal color, per the print brief).
+   ========================================================================== */
+
+:root{
+    --pr-ink:       #241f1a;
+    --pr-ink-soft:  #6f6355;
+    --pr-ink-faint: #a39a8c;
+    --pr-border:    #ddd5c4;
+    --pr-gold:      #9c7734;
+    --pr-canvas:    #f6f3ec;
+    --pr-success:   #5c8a52;
+    --pr-danger:    #cf5a44;
+}
+
+*{ box-sizing: border-box; }
+
+body{
+    margin: 0;
+    padding: 32px 16px;
+    background: var(--pr-canvas);
+    color: var(--pr-ink);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+.pr-page{
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid var(--pr-border);
+    border-radius: 10px;
+    padding: 48px 56px;
+}
+
+/* -- Header ---------------------------------------------------------------- */
+.pr-header-top{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.pr-logo{
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.pr-brand-name{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--pr-ink);
+    margin: 0 0 3px;
+}
+
+.pr-brand-contact{
+    font-size: 0.78rem;
+    color: var(--pr-ink-soft);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+}
+
+.pr-divider{
+    border: none;
+    border-top: 1px solid var(--pr-border);
+    margin: 20px 0;
+}
+
+.pr-title{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--pr-gold);
+    text-align: center;
+    margin: 0 0 18px;
+}
+
+.pr-meta-row{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px 18px;
+    margin-bottom: 30px;
+    font-size: 0.85rem;
+}
+
+.pr-meta-row .pr-res-number{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.pr-meta-row .pr-meta-faint{ color: var(--pr-ink-faint); }
+
+.pr-status-badge{
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 12px;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    border: 1px solid currentColor;
+}
+.pr-status-badge.is-success{ color: var(--pr-success); }
+.pr-status-badge.is-warning{ color: var(--pr-gold); }
+.pr-status-badge.is-danger{ color: var(--pr-danger); }
+.pr-status-badge.is-info,
+.pr-status-badge.is-neutral{ color: var(--pr-ink-soft); }
+
+/* -- Sections ---------------------------------------------------------------- */
+.pr-section{
+    margin-bottom: 22px;
+}
+
+.pr-section-title{
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pr-ink-soft);
+    font-weight: 600;
+    margin: 0 0 10px;
+}
+
+.pr-card{
+    border: 1px solid var(--pr-border);
+    border-radius: 8px;
+    padding: 16px 18px;
+}
+
+.pr-row{
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+    font-size: 0.87rem;
+}
+.pr-row span:first-child{ color: var(--pr-ink-soft); flex-shrink: 0; }
+.pr-row span:last-child{ font-weight: 500; text-align: right; min-width: 0; word-break: break-word; }
+
+.pr-grid-2{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* -- Tables (Payment Details, Advance Order) -------------------------------- */
+table.pr-table{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.87rem;
+}
+.pr-table th{
+    text-align: left;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--pr-ink-soft);
+    padding: 0 0 8px;
+    border-bottom: 1px solid var(--pr-border);
+}
+.pr-table th:last-child, .pr-table td:last-child{ text-align: right; }
+.pr-table td{
+    padding: 7px 0;
+    border-bottom: 1px dashed var(--pr-border);
+    vertical-align: top;
+}
+.pr-table td:last-child{ word-break: break-word; }
+/* Payment Details' 2-column key/value table: the label (first td) must
+   never wrap -- an auto-layout table otherwise steals its width for a
+   long value (e.g. a transaction ID), wrapping "Transaction ID" into two
+   lines with the value rendered between them. Scoped to .pr-table-kv only
+   (not the 3-column Advance Order items table, where the first column is
+   a real menu item name and should be allowed to wrap normally). */
+.pr-table-kv td:first-child{ white-space: nowrap; padding-right: 14px; }
+.pr-table tr:last-child td{ border-bottom: none; }
+.pr-table td small{ display: block; color: var(--pr-ink-faint); font-size: 0.76rem; margin-top: 2px; }
+.pr-table .pr-total-row td{
+    border-top: 1px solid var(--pr-border);
+    border-bottom: none;
+    font-weight: 700;
+    padding-top: 10px;
+}
+
+/* -- Policy list ---------------------------------------------------------- */
+.pr-policy-list{
+    margin: 0;
+    padding-left: 18px;
+    font-size: 0.83rem;
+    color: var(--pr-ink-soft);
+}
+.pr-policy-list li{ margin-bottom: 6px; }
+
+/* -- QR code ---------------------------------------------------------------- */
+.pr-qr-section{
+    text-align: center;
+    padding: 20px 0 6px;
+}
+.pr-qr-section canvas{
+    border: 1px solid var(--pr-border);
+    border-radius: 8px;
+    padding: 10px;
+}
+.pr-qr-caption{
+    font-size: 0.8rem;
+    color: var(--pr-ink-soft);
+    margin-top: 10px;
+}
+
+/* -- Footer ---------------------------------------------------------------- */
+.pr-footer{
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--pr-border);
+}
+.pr-footer-thanks{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin: 0 0 6px;
+}
+.pr-footer-contact{
+    font-size: 0.78rem;
+    color: var(--pr-ink-soft);
+    margin-bottom: 10px;
+}
+.pr-copyright{
+    font-size: 0.72rem;
+    color: var(--pr-ink-faint);
+}
+
+/* -- Empty state text ------------------------------------------------------- */
+.pr-empty{
+    color: var(--pr-ink-faint);
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+/* -- Screen-only action bar --------------------------------------------------- */
+.pr-actions{
+    max-width: 800px;
+    margin: 18px auto 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.pr-btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--pr-border);
+    background: #fff;
+    color: var(--pr-ink);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+.pr-btn:hover{ border-color: var(--pr-gold); }
+.pr-btn-primary{
+    background: var(--pr-gold);
+    border-color: var(--pr-gold);
+    color: #fff;
+}
+.pr-btn-primary:hover{ filter: brightness(0.94); }
+
+/* -- Responsive -------------------------------------------------------------- */
+@media (max-width: 700px){
+    .pr-page{ padding: 28px 22px; }
+    .pr-grid-2{ grid-template-columns: 1fr; }
+    .pr-header-top{ flex-direction: column; text-align: center; }
+    .pr-brand-contact{ justify-content: center; }
+}
+
+/* -- Print ------------------------------------------------------------------ */
+@media print{
+    @page{ size: A4; margin: 15mm; }
+    body{ background: #fff; padding: 0; }
+    .pr-page{ max-width: 100%; border: none; border-radius: 0; padding: 0; }
+    .pr-actions{ display: none !important; }
+    .pr-status-badge{ color: var(--pr-ink) !important; }
+}

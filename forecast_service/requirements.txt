@@ -1,0 +1,14 @@
+fastapi==0.115.0
+uvicorn==0.30.6
+prophet==1.1.6
+# pandas==2.2.2 segfaults under Python 3.14+ (its C-extension predates 3.14's
+# ABI; no cp314 wheel existed) -- crashes on a plain pd.date_range() call,
+# nothing prophet-specific. 2.3.3 ships a real cp314 wheel. Confirmed via a
+# real Prophet.fit()/predict() run, not just import.
+pandas==2.3.3
+# prophet 1.1.6 ships a precompiled Windows model binary built against
+# CmdStan 2.33.1's CLI interface. cmdstanpy>=1.3.0 changed CmdStanModel's
+# exe-loading behavior enough that prophet's forecaster.py can't even
+# finish constructing (AttributeError: no attribute 'stan_backend') --
+# confirmed by testing 1.3.0 directly, not assumed. Pin below that line.
+cmdstanpy==1.2.0

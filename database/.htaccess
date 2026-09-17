@@ -1,0 +1,5 @@
+# This directory holds full mysqldump output -- every table, including
+# users.password_hash and all customer PII. It is a source-control artifact,
+# never something a browser should fetch, and nothing in the app links or
+# serves it: there is no in-app download path for these files at all.
+Require all denied

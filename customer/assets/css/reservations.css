@@ -1,0 +1,161 @@
+/* ==========================================================================
+   reservations.css
+   Customer reservation history — status tabs, cards, and the details modal.
+   Built on customer-app.css's --ca-* tokens plus make-reservation.css's
+   --ca-success/--ca-warning (reused here, not redefined) and one new
+   --ca-info token for the "Seated" status.
+   ========================================================================== */
+
+:root{
+    --ca-info:      #3f7ea6;
+    --ca-info-soft: rgba(63,126,166,0.10);
+}
+
+/* .ca-res-page-head now lives in customer-app.css -- three other pages use
+   it without loading this stylesheet. */
+
+/* -- Status filter tabs ------------------------------------------------------
+   Underline style, matching the staff reservation panel's .owner-tabs
+   (owner-panel.css) — same look, built from this app's own --ca-* tokens
+   rather than importing that stylesheet. ---------------------------------- */
+.ca-res-tabs{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border-bottom: 1px solid var(--ca-border);
+    margin-bottom: 20px;
+    overflow-x: auto;
+    min-width: 0;
+    max-width: 100%;
+}
+.ca-res-tab{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    color: var(--ca-ink-soft);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.87rem;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.15s var(--ca-ease), border-color 0.15s var(--ca-ease);
+}
+.ca-res-tab:hover{ color: var(--ca-ink); }
+.ca-res-tab.is-active{
+    color: var(--ca-gold);
+    border-bottom-color: var(--ca-gold);
+    font-weight: 600;
+}
+.ca-res-tab-count{
+    color: inherit;
+    font-size: 0.87em;
+    font-weight: inherit;
+}
+
+/* -- Reservation cards -------------------------------------------------------- */
+.ca-res-list{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.ca-res-card{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 18px;
+    width: 100%;
+    background: var(--ca-surface);
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius-sm);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s var(--ca-ease), box-shadow 0.15s var(--ca-ease);
+}
+/* Author CSS always beats the UA stylesheet's [hidden]{display:none},
+   regardless of specificity — without this, reservations.js toggling the
+   hidden attribute for tab filtering has no visual effect. */
+.ca-res-card[hidden]{ display: none; }
+.ca-res-card:hover{
+    border-color: var(--ca-gold-soft-2);
+    box-shadow: 0 8px 20px -14px rgba(30,24,16,0.3);
+}
+.ca-res-card-date{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background: var(--ca-canvas);
+    flex-shrink: 0;
+}
+.ca-res-card-date .day{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--ca-ink);
+    line-height: 1;
+}
+.ca-res-card-date .mon{
+    font-size: 0.66rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--ca-ink-faint);
+    font-weight: 600;
+    margin-top: 3px;
+}
+.ca-res-card-main{ flex: 1; min-width: 0; }
+.ca-res-card-title{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 600;
+    font-size: 0.94rem;
+    color: var(--ca-ink);
+    margin-bottom: 4px;
+}
+.ca-res-card-sub{
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 0.79rem;
+    color: var(--ca-ink-soft);
+}
+.ca-res-card-sub span{ display: flex; align-items: center; gap: 5px; }
+.ca-res-card-right{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+}
+.ca-res-card-chevron{ color: var(--ca-ink-faint); font-size: 1.05rem; }
+
+/* -- Status badge -------------------------------------------------------------- */
+.ca-res-badge{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.ca-res-badge i{ font-size: 0.95em; }
+.ca-res-badge.is-warning{ background: var(--ca-warning-soft); color: var(--ca-warning); }
+.ca-res-badge.is-success{ background: var(--ca-success-soft); color: var(--ca-success); }
+.ca-res-badge.is-info{ background: var(--ca-info-soft); color: var(--ca-info); }
+.ca-res-badge.is-neutral{ background: var(--ca-canvas); color: var(--ca-ink-soft); }
+.ca-res-badge.is-danger{ background: var(--ca-danger-soft); color: var(--ca-danger); }
+
+/* -- Responsive -------------------------------------------------------------------- */
+@media (max-width: 560px){
+    .ca-res-card{ gap: 12px; padding: 14px; }
+    .ca-res-card-sub{ gap: 10px; }
+    .ca-res-card-right{ flex-direction: column; align-items: flex-end; gap: 8px; }
+}

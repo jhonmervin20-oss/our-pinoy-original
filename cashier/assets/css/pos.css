@@ -1,0 +1,2312 @@
+/* ==========================================================================
+   pos.css
+   Cashier POS terminal — a fast, distraction-free checkout screen.
+
+   Tokens below are copied from owner/assets/css/owner-panel.css so the
+   brand stays consistent (same gold/cream palette), but every layout and
+   component rule here is new — this page is intentionally NOT the
+   sidebar+card admin shell, it's a two-pane checkout terminal.
+   ========================================================================== */
+
+:root{
+    --op-gold:         #9c7734;
+    --op-gold-light:   #c9a24e;
+    --op-gold-soft:    rgba(156,119,52,0.08);
+    --op-gold-soft-2:  rgba(156,119,52,0.20);
+
+    --op-canvas:       #f6f3ec;
+    --op-surface:      #ffffff;
+    --op-ink:          #241f1a;
+    --op-ink-soft:     #6f6355;
+    --op-ink-faint:    #a39a8c;
+    --op-border:       #ece6d8;
+    --op-border-soft:  #f1ece0;
+
+    --op-danger:       #cf5a44;
+    --op-danger-soft:  rgba(207,90,68,0.10);
+    --op-success:      #5c8a52;
+    --op-success-soft: rgba(92,138,82,0.10);
+
+    --op-radius:       12px;
+    --op-radius-sm:    8px;
+    --op-radius-pill:  999px;
+    --op-shadow:       0 16px 40px -20px rgba(30,24,16,0.22);
+    --op-ease:         cubic-bezier(.4,0,.2,1);
+
+    /* 148px clipped the active item: .pos-nav-link.is-active is font-weight
+       600, so the selected label is wider than the others and "Cash Balance"
+       became "Cash Balan..." while "Reservations" -- the same 12 characters at
+       weight 500 -- fitted. Widened to clear the bold state with room to spare.
+       This variable is the cashier's own; the owner panel declares its own
+       260px separately, so nothing outside the POS moves. .pos-main is flex:1
+       and simply absorbs the difference, and below 900px the sidebar is an
+       off-canvas drawer, so no width is taken from the terminal on mobile. */
+    --op-sidebar-w:    184px;
+}
+
+*{ box-sizing: border-box; }
+
+html, body{ height: 100%; }
+
+body{
+    margin: 0;
+    background: var(--op-canvas);
+    color: var(--op-ink);
+    font-family: 'Poppins', sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+button{ font-family: inherit; }
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible{
+    outline: 2px solid var(--op-gold);
+    outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Shell                                                                   */
+/* ---------------------------------------------------------------------- */
+
+.pos-shell{
+    display: flex;
+    height: 100vh;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Sidebar -- mirrors owner/assets/css/owner-panel.css's .owner-sidebar    */
+/* mechanics (off-canvas drawer below 900px, same tokens/timings) so the   */
+/* POS terminal feels consistent with the rest of the app.                 */
+/* ---------------------------------------------------------------------- */
+
+.pos-sidebar{
+    width: var(--op-sidebar-w);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--op-surface);
+    border-right: 1px solid var(--op-border);
+    padding: 14px 8px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 40;
+}
+
+.pos-sidebar-brand{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 4px 12px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--op-border);
+}
+
+.pos-sidebar-brand-mark{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pos-sidebar-logo{
+    width: 100%;
+    max-width: 96px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.pos-nav{
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding-top: 4px;
+}
+
+/* margin-top: auto pins this to the bottom of .pos-sidebar's flex column,
+   regardless of how many links .pos-nav ends up with above it. */
+.pos-sidebar-footer{
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--op-border);
+}
+
+.pos-sidebar-profile{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px 14px;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    border-radius: var(--op-radius-sm);
+    transition: background 0.15s var(--op-ease);
+}
+
+.pos-sidebar-profile:hover{
+    background: var(--op-canvas);
+}
+
+.pos-sidebar-avatar{
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--op-gold);
+    color: #fff;
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 0.82rem;
+}
+
+.pos-sidebar-profile-name{
+    max-width: 100%;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--op-ink-soft);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pos-nav-link{
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 9px 8px;
+    border: none;
+    border-radius: var(--op-radius-sm);
+    background: none;
+    color: var(--op-ink-soft);
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background 0.15s var(--op-ease), color 0.15s var(--op-ease);
+}
+
+.pos-nav-link i{
+    flex: 0 0 18px;
+    width: 18px;
+    text-align: center;
+    font-size: 0.92rem;
+    color: var(--op-ink-faint);
+    transition: color 0.15s var(--op-ease);
+}
+
+.pos-nav-link span{
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pos-nav-link:hover{
+    background: var(--op-canvas);
+    color: var(--op-ink);
+}
+
+.pos-nav-link:hover i{ color: var(--op-gold); }
+
+.pos-nav-link.is-active{
+    background: var(--op-gold-soft);
+    color: var(--op-gold);
+    font-weight: 600;
+}
+
+.pos-nav-link.is-active i{ color: var(--op-gold); }
+
+.pos-nav-logout:hover{
+    background: var(--op-danger-soft);
+    color: var(--op-danger);
+}
+
+.pos-nav-logout:hover i{ color: var(--op-danger); }
+
+.pos-sidebar-backdrop{
+    display: none;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Content column -- no header/topbar; main content starts at the very top */
+/* of the viewport. Was .pos-shell's own role before the sidebar was added;*/
+/* now nested one level deeper, same internal layout.                      */
+/* ---------------------------------------------------------------------- */
+
+.pos-content{
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.pos-icon-btn{
+    width: 38px;
+    height: 38px;
+    border-radius: var(--op-radius-sm);
+    border: 1px solid var(--op-border);
+    background: var(--op-surface);
+    color: var(--op-ink-soft);
+    font-size: 1.05rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: var(--op-shadow);
+}
+
+/* No header to sit in anymore -- floats over the content instead, shown
+   only below the 900px drawer breakpoint (see the sidebar media query). */
+.pos-menu-toggle{
+    display: none;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 41;
+}
+
+.pos-main{
+    flex: 1;
+    display: flex;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Compact shift indicator (pos.php) + the start-shift modal's form field   */
+/* ---------------------------------------------------------------------- */
+
+/* Deliberately tiny (max ~32px tall) -- the POS screen is for selling, not
+   for reading shift status. No button/link here on purpose: navigating to
+   the Cash Shift module happens via the sidebar nav, not a header action,
+   so this never competes with the menu/cart for attention or space. */
+.pos-shift-indicator{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 20px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--op-ink-soft);
+    background: var(--op-canvas);
+    border-bottom: 1px solid var(--op-border);
+    flex-shrink: 0;
+    line-height: 1.3;
+}
+
+.pos-shift-indicator-dot{
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--op-success);
+    flex-shrink: 0;
+}
+
+.pos-shift-indicator-sep{
+    color: var(--op-ink-faint);
+}
+
+.pos-shift-form-group{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pos-shift-form-group label{
+    font-size: 0.85rem;
+    color: var(--op-ink-soft);
+}
+
+.pos-shift-form-group input{
+    padding: 10px 12px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    font-size: 1rem;
+    color: var(--op-ink);
+    background: var(--op-canvas);
+}
+
+.pos-shift-form-group input:focus{
+    outline: none;
+    border-color: var(--op-gold-soft-2);
+    background: var(--op-surface);
+}
+
+/* Live expected-vs-counted preview under the Close Shift input -- updates
+   as the cashier types so a miscounted drawer is caught before submitting,
+   not after. Hidden until there's a value to compare. */
+.pos-close-diff-preview{
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: var(--op-radius-sm);
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+.pos-close-diff-preview.is-visible{
+    display: flex;
+}
+
+.pos-close-diff-preview.is-success{ background: var(--op-success-soft); color: var(--op-success); }
+.pos-close-diff-preview.is-danger{ background: var(--op-danger-soft); color: var(--op-danger); }
+.pos-close-diff-preview.is-info{ background: var(--op-gold-soft); color: var(--op-gold); }
+
+/* ---------------------------------------------------------------------- */
+/* Left pane — reservation lookup + menu                                   */
+/* ---------------------------------------------------------------------- */
+
+.pos-menu-pane{
+    flex: 1 1 60%;
+    min-width: 0;
+    overflow-y: auto;
+    padding: 18px 20px 90px;
+}
+
+.pos-card{
+    background: var(--op-surface);
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius);
+    padding: 16px 18px;
+    margin-bottom: 16px;
+}
+
+/* -- Menu search ---------------------------------------------------------- */
+
+.pos-search-row{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+/* Overrides .pos-btn-secondary's flex:1 default (meant for even-width
+   button rows elsewhere) -- here it sits at the end of the search row next
+   to a field that isn't itself flexed, so it should size to its own
+   content. Scoped with the .pos-search-row ancestor (not just the bare
+   class) so its specificity beats .pos-btn-secondary's regardless of
+   source order -- same-specificity single-class rules are decided by
+   source order, and .pos-btn-secondary is defined later in this file. */
+.pos-search-row .pos-link-reservation-btn{
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.pos-search-row .pos-link-reservation-btn.is-linked{
+    border-color: var(--op-success);
+    color: var(--op-success);
+    background: var(--op-success-soft);
+}
+
+.pos-search-field{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    padding: 11px 14px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    background: var(--op-surface);
+}
+
+.pos-search-field:focus-within{
+    border-color: var(--op-gold-soft-2);
+}
+
+.pos-search-field i{
+    color: var(--op-ink-faint);
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+
+.pos-search-field input{
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: none;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--op-ink);
+}
+
+.pos-search-field input::placeholder{
+    color: var(--op-ink-faint);
+}
+
+/* -- Reservation lookup ------------------------------------------------ */
+
+/* Collapsed by default -- .pos-toolbar's "Link reservation" button toggles
+   .is-open. Reuses .pos-card for its surface/border/radius so it still
+   reads as the same card chrome it had before being demoted out of the
+   always-visible top panel. */
+.pos-reservation-panel{
+    display: none;
+}
+
+.pos-reservation-panel.is-open{
+    display: block;
+}
+
+.pos-lookup-row{
+    display: flex;
+    gap: 8px;
+}
+
+.pos-lookup-row input{
+    flex: 1;
+    min-width: 0;
+    padding: 10px 14px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    font-size: 0.95rem;
+    color: var(--op-ink);
+    background: var(--op-canvas);
+}
+
+.pos-lookup-row input:focus{
+    outline: none;
+    border-color: var(--op-gold-soft-2);
+    background: var(--op-surface);
+}
+
+/* Look-up/Scan QR sit next to the input in the same flex row -- override
+   .pos-btn-secondary's flex:1 (meant for the 2-button confirmation actions
+   row) so they size to their content instead of splitting space evenly
+   with the input, which should stay the dominant, wide element. */
+.pos-lookup-row .pos-btn-secondary{
+    flex: 0 0 auto;
+    padding: 13px 14px;
+    white-space: nowrap;
+}
+
+.pos-reservation-result{
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--op-border-soft);
+}
+
+.pos-reservation-meta{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: 0.85rem;
+    color: var(--op-ink-soft);
+    margin-bottom: 10px;
+}
+
+.pos-reservation-meta strong{
+    color: var(--op-ink);
+}
+
+/* The reservation number is the one value the cashier typed in and needs to
+   confirm, so it reads as an identifier rather than another meta field. */
+.pos-reservation-number{
+    font-weight: 700;
+    color: var(--op-ink);
+    letter-spacing: 0.02em;
+}
+
+.pos-advance-list{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pos-advance-item{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--op-radius-sm);
+    background: var(--op-canvas);
+    font-size: 0.87rem;
+}
+
+.pos-advance-item input[type="checkbox"]{
+    accent-color: var(--op-gold);
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.pos-advance-item-name{
+    flex: 1;
+    color: var(--op-ink);
+}
+
+.pos-advance-item-price{
+    color: var(--op-ink-soft);
+    font-variant-numeric: tabular-nums;
+}
+
+/* -- Category pills ------------------------------------------------------ */
+
+.pos-toolbar{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.pos-category-pills{
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* Menu category filter specifically (not #orderTypeRow, which only ever
+   holds 2 fixed pills stretched to fill the row via flex:1 below) --
+   one scrollable row instead of wrapping across several lines once there
+   are more categories than fit, scrollbar hidden the same way as the
+   customer-facing chip filters. */
+#categoryPills{
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    touch-action: pan-x;
+    -webkit-overflow-scrolling: touch;
+}
+#categoryPills::-webkit-scrollbar{ display: none; }
+#categoryPills .pos-category-pill{ flex-shrink: 0; }
+
+.pos-category-pill{
+    padding: 12px 16px;
+    border-radius: var(--op-radius-sm);
+    border: 1px solid var(--op-border);
+    background: var(--op-surface);
+    color: var(--op-ink-soft);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.pos-category-pill.is-active{
+    background: var(--op-gold);
+    border-color: var(--op-gold);
+    color: #fff;
+}
+
+/* -- Item grid ----------------------------------------------------------- */
+
+/* max-width caps how wide the grid can grow on a big desktop display -- a
+   handful of items would otherwise spread into a huge, broken-looking void
+   instead of reading as a deliberate, contained layout. */
+.pos-item-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    max-width: 1080px;
+}
+
+/* Horizontal card, wider and more spacious than the previous edge-to-edge
+   version -- the photo is a fixed width+height element INSET inside the
+   card with its own rounding, not stretched to fill the card's height.
+   Every card ends up the same size regardless of image aspect ratio or how
+   many lines the name wraps to -- align-items:flex-start (not stretch)
+   keeps both columns pinned to the top instead of the image being pulled
+   taller/shorter to match whatever height the body column naturally needs.
+
+   The card is a real <button> (see pos.js renderMenuGrid()), not a div, so
+   the whole thing is one native tap/click/keyboard target -- width:100%
+   (instead of the old width:fit-content) lets it stretch to fill its grid
+   cell rather than sitting undersized inside it, and the button-reset
+   properties below strip the browser's default button chrome so it still
+   looks like the card it always was. */
+.pos-item-card{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    width: 100%;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius);
+    background: var(--op-surface);
+    box-shadow: 0 1px 3px rgba(30,24,16,0.06);
+    font-family: inherit;
+    text-align: left;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    transition: transform 0.15s var(--op-ease), box-shadow 0.15s var(--op-ease), border-color 0.15s var(--op-ease);
+}
+
+.pos-item-card:hover:not(:disabled){
+    transform: translateY(-4px);
+    border-color: var(--op-gold-soft-2);
+    box-shadow: var(--op-shadow);
+}
+
+.pos-item-card:active:not(:disabled){
+    transform: translateY(-1px);
+    box-shadow: 0 1px 3px rgba(30,24,16,0.06);
+}
+
+.pos-item-card.is-sold-out{
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* -- Left: photo, fixed width AND height (not just width) so every card's
+   image is identical regardless of the source photo's own aspect ratio --
+   a separate element inside the card, not clipped via the card's own
+   overflow. Wider than before since the Order button is no longer a
+   full-width bar stealing horizontal space from the body column. */
+.pos-item-image-wrap{
+    position: relative;
+    width: 150px;
+    height: 130px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--op-canvas);
+}
+
+.pos-item-image{
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pos-item-image-placeholder{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: var(--op-ink-faint);
+    font-size: 0.66rem;
+    line-height: 1.2;
+    text-align: center;
+    padding: 4px;
+}
+
+/* -- Right: status badge, then the name gets real breathing room to wrap
+   (up to 2 lines) instead of being squeezed against the price, then price
+   + Order button side by side (see .pos-item-bottom) pinned to the card's
+   bottom via margin-top:auto on that row. flex:1/min-width:0 is what lets
+   this column actually claim the row's remaining width next to the fixed-
+   width image -- without it the column just sized to its own content. */
+.pos-item-body{
+    align-self: stretch;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Price above the Order button (not side by side) -- the button itself
+   stays short (align-self:flex-start on .pos-item-order-btn, not stretched
+   full-width). margin-top:auto on the whole group is what pins it down to
+   the card's bottom, leaving the name whatever space is left above it. */
+.pos-item-bottom{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: auto;
+}
+
+/* The pill's own background color carries the status signal -- no
+   separate dot glyph (matches the reference layout, and "no icons"). */
+.pos-item-status-badge{
+    display: inline-block;
+    align-self: flex-start;
+    font-size: 0.66rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: var(--op-radius-pill);
+    white-space: nowrap;
+    color: var(--op-ink-soft);
+    background: var(--op-canvas);
+}
+
+.pos-item-status-badge.is-success{ color: var(--op-success); background: var(--op-success-soft); }
+.pos-item-status-badge.is-warning{ color: var(--op-gold); background: var(--op-gold-soft); }
+.pos-item-status-badge.is-danger { color: var(--op-danger); background: var(--op-danger-soft); }
+.pos-item-status-badge.is-neutral{ color: var(--op-ink-faint); background: var(--op-canvas); }
+
+/* Demoted to a secondary label (smaller, muted) now that price is the
+   card's primary, most-glanceable value -- matches a reference layout the
+   owner asked to be copied for structure, not color. Allowed to wrap up to
+   2 lines (rather than truncate to one) since price+button now form their
+   own tight group at the bottom instead of crowding the name -- long names
+   still get a title tooltip as a fallback past that 2-line clamp. */
+.pos-item-name{
+    font-size: 0.74rem;
+    font-weight: 500;
+    color: var(--op-ink-soft);
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.6em; /* reserves 2 lines even for a 1-line name, so card height doesn't vary with name length */
+}
+
+.pos-item-price{
+    font-size: 1.05rem;
+    color: var(--op-ink);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+/* A visual affordance only now -- the card itself is the real <button> (see
+   .pos-item-card above), so this is a plain <span>. Its "pressed" look
+   follows the parent card's :hover/:active instead of its own pseudo-classes.
+   align-self:flex-start keeps it short or content instead of stretching
+   full-width. var(--op-radius-sm) (not a fully-round pill) matches every
+   other button in this file -- .pos-checkout-btn, .pos-category-pill,
+   .pos-pay-btn, .pos-btn-secondary all use the same radius. */
+.pos-item-order-btn{
+    align-self: flex-start;
+    text-align: center;
+    padding: 7px 16px;
+    border-radius: var(--op-radius-sm);
+    background: var(--op-gold);
+    color: #fff;
+    font-family: 'Lexend', sans-serif;
+    font-weight: 600;
+    font-size: 0.74rem;
+    transition: filter 0.15s var(--op-ease), box-shadow 0.15s var(--op-ease);
+}
+
+.pos-item-card:hover:not(:disabled) .pos-item-order-btn{
+    filter: brightness(0.94);
+    box-shadow: 0 2px 8px rgba(156,119,52,0.35);
+}
+
+.pos-item-card.is-sold-out .pos-item-order-btn{
+    background: var(--op-border);
+    color: var(--op-ink-faint);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Right pane — cart + checkout                                            */
+/* ---------------------------------------------------------------------- */
+
+.pos-cart-pane{
+    flex: 0 0 380px;
+    max-width: 40%;
+    display: flex;
+    flex-direction: column;
+    background: var(--op-surface);
+    border-left: 1px solid var(--op-border);
+}
+
+/* display:flex + flex-direction:column lets .pos-cart-empty's margin:auto
+   center it vertically in the free space when it's the only visible child,
+   while populated cart lines (plain block-level children, no auto margin)
+   still stack top-down exactly as before. */
+.pos-cart-scroll{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 16px 18px;
+}
+
+.pos-cart-section-label{
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--op-ink-faint);
+    margin: 14px 0 6px;
+}
+
+.pos-cart-section-label:first-child{
+    margin-top: 0;
+}
+
+.pos-cart-empty{
+    margin: auto 0;
+    text-align: center;
+    color: var(--op-ink-faint);
+    font-size: 0.87rem;
+    padding: 30px 10px;
+}
+
+.pos-cart-line{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--op-border-soft);
+}
+
+.pos-cart-line-name{
+    flex: 1;
+    min-width: 0;
+    font-size: 0.87rem;
+    color: var(--op-ink);
+}
+
+.pos-cart-line-name small{
+    display: block;
+    color: var(--op-ink-faint);
+    font-size: 0.72rem;
+}
+
+.pos-qty-stepper{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pos-qty-stepper button{
+    width: 22px;
+    height: 22px;
+    border-radius: var(--op-radius-sm);
+    border: 1px solid var(--op-border);
+    background: var(--op-canvas);
+    color: var(--op-ink);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+.pos-qty-stepper span{
+    min-width: 18px;
+    text-align: center;
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.pos-cart-line-price{
+    width: 64px;
+    text-align: right;
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--op-ink);
+}
+
+.pos-cart-line-remove{
+    width: 22px;
+    height: 22px;
+    border: none;
+    background: none;
+    /* Red at rest, not only on hover: this is the one destructive control in
+       the cart, and on a touch terminal there is no hover state to reveal it. */
+    color: var(--op-danger);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--op-radius-sm);
+    flex-shrink: 0;
+}
+
+/* The glyph had no size of its own, so it inherited the cart line's and came
+   out tiny. The old x was a simple stroke that survived that; a trash can has
+   a lid, a body and ribs, and needs the room to be legible. The 22px button is
+   unchanged so the row height and its alignment with the +/- steppers stay
+   exactly as they were -- only the icon inside it grew. */
+.pos-cart-line-remove i{
+    font-size: 1.05rem;
+    line-height: 1;
+}
+
+.pos-cart-line-remove:hover{
+    background: var(--op-danger-soft);
+}
+
+/* -- Totals + checkout --------------------------------------------------- */
+
+.pos-checkout{
+    flex-shrink: 0;
+    padding: 16px 18px;
+    border-top: 1px solid var(--op-border);
+    background: var(--op-surface);
+}
+
+.pos-discount-row{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.pos-discount-row label{
+    font-size: 0.85rem;
+    color: var(--op-ink-soft);
+    flex-shrink: 0;
+}
+
+.pos-discount-row select{
+    flex: 1;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    font-size: 0.85rem;
+    color: var(--op-ink);
+    background: var(--op-canvas);
+}
+
+.pos-discount-row select:focus{
+    outline: none;
+    border-color: var(--op-gold-soft-2);
+    background: var(--op-surface);
+}
+
+.pos-totals-row{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--op-ink-soft);
+    margin-bottom: 4px;
+}
+
+.pos-totals-row span:last-child{
+    font-variant-numeric: tabular-nums;
+    color: var(--op-ink);
+}
+
+.pos-totals-row.is-credit span:last-child{
+    color: var(--op-success);
+}
+
+.pos-totals-row.is-discount span:last-child{
+    color: var(--op-success);
+}
+
+.pos-totals-row.is-balance{
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--op-border-soft);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--op-ink);
+}
+
+.pos-totals-row.is-balance span:last-child{
+    color: var(--op-gold);
+    font-family: 'Lexend', sans-serif;
+}
+
+.pos-credit-note{
+    font-size: 0.76rem;
+    color: var(--op-ink-faint);
+    margin: 4px 0 8px;
+}
+
+.pos-pay-methods{
+    display: flex;
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.pos-pay-btn{
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    background: var(--op-surface);
+    color: var(--op-ink);
+    font-weight: 600;
+    font-size: 0.87rem;
+    cursor: pointer;
+}
+
+.pos-pay-btn.is-selected{
+    border-color: var(--op-gold);
+    background: var(--op-gold-soft);
+    color: var(--op-gold);
+}
+
+/* GCash QR shown in the payment modal when GCash is the selected method.
+   Sized so it is comfortably scannable from across the counter. */
+.pos-gcash-qr{
+    margin-bottom: 14px;
+    padding: 16px;
+    border: 1px solid var(--op-border, #ece6d8);
+    border-radius: 10px;
+    background: var(--op-canvas, #f6f3ec);
+    text-align: center;
+}
+.pos-gcash-qr img{
+    width: 210px;
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    background: #fff;
+    padding: 8px;
+    border-radius: 8px;
+    display: block;
+    margin: 0 auto;
+}
+.pos-gcash-qr-label{
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--op-ink, #241f1a);
+    margin-bottom: 10px;
+}
+.pos-gcash-qr-hint{
+    margin-top: 10px;
+    font-size: 0.74rem;
+    color: var(--op-ink-faint, #a39a8c);
+}
+.pos-gcash-qr-missing{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--op-danger, #cf5a44);
+}
+
+.pos-cash-tendered-row{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0 12px;
+}
+
+.pos-cash-tendered-row label{
+    font-size: 0.85rem;
+    color: var(--op-ink-soft);
+    flex-shrink: 0;
+}
+
+.pos-cash-tendered-row input{
+    width: 100px;
+    padding: 8px 10px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    font-size: 0.9rem;
+    color: var(--op-ink);
+    background: var(--op-canvas);
+}
+
+.pos-cash-tendered-row input:focus{
+    outline: none;
+    border-color: var(--op-gold-soft-2);
+    background: var(--op-surface);
+}
+
+.pos-cash-change-preview{
+    flex: 1;
+    text-align: right;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--op-success);
+}
+
+.pos-cash-change-preview.is-short{
+    color: var(--op-danger);
+}
+
+.pos-covered-note{
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--op-success);
+    background: var(--op-success-soft);
+    padding: 10px;
+    border-radius: var(--op-radius-sm);
+    margin: 12px 0;
+}
+
+/* #orderTypeRow reuses the .pos-category-pills/.pos-category-pill classes
+   (shared with the menu filter pills), so its own sizing/spacing is scoped
+   by id rather than changing those shared rules -- it now sits at the top
+   of the checkout panel, right above the discount row, and its two
+   buttons should split the full row width evenly (like the Cash/GCash
+   buttons in the payment modal) instead of sizing to their own text. */
+#orderTypeRow{
+    flex-wrap: nowrap;
+    margin-bottom: 14px;
+}
+#orderTypeRow .pos-category-pill{
+    flex: 1;
+    text-align: center;
+}
+
+.pos-checkout-btn{
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: var(--op-radius-sm);
+    background: var(--op-gold);
+    color: #fff;
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: filter 0.15s var(--op-ease);
+}
+
+.pos-checkout-btn:hover:not(:disabled){
+    filter: brightness(0.94);
+}
+
+/* Compact gold "primary action" button -- .pos-checkout-btn is width:100%
+   and sized for a modal footer / the checkout panel, so it doesn't fit an
+   inline spot like a filter bar's submit button. Same visual weight as
+   owner-panel.css's .owner-btn-primary, so a primary action reads the
+   same regardless of which side of the app it's on -- everything in
+   cashier/ used to fall back to .pos-btn-secondary's white/outline style
+   for lack of anything else to use, which is why nothing but the
+   full-width checkout flow ever looked like "the" action to take. */
+.pos-btn-primary{
+    flex: 0 0 auto;
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--op-radius-sm);
+    background: var(--op-gold);
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: filter 0.15s ease;
+}
+
+.pos-btn-primary:hover{
+    filter: brightness(0.94);
+}
+
+.pos-checkout-btn:disabled{
+    background: var(--op-border);
+    color: var(--op-ink-faint);
+    cursor: not-allowed;
+}
+
+/* -- Confirmation state --------------------------------------------------- */
+
+.pos-confirmation{
+    text-align: center;
+    padding: 20px 10px;
+}
+
+.pos-confirmation i{
+    font-size: 2.4rem;
+    color: var(--op-success);
+}
+
+.pos-confirmation-order{
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 10px 0 4px;
+}
+
+.pos-confirmation-actions{
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.pos-btn-secondary{
+    flex: 1;
+    padding: 13px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    background: var(--op-surface);
+    color: var(--op-ink);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+/* Combined with .pos-btn-secondary (class="pos-btn-secondary pos-btn-danger")
+   for a consequential action that still isn't the destructive act itself --
+   e.g. "Request void" only files a request, an owner/manager still has to
+   approve it -- so it gets a warning tint rather than a filled danger
+   button, same convention as owner-panel.css's .owner-btn-danger. */
+.pos-btn-danger{
+    border-color: var(--op-danger-soft);
+    color: var(--op-danger);
+}
+.pos-btn-danger:hover{
+    background: var(--op-danger-soft);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Flash alerts — class names must match config/flash.php's hard-coded    */
+/* markup exactly (owner-alert*), even though this page doesn't load      */
+/* owner-panel.css.                                                        */
+/* ---------------------------------------------------------------------- */
+
+.owner-alert{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: var(--op-radius-sm);
+    font-size: 0.87rem;
+    margin: 12px 20px 0;
+}
+
+.owner-alert i:first-child{
+    font-size: 1.05rem;
+    flex-shrink: 0;
+}
+
+.owner-alert span{ flex: 1; }
+
+.owner-alert-success{ background: var(--op-success-soft); color: var(--op-success); }
+.owner-alert-error{ background: var(--op-danger-soft); color: var(--op-danger); }
+
+.owner-alert-dismiss{
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border: none;
+    background: none;
+    color: inherit;
+    opacity: 0.6;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--op-radius-sm);
+}
+
+.owner-alert-dismiss:hover{ opacity: 1; }
+
+/* -- Inline toast (JS-driven, JSON error surface) ------------------------ */
+
+.pos-toast{
+    position: fixed;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    z-index: 100;
+    max-width: 90vw;
+    padding: 12px 18px;
+    border-radius: var(--op-radius-sm);
+    background: var(--op-ink);
+    color: #fff;
+    font-size: 0.85rem;
+    box-shadow: var(--op-shadow);
+}
+
+.pos-toast.is-error{ background: var(--op-danger); }
+.pos-toast.is-success{ background: var(--op-success); }
+
+/* ---------------------------------------------------------------------- */
+/* Modals -- QR scanner + auto-shown receipt after checkout. Mirrors       */
+/* owner-panel.css's .owner-modal-backdrop/.owner-modal pattern exactly    */
+/* (same tokens, same open/close transition), renamed to the pos- prefix.  */
+/* ---------------------------------------------------------------------- */
+
+.pos-modal-backdrop{
+    position: fixed;
+    inset: 0;
+    background: rgba(20,15,11,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.18s var(--op-ease), visibility 0.18s var(--op-ease);
+}
+
+.pos-modal-backdrop.is-open{
+    opacity: 1;
+    visibility: visible;
+}
+
+.pos-modal{
+    display: flex;
+    flex-direction: column;
+    background: var(--op-surface);
+    border-radius: var(--op-radius);
+    box-shadow: var(--op-shadow);
+    width: 100%;
+    max-width: 420px;
+    max-height: calc(100vh - 40px);
+    max-height: calc(100dvh - 40px);
+    overflow: clip;
+    transform: translateY(8px) scale(0.98);
+    transition: transform 0.18s var(--op-ease);
+}
+
+.pos-modal-sm{
+    max-width: 340px;
+}
+
+/* Shift-detail modal (Shift History "View") -- wide enough on desktop to
+   hold a full data table per tab without its own inner scrollbar fighting
+   the outer one. Goes edge-to-edge full-screen below the shell's own
+   900px breakpoint (see the mobile rule further down this file). */
+.pos-modal-lg{
+    max-width: 900px;
+    width: 78%;
+}
+
+.pos-modal-backdrop.is-open .pos-modal{
+    transform: translateY(0) scale(1);
+}
+
+.pos-modal-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--op-border);
+    flex-shrink: 0;
+}
+
+.pos-modal-title{
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.02rem;
+    font-weight: 600;
+    color: var(--op-ink);
+    margin: 0;
+}
+
+.pos-modal-close{
+    width: 30px;
+    height: 30px;
+    border-radius: var(--op-radius-sm);
+    border: 1px solid var(--op-border);
+    background: var(--op-surface);
+    color: var(--op-ink-soft);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.pos-modal-close:hover{
+    background: var(--op-danger-soft);
+    color: var(--op-danger);
+}
+
+.pos-modal-body{
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.pos-modal-footer{
+    display: flex;
+    gap: 8px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--op-border);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.pos-modal-footer .pos-btn-secondary,
+.pos-modal-footer .pos-checkout-btn{
+    flex: 1;
+}
+
+.pos-modal-footer .pos-checkout-btn{
+    width: auto;
+    padding: 11px;
+    font-size: 0.87rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.pos-modal-hint{
+    margin: 12px 0 0;
+    font-size: 0.8rem;
+    color: var(--op-ink-faint);
+    text-align: center;
+}
+
+body.pos-modal-open{
+    overflow: hidden;
+}
+
+#qrScannerRegion{
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--op-radius-sm);
+    overflow: hidden;
+    background: var(--op-ink);
+}
+
+#qrScannerRegion video{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Printing the receipt (no more standalone receipt.php page -- the modal
+   is the only place it's shown, so it's also what gets printed). Hides
+   everything else, lets the modal's own header/footer chrome (close/print/
+   new-order buttons) drop out, and un-clips the body so a long receipt
+   flows across pages instead of being cut off at the modal's on-screen
+   max-height/scroll.
+   Targets .pos-modal-backdrop.is-open rather than one hardcoded ID --
+   pos.php's own post-checkout modal is #receiptModalBackdrop, but
+   remittance_report.php and orders.php each have their own "view a past
+   receipt" modal under a different ID (#receiptViewModalBackdrop). Print
+   is only ever wired to a receipt modal's own Print button, so whichever
+   .pos-modal-backdrop is open at print time is always the right one --
+   hardcoding a single ID here previously meant those other pages printed
+   a blank page (the modal was hidden right along with everything else). */
+@media print{
+    body *{
+        visibility: hidden;
+    }
+
+    .pos-modal-backdrop.is-open,
+    .pos-modal-backdrop.is-open *{
+        visibility: visible;
+    }
+
+    /* display:block (not the base rule's flex+center-both-axes) so the
+       receipt sits at the top of the print area instead of being vertically
+       centered on an "auto" (i.e. continuous-roll) thermal page -- the
+       receipt's own width:<paper-width>mm + margin:0 auto (in
+       receipt_body.php) already handles horizontal placement correctly on
+       both an exact-width thermal page (no-op, already flush) and an A4/PDF
+       fallback (centers it, as required). */
+    .pos-modal-backdrop.is-open{
+        display: block;
+        position: absolute;
+        inset: 0;
+        background: #fff;
+        padding: 0;
+    }
+
+    .pos-modal-backdrop.is-open .pos-modal{
+        display: block;
+        max-width: none;
+        max-height: none;
+        overflow: visible;
+        box-shadow: none;
+        border-radius: 0;
+        transform: none;
+    }
+
+    .pos-modal-backdrop.is-open .pos-modal-body{
+        padding: 0;
+        overflow: visible;
+        background: none;
+    }
+
+    .pos-modal-backdrop.is-open .pos-modal-header,
+    .pos-modal-backdrop.is-open .pos-modal-footer{
+        display: none;
+    }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Responsive — stack panes on narrow screens, sidebar becomes a drawer    */
+/* ---------------------------------------------------------------------- */
+
+@media (max-width: 860px){
+    .pos-main{
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .pos-item-grid{
+        max-width: none;
+    }
+
+    .pos-cart-pane{
+        flex: none;
+        max-width: none;
+        border-left: none;
+        border-top: 1px solid var(--op-border);
+    }
+
+    .pos-cart-scroll{
+        max-height: 220px;
+    }
+}
+
+/* Same off-canvas breakpoint owner-panel.css uses for .owner-sidebar. */
+@media (max-width: 900px){
+    .pos-sidebar{
+        position: fixed;
+        left: 0;
+        top: 0;
+        transform: translateX(-100%);
+        transition: transform 0.24s var(--op-ease);
+        box-shadow: var(--op-shadow);
+    }
+
+    .pos-sidebar.is-open{
+        transform: translateX(0);
+    }
+
+    .pos-sidebar-backdrop{
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(20,15,11,0.4);
+        opacity: 0;
+        visibility: hidden;
+        z-index: 35;
+        transition: opacity 0.2s var(--op-ease), visibility 0.2s var(--op-ease);
+    }
+
+    .pos-sidebar-backdrop.is-visible{
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .pos-menu-toggle{
+        display: flex;
+    }
+
+    /* .pos-menu-toggle is position:fixed (floats over content, doesn't push
+       it), so every page using this shell needs top clearance below this
+       breakpoint or its first row of content sits underneath the button --
+       caught on remittance_report.php's title and pos.php's shift indicator
+       both rendering right behind it. 38px button + 14px top offset = 52px
+       bottom edge; 56px clears it with a small buffer. */
+    .pos-content{
+        padding-top: 56px;
+    }
+
+    /* Shift-detail modal goes edge-to-edge full-screen on mobile -- no
+       radius/shadow/margins, header+footer stay fixed while the tab body
+       scrolls (same "content scrolls, chrome doesn't" shape as the modal's
+       desktop layout, just filling the whole viewport). */
+    .pos-modal-lg{
+        width: 100%;
+        max-width: none;
+        height: 100%;
+        max-height: none;
+        border-radius: 0;
+    }
+
+    .pos-modal-backdrop-lg{
+        padding: 0;
+    }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Remittance report page (remittance_report.php) -- a single scrollable   */
+/* column (unlike pos.php's two-pane .pos-main), same pos-sidebar shell.   */
+/* ---------------------------------------------------------------------- */
+
+.pos-report-main{
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px 60px;
+}
+
+.pos-report-alert{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    margin: 0 24px 16px;
+    border-radius: var(--op-radius-sm);
+    background: var(--op-danger-soft);
+    color: var(--op-danger);
+    font-size: 0.85rem;
+}
+
+.pos-report-head{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.pos-report-eyebrow{
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--op-gold);
+    margin-bottom: 4px;
+}
+
+.pos-report-title{
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--op-ink);
+    margin: 0 0 4px;
+}
+
+.pos-report-subtitle{
+    font-size: 0.85rem;
+    color: var(--op-ink-soft);
+}
+
+.pos-report-head-actions{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* -- Variance status banner: the single most action-relevant number on a
+   closed shift (over/short/balanced), so it gets top billing above the
+   summary grid instead of being buried in a small pill. Not shown for an
+   open shift -- there's nothing to report on until it's counted. -------- */
+.pos-variance-banner{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-radius: var(--op-radius);
+    margin-bottom: 18px;
+}
+
+.pos-variance-banner i{
+    font-size: 1.6rem;
+    flex-shrink: 0;
+}
+
+.pos-variance-banner-title{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 0.96rem;
+    line-height: 1.3;
+}
+
+.pos-variance-banner-sub{
+    font-size: 0.8rem;
+    opacity: 0.82;
+    margin-top: 2px;
+}
+
+.pos-variance-banner.is-success{ background: var(--op-success-soft); color: var(--op-success); }
+.pos-variance-banner.is-danger{ background: var(--op-danger-soft); color: var(--op-danger); }
+.pos-variance-banner.is-info{ background: var(--op-gold-soft); color: var(--op-gold); }
+
+.pos-summary-section-label{
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--op-ink-faint);
+    margin-bottom: 8px;
+}
+
+.pos-summary-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.pos-summary-card{
+    background: var(--op-surface);
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius);
+    padding: 14px 16px;
+}
+
+.pos-summary-card-label{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--op-ink-faint);
+    margin-bottom: 6px;
+}
+
+.pos-summary-card-label i{
+    font-size: 0.85rem;
+}
+
+.pos-summary-card-value{
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--op-ink);
+}
+
+.pos-summary-card-meta{
+    font-size: 0.78rem;
+    color: var(--op-ink-faint);
+    margin-top: 6px;
+}
+
+/* One card per group (Sales this shift / Cash drawer reconciliation)
+   instead of one card per stat -- same label/value/meta text, just without
+   each stat's own border/background, laid out in a grid inside a single
+   shared card. */
+.pos-summary-card-group{
+    background: var(--op-surface);
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px 20px;
+}
+
+/* Underline tabs, matching the owner panel's .owner-tabs/.owner-tabs-link
+   exactly -- same tokens, same shape, so a shift detail view looks the
+   same regardless of which side of the app opened it. */
+.pos-tabs{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border-bottom: 1px solid var(--op-border);
+    margin-bottom: 20px;
+    overflow-x: auto;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.pos-tabs-link{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    color: var(--op-ink-soft);
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 0.87rem;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.pos-tabs-link:hover{ color: var(--op-ink); }
+
+.pos-tabs-link.is-active{
+    color: var(--op-gold);
+    border-bottom-color: var(--op-gold);
+    font-weight: 600;
+}
+
+.pos-report-card{
+    background: var(--op-surface);
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius);
+    padding: 18px 20px;
+    margin-bottom: 18px;
+}
+
+.pos-report-card-head{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.pos-report-card-title{
+    font-family: 'Lexend', sans-serif;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: var(--op-ink);
+    margin: 0;
+}
+
+.pos-report-card-subtitle{
+    font-size: 0.8rem;
+    color: var(--op-ink-soft);
+}
+
+.pos-report-table-wrap{
+    overflow-x: auto;
+}
+
+.pos-report-table{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.pos-report-table th{
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--op-ink-faint);
+    border-bottom: 1px solid var(--op-border);
+    white-space: nowrap;
+}
+
+.pos-report-table th.num,
+.pos-report-table td.num{
+    text-align: right;
+}
+
+.pos-report-table td.num{
+    font-variant-numeric: tabular-nums;
+}
+
+.pos-report-table .pos-method-cell{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pos-report-table .pos-method-cell i{
+    color: var(--op-ink-faint);
+    font-size: 0.9rem;
+}
+
+.pos-report-table td{
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--op-border-soft);
+    color: var(--op-ink);
+    white-space: nowrap;
+}
+
+.pos-report-table tbody tr:last-child td{
+    border-bottom: none;
+}
+
+.pos-report-empty-row{
+    text-align: center !important;
+    color: var(--op-ink-faint) !important;
+    padding: 24px 10px !important;
+    white-space: normal !important;
+}
+
+.pos-table-actions{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* .pos-btn-secondary is sized for a modal footer (flex:1, 13px padding), so
+   it needs reining in to sit inside a table row without stretching to fill
+   the actions cell. */
+.pos-btn-inline{
+    flex: none;
+    padding: 6px 11px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.pos-icon-link{
+    width: 30px;
+    height: 30px;
+    border-radius: var(--op-radius-sm);
+    border: 1px solid var(--op-border);
+    background: var(--op-surface);
+    color: var(--op-ink-soft);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.pos-icon-link:hover{
+    background: var(--op-gold-soft);
+    color: var(--op-gold);
+}
+
+/* -- Shift detail modal tabs (reuses .pos-category-pills/.pos-category-pill
+   verbatim -- same toggle component pos.php already uses for Dine-in/
+   Takeout, just repurposed as tabs so no new component is invented) ------ */
+.pos-shift-tabs{
+    margin-bottom: 16px;
+}
+
+.pos-shift-tab-panel dl.pos-detail-list{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px 20px;
+    margin: 0;
+}
+
+.pos-detail-list > div{
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--op-border-soft);
+    font-size: 0.85rem;
+}
+
+.pos-detail-list dt{
+    color: var(--op-ink-faint);
+}
+
+.pos-detail-list dd{
+    margin: 0;
+    color: var(--op-ink);
+    font-weight: 500;
+    text-align: right;
+}
+
+.pos-report-empty{
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--op-ink-soft);
+}
+
+.pos-report-empty i{
+    font-size: 2rem;
+    color: var(--op-ink-faint);
+    display: block;
+    margin-bottom: 10px;
+}
+
+.pos-report-empty p{
+    margin: 0 0 16px;
+    font-size: 0.9rem;
+}
+
+.pos-report-filter-form{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.pos-report-filter-form select,
+.pos-report-filter-form input{
+    padding: 8px 12px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    font-size: 0.85rem;
+    color: var(--op-ink);
+    background: var(--op-surface);
+}
+
+/* Same override as .pos-lookup-row .pos-btn-secondary above: .pos-btn-
+   secondary's base flex:1 (meant for a 2-button modal footer) otherwise
+   stretches Filter/Clear to split all the row's remaining space evenly,
+   which is why they rendered nearly as wide as the whole filter bar --
+   the inline width:auto on these buttons never touches flex-grow, so it
+   couldn't fix this on its own. */
+.pos-report-filter-form .pos-btn-secondary{
+    flex: 0 0 auto;
+}
+
+/* -- Form fields (modal forms) -------------------------------------------
+   Every other control in this stylesheet is styled through its own container
+   (.pos-discount-row select, .pos-report-filter-form input), which works fine
+   for the one form each was written for but leaves anything new -- like the
+   Request-void modal -- rendering as raw browser defaults. These are the
+   reusable pieces: a labelled field wrapper and one control class that covers
+   input, select and textarea.
+
+   font-family:inherit matters more than it looks. A bare <textarea> falls back
+   to the browser's monospace face, so the void modal's notes box was rendering
+   in Courier next to Poppins labels. */
+.pos-field{ margin-bottom: 14px; }
+.pos-field:last-child{ margin-bottom: 0; }
+
+.pos-field-label{
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--op-ink);
+    margin-bottom: 6px;
+}
+
+.pos-input{
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    font-family: inherit;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: var(--op-ink);
+    background: var(--op-surface);
+}
+
+/* Only vertical: a horizontally resizable textarea can be dragged wider than
+   the modal that contains it. */
+textarea.pos-input{ resize: vertical; min-height: 78px; }
+
+.pos-input:focus{
+    outline: none;
+    border-color: var(--op-gold);
+}
+
+.pos-input::placeholder{ color: var(--op-ink-faint); }
+
+/* Native select keeps its own arrow; just stop iOS/Safari shrinking the text. */
+select.pos-input{ -webkit-appearance: menulist; appearance: menulist; }
+
+/* -- Pagination (order history, and any future paginated table) ----------- */
+.pos-pagination{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 20px;
+}
+
+.pos-pagination-info{
+    font-size: 0.84rem;
+    color: var(--op-ink-soft);
+}
+
+.pos-pagination .pos-btn-secondary:disabled{
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* -- Status pills (open/closed, balanced/over/short) ---------------------- */
+
+.pos-status-pill{
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 11px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.pos-status-pill.is-info{ background: var(--op-gold-soft); color: var(--op-gold); }
+.pos-status-pill.is-neutral{ background: var(--op-canvas); color: var(--op-ink-faint); }
+.pos-status-pill.is-success{ background: var(--op-success-soft); color: var(--op-success); }
+.pos-status-pill.is-danger{ background: var(--op-danger-soft); color: var(--op-danger); }
+
+@media (max-width: 860px){
+    .pos-summary-grid,
+    .pos-summary-card-group{
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 520px){
+    .pos-summary-grid,
+    .pos-summary-card-group{
+        grid-template-columns: 1fr;
+    }
+
+    .pos-report-main{
+        padding: 16px 16px 60px;
+    }
+
+    .pos-shift-indicator{
+        padding: 6px 16px;
+        flex-wrap: wrap;
+    }
+
+    /* Same fix as .owner-inv-filters in owner-panel.css: below this, the
+       filter bar only ever wrapped organically (flex-wrap with no
+       breakpoint), so two controls landing side by side purely because
+       their natural widths happened to sum under the viewport -- while
+       their neighbours fell to their own line -- read as broken rather
+       than responsive. Every control becomes one full-width row instead. */
+    .pos-report-filter-form{
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .pos-report-filter-form > *{
+        width: 100% !important;
+        max-width: none !important;
+        margin-left: 0 !important;
+    }
+    .pos-report-filter-form .pos-btn-secondary{
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+}
+
+
+/* ---------------------------------------------------------------------- */
+/* Sidebar: only the links scroll                                          */
+/* ---------------------------------------------------------------------- */
+/* .pos-sidebar-footer was already pinned with margin-top:auto, but the whole
+   sidebar scrolled -- so once the menu outgrew the viewport the footer simply
+   scrolled away with it. Moving the scroll onto .pos-nav makes the pin real.
+   See owner-panel.css for why min-height:0 and 100dvh are both required. */
+.pos-sidebar{
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+.pos-sidebar-brand{ flex-shrink: 0; }
+
+.pos-nav{
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+/* The scrollbar appears only while the menu is in use. A permanent track down
+   the side of a sidebar reads as a border that is not there, and on a menu that
+   only just overflows it draws attention to a scroll of a few pixels.
+   Both engines are covered: scrollbar-color for Firefox, the ::-webkit- rules
+   for Chrome, Edge and Safari. Nothing is hidden from a keyboard user -- focus
+   inside the nav brings it back, as does hover. */
+/* Every scrolling pane in the terminal, not just the nav. The menu grid, the
+   cart, the modals and the report body were all falling back to the operating
+   system's own scrollbar -- a wide grey track with stepper arrows sitting right
+   next to the styled one in the sidebar. Listing them together is what keeps
+   them identical; six separate copies is how they drift apart. */
+.pos-nav,
+.pos-menu-pane,
+.pos-cart-scroll,
+.pos-modal-body,
+.pos-main,
+.pos-report-main{
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.18s var(--op-ease);
+}
+
+.pos-nav:hover, .pos-nav:focus-within,
+.pos-menu-pane:hover, .pos-menu-pane:focus-within,
+.pos-cart-scroll:hover, .pos-cart-scroll:focus-within,
+.pos-modal-body:hover, .pos-modal-body:focus-within,
+.pos-main:hover, .pos-main:focus-within,
+.pos-report-main:hover, .pos-report-main:focus-within{
+    scrollbar-color: var(--op-border) transparent;
+}
+
+.pos-nav::-webkit-scrollbar,
+.pos-menu-pane::-webkit-scrollbar,
+.pos-cart-scroll::-webkit-scrollbar,
+.pos-modal-body::-webkit-scrollbar,
+.pos-main::-webkit-scrollbar,
+.pos-report-main::-webkit-scrollbar{ width: 8px; }
+
+.pos-nav::-webkit-scrollbar-track,
+.pos-menu-pane::-webkit-scrollbar-track,
+.pos-cart-scroll::-webkit-scrollbar-track,
+.pos-modal-body::-webkit-scrollbar-track,
+.pos-main::-webkit-scrollbar-track,
+.pos-report-main::-webkit-scrollbar-track{ background: transparent; }
+
+.pos-nav::-webkit-scrollbar-thumb,
+.pos-menu-pane::-webkit-scrollbar-thumb,
+.pos-cart-scroll::-webkit-scrollbar-thumb,
+.pos-modal-body::-webkit-scrollbar-thumb,
+.pos-main::-webkit-scrollbar-thumb,
+.pos-report-main::-webkit-scrollbar-thumb{
+    background: transparent;
+    border-radius: 4px;
+    transition: background 0.18s var(--op-ease);
+}
+
+.pos-nav:hover::-webkit-scrollbar-thumb, .pos-nav:focus-within::-webkit-scrollbar-thumb,
+.pos-menu-pane:hover::-webkit-scrollbar-thumb, .pos-menu-pane:focus-within::-webkit-scrollbar-thumb,
+.pos-cart-scroll:hover::-webkit-scrollbar-thumb, .pos-cart-scroll:focus-within::-webkit-scrollbar-thumb,
+.pos-modal-body:hover::-webkit-scrollbar-thumb, .pos-modal-body:focus-within::-webkit-scrollbar-thumb,
+.pos-main:hover::-webkit-scrollbar-thumb, .pos-main:focus-within::-webkit-scrollbar-thumb,
+.pos-report-main:hover::-webkit-scrollbar-thumb, .pos-report-main:focus-within::-webkit-scrollbar-thumb{
+    background: var(--op-border);
+}
+
+.pos-sidebar-footer{ flex-shrink: 0; }
+
+/* ---------------------------------------------------------------------- */
+/* Close Shift — "are you sure you input the right counted cash?" step     */
+/* ---------------------------------------------------------------------- */
+
+/* The Close Shift modal swaps between two panes (and two footers) in place
+   rather than stacking a second backdrop. These need the native [hidden]
+   attribute to actually win: .pos-modal-footer and .pos-totals-row both set
+   display themselves, and an element's own display rule silently defeats
+   [hidden]'s UA default. */
+.pos-modal-body[hidden],
+.pos-modal-footer[hidden],
+.pos-totals-row[hidden]{
+    display: none !important;
+}
+
+/* The read-back itself: the amount the cashier typed, played back large
+   enough to be checked at a glance against the cash actually in hand. */
+.pos-confirm-count{
+    text-align: center;
+    padding: 2px 0 18px;
+}
+
+.pos-confirm-count-icon{
+    font-size: 1.9rem;
+    line-height: 1;
+    color: var(--op-gold);
+}
+
+.pos-confirm-count-q{
+    font-family: 'Lexend', sans-serif;
+    font-size: 0.97rem;
+    font-weight: 600;
+    color: var(--op-ink);
+    margin: 10px 0 16px;
+    line-height: 1.4;
+}
+
+.pos-confirm-count-amount{
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: var(--op-ink);
+    letter-spacing: -0.5px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+.pos-confirm-count-label{
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--op-ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin: 4px 0 0;
+}
+
+/* Same three-way tone language as the variance banner and the live diff
+   preview, so balanced/over/short read identically everywhere. */
+.pos-totals-row.is-exact span:last-child{ color: var(--op-success); }
+.pos-totals-row.is-over  span:last-child{ color: var(--op-gold); }
+.pos-totals-row.is-short span:last-child{ color: var(--op-danger); }

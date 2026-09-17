@@ -1,0 +1,650 @@
+/* ============================================================
+   OPO! — Shared Auth Form Styles
+   Used by: login.php, sign_up.php,
+            forgot_password.php, reset_password.php
+   ============================================================ */
+
+:root {
+    /* Colors strictly defined by the OPO! design */
+    --espresso: #1a120b;
+    --espresso-darker: #0d0905;
+    --gold: #c5a059;
+    --gold-bright: #e0bb7d;
+    --btn-peach: #e09f7a;
+    --white-soft: #f5f1e3;
+
+    /* Glassmorphism properties */
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(197, 160, 89, 0.3);
+    --blur: blur(15px);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: linear-gradient(135deg, var(--espresso-darker) 0%, var(--espresso) 100%);
+    font-family: 'Poppins', sans-serif;
+    color: var(--white-soft);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 40px 20px;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* ============================================================
+   Ambient background — slow-drifting gold/amber glow blobs behind
+   the glass card. Pure CSS (no image assets), fixed so they don't
+   affect document flow/height on tall forms like Sign Up.
+   ============================================================ */
+body::before,
+body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(70px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: .35;
+}
+body::before {
+    width: 480px; height: 480px;
+    top: -140px; left: -120px;
+    background: radial-gradient(circle, var(--gold) 0%, transparent 70%);
+    animation: driftOne 22s ease-in-out infinite;
+}
+body::after {
+    width: 420px; height: 420px;
+    bottom: -160px; right: -100px;
+    background: radial-gradient(circle, var(--btn-peach) 0%, transparent 70%);
+    animation: driftTwo 26s ease-in-out infinite;
+}
+@keyframes driftOne {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(40px, 30px) scale(1.08); }
+}
+@keyframes driftTwo {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(-30px, -25px) scale(1.05); }
+}
+@media (prefers-reduced-motion: reduce) {
+    body::before, body::after { animation: none; }
+}
+
+/* ============================================================
+   Glass Card
+   ============================================================ */
+.glass-container {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--blur);
+    backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 50px 40px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    z-index: 1;
+    animation: cardIn .55s cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes cardIn {
+    from { opacity: 0; transform: translateY(18px) scale(.98); }
+    to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .glass-container { animation: none; }
+}
+
+/* Slightly wider variant for forms with more fields (e.g. Sign Up) */
+.glass-container.wide {
+    max-width: 500px;
+}
+
+.glass-container:hover {
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.9);
+    border-color: rgba(197, 160, 89, 0.5);
+}
+
+/* ============================================================
+   Branding
+   ============================================================ */
+.logo-header { margin-bottom: 25px; }
+
+.logo-header img {
+    height: 50px;
+    width: auto;
+    filter: brightness(0) invert(1);
+    transition: transform 0.5s ease;
+}
+
+.logo-header:hover img { transform: scale(1.05); }
+
+.logo-sub {
+    font-size: 0.6rem;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 8px;
+}
+
+/* ============================================================
+   Titles
+   ============================================================ */
+.form-title {
+    font-family: 'Lexend', sans-serif;
+    color: var(--white-soft);
+    font-size: 1.6rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+/* When a page has no subtitle right under the title (e.g. Sign In, Sign Up),
+   give it the extra breathing room the subtitle would normally provide. */
+.form-title.form-title--solo {
+    margin-bottom: 30px;
+}
+
+.form-subtitle {
+    font-size: 0.8rem;
+    color: #999;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+/* ============================================================
+   Alert Messages
+   ============================================================ */
+.alert-error {
+    background: rgba(224, 112, 112, 0.15);
+    border: 1px solid rgba(224, 112, 112, 0.35);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.8rem;
+    color: #ff6b6b;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: left;
+}
+
+.alert-success {
+    background: rgba(126, 203, 138, 0.15);
+    border: 1px solid rgba(126, 203, 138, 0.35);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.8rem;
+    color: #7ecb8a;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.alert-error i { font-size: 0.9rem; flex-shrink: 0; }
+.alert-success i { font-size: 0.9rem; }
+
+/* Alignment variant for multi-line alerts (e.g. error + "request a new one" link) */
+.alert-error.align-top { align-items: flex-start; }
+
+/* Centered variant used on success screens that also show an action button
+   (e.g. Reset Password success) */
+.alert-success.centered {
+    display: block;
+    text-align: center;
+}
+
+.alert-success.centered i {
+    display: block;
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+}
+
+/* Inline call-to-action button shown inside a success alert */
+.btn-signin {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 12px 32px;
+    background: var(--gold);
+    border-radius: 8px;
+    color: var(--espresso);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.btn-signin:hover { background: var(--gold-bright); }
+
+/* ============================================================
+   Form Layout
+   ============================================================ */
+
+/* A single field, stacked vertically */
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+/* A row of fields side-by-side (collapses to a column on small screens) */
+.form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.form-row .input-wrap { flex: 1; }
+
+.input-wrap {
+    position: relative;
+    text-align: left;
+}
+
+.input-label {
+    display: block;
+    color: #999;
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    transition: color 0.3s ease;
+}
+
+.req {
+    color: var(--gold);
+    margin-left: 2px;
+}
+
+/* Highlight label on focus */
+.input-wrap:focus-within .input-label { color: var(--gold); }
+
+/* ============================================================
+   Inputs
+   ============================================================ */
+input {
+    width: 100%;
+    padding: 14px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(217, 210, 197, 0.15);
+    border-radius: 8px;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+input::placeholder { color: #666; }
+
+input:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(197, 160, 89, 0.4);
+}
+
+input:focus {
+    border-color: var(--gold);
+    outline: none;
+    background: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 10px rgba(197, 160, 89, 0.2);
+}
+
+/* Extra right-padding so text doesn't sit under the eye icon */
+input.has-icon {
+    padding-right: 44px;
+}
+
+/* ============================================================
+   Leading field icon (envelope, lock, user, phone…) — sits inside
+   the input on the left. Requires .input-wrap to be the icon's
+   positioning parent and contain ONLY the icon + input (+ optional
+   trailing toggle button), not the label.
+   ============================================================ */
+.leading-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #776b5d;
+    font-size: 0.85rem;
+    pointer-events: none;
+    z-index: 2;
+    transition: color 0.3s ease;
+}
+.input-wrap:focus-within .leading-icon { color: var(--gold); }
+input.has-leading { padding-left: 42px; }
+
+/* ============================================================
+   Email Validation (Forgot Password)
+   ============================================================ */
+.email-valid {
+    border-color: #7ecb8a !important;
+}
+
+.email-invalid {
+    border-color: #ff6b6b !important;
+}
+
+.validation-hint {
+    font-size: 0.65rem;
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.validation-hint:empty {
+    display: none;
+    padding: 0;
+    margin-top: 0;
+}
+
+.validation-hint.valid {
+    color: #7ecb8a;
+    background: rgba(126, 203, 138, 0.1);
+}
+
+.validation-hint.invalid {
+    color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.1);
+}
+
+/* ============================================================
+   Password Visibility Toggle
+   ============================================================ */
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #999;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+    z-index: 10;
+    background: none;
+    border: none;
+    padding: 4px;
+}
+
+.toggle-password:hover { color: var(--gold); }
+
+/* ============================================================
+   Password Strength Meter
+   ============================================================ */
+.pw-strength {
+    margin-top: 8px;
+    display: flex;
+    gap: 4px;
+}
+
+.pw-bar {
+    flex: 1;
+    height: 3px;
+    border-radius: 10px;
+    background: rgba(197, 160, 89, 0.15);
+    transition: background 0.3s;
+}
+
+.pw-bar.weak { background: #ff6b6b; }
+.pw-bar.fair { background: #e0b870; }
+.pw-bar.strong { background: #7ecb8a; }
+
+.pw-hint {
+    font-size: 0.65rem;
+    color: #999;
+    margin-top: 5px;
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn-submit {
+    background: var(--gold);
+    color: var(--espresso);
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 25px;
+    transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(197, 160, 89, 0.4);
+}
+
+.btn-submit:active { transform: translateY(0); }
+
+.btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Shown briefly on submit (via JS) to prevent double-submits and give
+   feedback that the request is in flight — .btn-submit:disabled above
+   already dims it, this just adds the spinner via ::before. */
+.btn-submit.is-loading {
+    color: transparent;
+    position: relative;
+    pointer-events: none;
+}
+.btn-submit.is-loading::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 16px; height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid rgba(26, 18, 11, 0.35);
+    border-top-color: var(--espresso);
+    border-radius: 50%;
+    animation: btnSpin 0.7s linear infinite;
+}
+@keyframes btnSpin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   Google Sign-In Button
+   ============================================================ */
+.btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 13px;
+    border: 1.5px solid var(--gold);
+    border-radius: 8px;
+    background: #ffffff;
+    color: #3c3c3c;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s ease;
+}
+.btn-google img { width: 18px; height: 18px; }
+.btn-google:hover {
+    background: #fdfaf5;
+    border-color: var(--gold-bright);
+    box-shadow: 0 4px 14px rgba(197, 160, 89, 0.3);
+    transform: translateY(-1px);
+}
+.btn-google:active { transform: translateY(0); }
+
+.oauth-block { margin-bottom: 24px; }
+
+/* ============================================================
+   "Or" Divider
+   ============================================================ */
+.divider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    color: #999;
+    font-size: 0.75rem;
+}
+.divider-row span.divider-line {
+    flex: 1;
+    height: 1px;
+    background: rgba(217, 210, 197, 0.15);
+}
+
+/* ============================================================
+   Navigation & Footer
+   ============================================================ */
+.footer-text {
+    margin-top: 30px;
+    font-size: 0.8rem;
+    color: #999;
+}
+
+.footer-text a {
+    color: var(--gold);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.footer-text a:hover { color: var(--white-soft); }
+
+.back-btn {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--white-soft);
+    border: 1px solid var(--glass-border);
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.4s ease;
+    z-index: 1000;
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+}
+
+.back-btn:hover {
+    background: var(--gold);
+    color: var(--espresso);
+    transform: translateX(-5px);
+}
+
+/* ============================================================
+   Responsive Breakpoints
+   ============================================================ */
+
+/* Short viewports (landscape phones, small laptops with the browser
+   chrome eating into height) — a fixed-position back button can
+   otherwise overlap the vertically-centered card. Drop it into the
+   normal flow above the card instead, same treatment Sign Up already
+   uses unconditionally for its taller form. */
+@media (max-height: 700px) {
+    body { flex-direction: column; }
+    .back-btn {
+        position: static;
+        align-self: flex-start;
+        margin-bottom: 16px;
+    }
+}
+
+/* Tablet — slightly tighten the page padding */
+@media (max-width: 960px) {
+    body { padding: 32px 24px; }
+}
+
+/* Large phones / small tablets */
+@media (max-width: 640px) {
+    body { padding: 24px 16px; }
+
+    .glass-container,
+    .glass-container.wide {
+        padding: 40px 28px;
+        max-width: 100%;
+    }
+
+    .form-title { font-size: 1.45rem; }
+
+    /* Stack side-by-side fields (e.g. First Name / Middle Name) */
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .form-row .input-wrap:not(:last-child) {
+        margin-bottom: 16px;
+    }
+
+    .back-btn {
+        top: 16px;
+        left: 16px;
+        padding: 8px 16px;
+        font-size: 0.7rem;
+    }
+}
+
+/* Standard phones */
+@media (max-width: 480px) {
+    .glass-container,
+    .glass-container.wide {
+        padding: 40px 24px;
+        max-width: 90%;
+    }
+
+    .form-title { font-size: 1.4rem; }
+}
+
+/* Small phones */
+@media (max-width: 400px) {
+    body { padding: 16px 12px; }
+
+    .glass-container,
+    .glass-container.wide {
+        padding: 32px 18px;
+        max-width: 100%;
+        border-radius: 16px;
+    }
+
+    .form-title {
+        font-size: 1.2rem;
+        letter-spacing: 1px;
+    }
+
+    .logo-header img { height: 42px; }
+
+    .btn-submit {
+        padding: 14px;
+        font-size: 0.8rem;
+    }
+
+    .back-btn {
+        padding: 8px 12px;
+        font-size: 0.65rem;
+        gap: 6px;
+    }
+}

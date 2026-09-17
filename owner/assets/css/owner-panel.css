@@ -1,0 +1,4668 @@
+/* ==========================================================================
+   owner-panel.css
+   Owner panel shell: clean white nav rail + soft parchment workspace.
+
+   Design intent: simplicity over decoration. One accent color (gold), spent
+   only on the active nav item and small highlights — everything else is flat
+   white/ink/gray. No gradients, no glow, no dark theme. Icon + label rows
+   grouped under plain uppercase section labels, thin hairline dividers.
+
+   Type: Lexend (wordmark, page title) + Poppins (nav, labels, body).
+   ========================================================================== */
+
+:root{
+    /* -- Accent (spent sparingly — active state + small highlights) ------ */
+    --op-gold:         #9c7734;
+    --op-gold-light:   #c9a24e;
+    --op-gold-soft:    rgba(156,119,52,0.08);
+    --op-gold-soft-2:  rgba(156,119,52,0.20);
+
+    /* -- Neutrals ---------------------------------------------------------*/
+    --op-canvas:       #f6f3ec;
+    --op-surface:      #ffffff;
+    --op-ink:          #241f1a;
+    --op-ink-soft:     #6f6355;
+    --op-ink-faint:    #a39a8c;
+    --op-border:       #ece6d8;
+    --op-border-soft:  #f1ece0;
+
+    /* -- Semantic -----------------------------------------------------------*/
+    --op-danger:       #cf5a44;
+    --op-danger-soft:  rgba(207,90,68,0.10);
+    --op-success:      #5c8a52;
+    --op-success-soft: rgba(92,138,82,0.10);
+
+    /* -- Metrics ------------------------------------------------------------*/
+    --op-sidebar-w:            260px;
+    --op-topbar-h:             76px;
+    --op-radius:      12px;
+    --op-radius-sm:   8px;
+    --op-shadow:      0 16px 40px -20px rgba(30,24,16,0.22);
+    --op-ease:        cubic-bezier(.4,0,.2,1);
+}
+
+*{ box-sizing: border-box; }
+
+body{
+    background: var(--op-canvas);
+    font-family: 'Poppins', sans-serif;
+    color: var(--op-ink);
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+a:focus-visible,
+button:focus-visible{
+    outline: 2px solid var(--op-gold);
+    outline-offset: 2px;
+}
+
+.owner-shell{
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Sidebar                                                                 */
+/* ---------------------------------------------------------------------- */
+
+.owner-sidebar{
+    width: var(--op-sidebar-w);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--op-surface);
+    border-right: 1px solid var(--op-border);
+    padding: 18px 14px 20px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 40;
+    transition: width 0.2s var(--op-ease), padding 0.2s var(--op-ease);
+}
+
+.owner-sidebar::-webkit-scrollbar{ width: 8px; }
+.owner-sidebar::-webkit-scrollbar-thumb{
+    background: var(--op-border);
+    border-radius: 8px;
+}
+
+.owner-sidebar-brand{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 2px 4px 16px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--op-border);
+}
+
+.owner-sidebar-brand-mark{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+}
+
+.owner-sidebar-logo{
+    flex-shrink: 0;
+    width: 170px;
+    height: 44px;
+     object-fit: contain;
+}
+
+.owner-sidebar-brand-text{
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+    min-width: 0;
+}
+
+.owner-brand-name{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 0.98rem;
+    color: var(--op-gold);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.owner-brand-tag{
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--op-ink-faint);
+    margin-top: 2px;
+    white-space: nowrap;
+}
+
+/* -- Nav ------------------------------------------------------------- */
+
+.owner-nav{
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding-top: 4px;
+}
+
+.owner-nav-section{
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--op-ink-faint);
+    margin: 16px 12px 6px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.owner-nav-section:first-child{
+    margin-top: 2px;
+}
+
+.owner-nav-divider{
+    height: 1px;
+    background: var(--op-border);
+    margin: 14px 10px 6px;
+}
+
+.owner-nav-link{
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 9px 12px;
+    border: none;
+    border-radius: 9px;
+    background: none;
+    color: var(--op-ink-soft);
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 0.87rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background 0.15s var(--op-ease), color 0.15s var(--op-ease);
+}
+
+.owner-nav-link i{
+    flex: 0 0 20px;
+    width: 20px;
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--op-ink-faint);
+    transition: color 0.15s var(--op-ease);
+}
+
+.owner-nav-link span{
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.owner-nav-link:hover{
+    background: var(--op-canvas);
+    color: var(--op-ink);
+}
+
+.owner-nav-link:hover i{
+    color: var(--op-gold);
+}
+
+.owner-nav-link.is-active{
+    background: var(--op-gold-soft);
+    color: var(--op-gold);
+    font-weight: 600;
+}
+
+.owner-nav-link.is-active i{
+    color: var(--op-gold);
+}
+
+/* -- Log out ---------------------------------------------------------- */
+
+.owner-nav-logout:hover{
+    background: var(--op-danger-soft);
+    color: var(--op-danger);
+}
+
+.owner-nav-logout:hover i{
+    color: var(--op-danger);
+}
+
+.owner-sidebar-backdrop{
+    display: none;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Main column + top bar                                                   */
+/* ---------------------------------------------------------------------- */
+
+.owner-main{
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.owner-topbar{
+    height: var(--op-topbar-h);
+    background: var(--op-surface);
+    border-bottom: 1px solid var(--op-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 28px;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+}
+
+.owner-topbar-left{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.owner-page-title{
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0;
+    color: var(--op-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* -- Search (decorative affordance) ---------------------------------- */
+
+.owner-topbar-actions{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.owner-icon-btn{
+    position: relative;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    border: 1px solid var(--op-border);
+    background: var(--op-surface);
+    color: var(--op-ink-soft);
+    font-size: 1.15rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s var(--op-ease), border-color 0.15s var(--op-ease), color 0.15s var(--op-ease);
+}
+
+.owner-icon-btn:hover{
+    background: var(--op-canvas);
+    border-color: var(--op-gold-soft-2);
+    color: var(--op-gold);
+}
+
+/* Hidden by default (desktop) — the drawer + this button only ever show
+   below the 900px breakpoint, see the responsive block at the bottom.
+   Declared after .owner-icon-btn on purpose: both are single-class
+   selectors of equal specificity, so source order decides the tie. */
+.owner-menu-toggle{
+    display: none;
+}
+
+.owner-badge{
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--op-danger);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border: 2px solid var(--op-surface);
+    font-variant-numeric: tabular-nums;
+}
+.owner-badge[hidden]{ display: none; }
+
+/* -- Profile button --------------------------------------------------- */
+
+.owner-profile-btn{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 16px 6px 6px;
+    border: 1px solid var(--op-border);
+    background: var(--op-surface);
+    cursor: pointer;
+    border-radius: 999px;
+    transition: background 0.15s var(--op-ease), border-color 0.15s var(--op-ease);
+}
+
+.owner-profile-btn:hover{
+    background: var(--op-canvas);
+    border-color: var(--op-gold-soft-2);
+}
+
+.owner-profile-btn-text{
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+    text-align: left;
+    min-width: 0;
+}
+
+.owner-profile-btn-name{
+    font-family: 'Lexend', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--op-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+}
+
+.owner-profile-btn-role{
+    font-size: 0.78rem;
+    color: var(--op-ink-faint);
+    white-space: nowrap;
+}
+
+.owner-profile-btn-caret{
+    font-size: 0.6rem;
+    color: var(--op-ink-faint);
+    transition: transform 0.15s var(--op-ease);
+}
+
+.owner-profile-btn.is-open .owner-profile-btn-caret{
+    transform: rotate(180deg);
+}
+
+.owner-avatar{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--op-gold);
+    color: #fff;
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.owner-avatar-sm{
+    width: 34px;
+    height: 34px;
+    font-size: 0.82rem;
+}
+
+.owner-cell-with-avatar{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Dropdown panels (notifications + profile)                               */
+/* ---------------------------------------------------------------------- */
+
+.owner-dropdown{
+    position: relative;
+}
+
+.owner-dropdown-panel{
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: var(--op-surface);
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius);
+    box-shadow: var(--op-shadow);
+    z-index: 50;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.15s var(--op-ease), transform 0.15s var(--op-ease), visibility 0.15s var(--op-ease);
+}
+
+.owner-dropdown-panel.is-open{
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.owner-notif-panel{
+    width: 320px;
+    padding: 6px 0 0;
+}
+
+.owner-dropdown-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px 10px;
+    font-family: 'Lexend', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--op-ink);
+}
+
+.owner-dropdown-header a{
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--op-gold);
+    text-decoration: none;
+}
+
+.owner-dropdown-header a:hover{
+    text-decoration: underline;
+}
+
+.owner-notif-list{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    border-top: 1px solid var(--op-border-soft);
+}
+
+.owner-notif-item{
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--op-border-soft);
+    transition: background 0.14s var(--op-ease);
+}
+
+.owner-notif-item:last-child{
+    border-bottom: none;
+}
+
+.owner-notif-item:hover{
+    background: var(--op-canvas);
+}
+
+.owner-notif-icon{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--op-canvas);
+    color: var(--op-ink-faint);
+    font-size: 0.95rem;
+    flex-shrink: 0;
+    transition: background 0.14s var(--op-ease), color 0.14s var(--op-ease);
+}
+
+.owner-notif-body{
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.owner-notif-item p{
+    margin: 0 0 4px;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--op-ink);
+}
+
+.owner-notif-item span{
+    font-size: 0.7rem;
+    color: var(--op-ink-faint);
+}
+
+.owner-notif-item.is-unread{ background: var(--op-gold-soft); }
+.owner-notif-item.is-unread .owner-notif-icon{ background: var(--op-gold); color: #fff; }
+.owner-notif-item.is-unread:hover{ background: var(--op-gold-soft-2); }
+
+.owner-notif-empty{
+    padding: 22px 16px;
+    font-size: 0.82rem;
+    color: var(--op-ink-faint);
+    text-align: center;
+}
+
+/* Full "view all notifications" page (owner/manager/admin notifications.php).
+   Unlike the bell dropdown -- which is a scroll box of tight rows inside one
+   panel -- the full page is a stack of standalone cards laid straight on the
+   canvas, one card per notification. The count/"mark all read" toolbar and
+   the All/Unread/Read tab strip sit on the canvas above that stack rather
+   than being wrapped in a container card, so nothing boxes the list in. */
+.owner-notif-toolbar{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.owner-notif-toolbar-count{
+    font-size: 0.82rem;
+    color: var(--op-ink-soft);
+}
+
+.owner-notif-cards{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* The cards are siblings on the canvas, so the generic stack margin would
+   fight the flex gap here and double every gap. */
+.owner-notif-cards .owner-card + .owner-card{ margin-top: 0; }
+
+.owner-notif-card{
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px;
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+a.owner-notif-card:hover{
+    border-color: var(--op-gold);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.owner-notif-card.is-unread{ background: var(--op-gold-soft); }
+.owner-notif-card.is-unread .owner-notif-card-icon{ background: var(--op-gold); color: #fff; }
+
+.owner-notif-card-icon{
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: var(--op-radius-sm);
+    background: var(--op-canvas);
+    color: var(--op-ink-soft);
+    font-size: 1.05rem;
+}
+
+.owner-notif-card-body{
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.owner-notif-card-title{
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--op-ink);
+}
+
+.owner-notif-card-msg{
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--op-ink-soft);
+    overflow-wrap: anywhere;
+}
+
+.owner-notif-card-meta{
+    margin-top: 2px;
+    font-size: 0.74rem;
+    color: var(--op-ink-faint);
+}
+
+@media (max-width: 560px){
+    .owner-notif-toolbar{ align-items: stretch; }
+    .owner-notif-toolbar .owner-btn{ justify-content: center; }
+    .owner-notif-card{ gap: 11px; padding: 14px; }
+    .owner-notif-card-icon{ width: 32px; height: 32px; font-size: 0.95rem; }
+}
+
+.owner-notif-group-label{
+    padding: 14px 20px 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--op-ink-faint);
+}
+
+.owner-notif-dot{
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--op-gold);
+    align-self: center;
+}
+
+.owner-notif-empty-state{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 48px 20px;
+    text-align: center;
+    color: var(--op-ink-faint);
+}
+.owner-notif-empty-state i{ font-size: 2rem; color: var(--op-ink-faint); }
+.owner-notif-empty-state p{ margin: 0; font-size: 0.88rem; }
+
+.owner-dropdown-footer{
+    display: block;
+    text-align: center;
+    padding: 11px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--op-gold);
+    text-decoration: none;
+    border-top: 1px solid var(--op-border-soft);
+}
+
+.owner-dropdown-footer:hover{
+    background: var(--op-canvas);
+}
+
+.owner-profile-panel{
+    width: 220px;
+    padding: 8px;
+}
+
+.owner-profile-panel-header{
+    display: flex;
+    flex-direction: column;
+    line-height: 1.35;
+    padding: 8px 10px 10px;
+}
+
+.owner-profile-name{
+    font-family: 'Lexend', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--op-ink);
+}
+
+.owner-profile-role{
+    font-size: 0.72rem;
+    color: var(--op-ink-faint);
+    margin-top: 2px;
+}
+
+.owner-profile-panel a{
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 9px 10px;
+    border-radius: var(--op-radius-sm);
+    font-size: 0.85rem;
+    color: var(--op-ink);
+    text-decoration: none;
+    transition: background 0.14s var(--op-ease);
+}
+
+.owner-profile-panel a i{
+    width: 16px;
+    text-align: center;
+    color: var(--op-ink-faint);
+}
+
+.owner-profile-panel a:hover{
+    background: var(--op-canvas);
+}
+
+.owner-profile-panel .owner-logout-link{
+    color: var(--op-danger);
+}
+
+.owner-profile-panel .owner-logout-link i{
+    color: var(--op-danger);
+}
+
+.owner-profile-panel .owner-logout-link:hover{
+    background: var(--op-danger-soft);
+}
+
+.owner-dropdown-divider{
+    height: 1px;
+    background: var(--op-border-soft);
+    margin: 6px 4px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Content area                                                            */
+/* ---------------------------------------------------------------------- */
+
+.owner-content{
+    padding: 24px;
+    flex: 1;
+}
+
+.owner-card{
+    background: var(--op-surface);
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius);
+    padding: 20px;
+}
+
+.owner-card + .owner-card{
+    margin-top: 20px;
+}
+
+.owner-card-title{
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.02rem;
+    font-weight: 600;
+    color: var(--op-ink);
+    margin: 0 0 4px;
+}
+
+.owner-card-subtitle{
+    font-size: 0.82rem;
+    color: var(--op-ink-soft);
+    margin: 0 0 18px;
+}
+
+.owner-card-head{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 4px;
+    /* Wrap, or a card title and its toolbar fight over one line. On a phone
+       there is no width to share: the filter and the primary button together
+       need more than the whole viewport, and without this they simply ran off
+       the right edge, taking the page's horizontal scroll with them. */
+    flex-wrap: wrap;
+}
+
+/* The toolbar that sits at the right of a card head -- a filter, a search, a
+   primary action. Each page used to spell this out as an inline
+   style="display:flex;gap:8px;align-items:center", which meant it could never
+   wrap: an inline style outranks any stylesheet rule, so no media query could
+   reach it. As a class it wraps like everything else. */
+.owner-card-tools{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Below the phone breakpoint the toolbar takes the full width of the card head
+   and its controls share that width, instead of each keeping its natural size
+   and pushing the row wider than the screen. */
+@media (max-width: 560px){
+    .owner-card-tools{
+        width: 100%;
+    }
+    .owner-card-tools > *{
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+    .owner-card-tools .owner-select{
+        width: auto;
+    }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Settings sub-nav                                                        */
+/* ---------------------------------------------------------------------- */
+
+.owner-tabs{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border-bottom: 1px solid var(--op-border);
+    margin-bottom: 12px;
+    overflow-x: auto;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.owner-tabs-link{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    color: var(--op-ink-soft);
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 0.87rem;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.15s var(--op-ease), border-color 0.15s var(--op-ease);
+}
+
+.owner-tabs-link i{
+    font-size: 0.95rem;
+    color: var(--op-ink-faint);
+}
+
+.owner-tabs-link:hover{
+    color: var(--op-ink);
+}
+
+.owner-tabs-link.is-active{
+    color: var(--op-gold);
+    border-bottom-color: var(--op-gold);
+    font-weight: 600;
+}
+
+.owner-tabs-link.is-active i{
+    color: var(--op-gold);
+}
+
+/* Same-page anchor nav within a single settings page (e.g. jumping between
+   card sections) — lighter-weight than .owner-tabs, which is for switching
+   between whole pages. */
+.owner-subnav{
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.owner-subnav a{
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--op-ink-soft);
+    text-decoration: none;
+    padding-bottom: 4px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s var(--op-ease), border-color 0.15s var(--op-ease);
+}
+
+.owner-subnav a:hover{
+    color: var(--op-gold);
+    border-bottom-color: var(--op-gold-soft-2);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Alerts (flash messages)                                                 */
+/* ---------------------------------------------------------------------- */
+
+.owner-alert{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: var(--op-radius-sm);
+    font-size: 0.87rem;
+    margin-bottom: 20px;
+}
+
+.owner-alert[hidden]{ display: none; }
+
+.owner-alert i:first-child{
+    font-size: 1.05rem;
+    flex-shrink: 0;
+}
+
+.owner-alert span{
+    flex: 1;
+}
+
+.owner-alert-success{
+    background: var(--op-success-soft);
+    color: var(--op-success);
+}
+
+.owner-alert-error{
+    background: var(--op-danger-soft);
+    color: var(--op-danger);
+}
+
+.owner-alert-dismiss{
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border: none;
+    background: none;
+    color: inherit;
+    opacity: 0.6;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: opacity 0.15s var(--op-ease), background 0.15s var(--op-ease);
+}
+
+.owner-alert-dismiss:hover{
+    opacity: 1;
+    background: rgba(0,0,0,0.06);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Summary card (e.g. the active tax rate highlight)                       */
+/* ---------------------------------------------------------------------- */
+
+.owner-summary-card{
+    background: var(--op-surface);
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius);
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+/* The label/value/meta block is a bare <div> with flex-basis:auto (the
+   default), so the flex-wrap line-packing above sizes it using its UNWRAPPED
+   content width -- a long meta line (e.g. demand_forecast.php's "N would run
+   out within N days if nothing is ordered") reads as very wide even though
+   the text wraps fine once laid out, so the packing step decided it and the
+   icon couldn't both fit on one line and wrapped the icon onto its own row.
+   That doubled the card's height (164px vs 107px for the same three lines of
+   content, just a shorter meta line). flex:1 1 0% gives it a zero hypothetical
+   size instead -- it still grows to fill the row and its own text still
+   wraps normally, but it can no longer push the icon onto a new line.
+   min-width:0 is paired with it so that zero basis can still shrink. */
+.owner-summary-card > div{ flex: 1 1 0%; min-width: 0; }
+
+.owner-summary-card-label{
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--op-ink-faint);
+    margin-bottom: 4px;
+}
+
+.owner-summary-card-value{
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--op-ink);
+}
+
+.owner-summary-card-meta{
+    font-size: 0.82rem;
+    color: var(--op-ink-soft);
+}
+
+/* One card per group (Sales this shift / Cash drawer reconciliation, etc.)
+   instead of one card per stat -- same label/value/meta text, just without
+   each stat's own border/background, laid out in a grid inside a single
+   shared card. */
+.owner-summary-card-group{
+    background: var(--op-surface);
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px 20px;
+}
+
+.owner-view-hero{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    background: var(--op-canvas);
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.owner-view-hero-main{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.owner-view-hero-name{
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--op-ink);
+}
+
+.owner-view-hero-number{
+    font-size: 0.8rem;
+    color: var(--op-ink-faint);
+    margin-bottom: 4px;
+}
+
+.owner-view-hero-meta{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--op-ink-soft);
+    margin-top: 3px;
+}
+
+.owner-view-hero-meta .ph{ color: var(--op-gold); }
+
+/* ---------------------------------------------------------------------- */
+/* Forms                                                                   */
+/* ---------------------------------------------------------------------- */
+
+.owner-form-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+}
+
+.owner-form-group{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.owner-form-group[hidden]{ display: none; }
+
+.owner-form-group label{
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--op-ink);
+}
+
+.owner-form-hint{
+    font-size: 0.76rem;
+    color: var(--op-ink-faint);
+    margin-top: -2px;
+}
+
+.owner-dropzone{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 28px 16px;
+    border: 1.5px dashed var(--op-border);
+    border-radius: var(--op-radius-sm);
+    background: var(--op-canvas);
+    text-align: center;
+    color: var(--op-ink-faint);
+    font-size: 0.85rem;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.owner-dropzone i{
+    font-size: 1.4rem;
+    color: var(--op-ink-faint);
+}
+
+.owner-dropzone-text strong{
+    color: var(--op-gold);
+}
+
+.owner-dropzone-filename{
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--op-ink);
+}
+
+.owner-dropzone.is-dragover{
+    border-color: var(--op-gold);
+    background: var(--op-gold-soft);
+}
+
+.owner-dropzone-input{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.owner-input,
+.owner-select{
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    background: var(--op-surface);
+    color: var(--op-ink);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.87rem;
+    transition: border-color 0.15s var(--op-ease);
+}
+
+.owner-input:focus,
+.owner-select:focus{
+    outline: none;
+    border-color: var(--op-gold-soft-2);
+}
+
+.owner-input::placeholder{
+    color: var(--op-ink-faint);
+}
+
+.owner-radio-group{
+    display: flex;
+    gap: 16px;
+}
+
+.owner-radio-option{
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.87rem;
+    color: var(--op-ink);
+    cursor: pointer;
+}
+
+/* Two-way choice rendered as a pair of pill buttons instead of radios —
+   e.g. tax type (inclusive / exclusive). */
+.owner-segmented{
+    display: flex;
+    gap: 10px;
+}
+
+.owner-segmented-option{
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 12px 16px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    background: var(--op-surface);
+    font-size: 0.87rem;
+    font-weight: 600;
+    color: var(--op-ink-soft);
+    cursor: pointer;
+    transition: border-color 0.15s var(--op-ease), background 0.15s var(--op-ease), color 0.15s var(--op-ease);
+}
+
+.owner-segmented-option input{
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.owner-segmented-option:has(input:checked){
+    border-color: var(--op-gold);
+    background: var(--op-gold-soft);
+    color: var(--op-gold);
+}
+
+.owner-segmented-option:has(input:focus-visible){
+    outline: 2px solid var(--op-gold);
+    outline-offset: 2px;
+}
+
+/* A full-width toggle with its own label + helper text, e.g. "Enable tax". */
+.owner-toggle-row{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 18px;
+    background: var(--op-gold-soft);
+    border-radius: var(--op-radius);
+    margin-bottom: 20px;
+}
+
+.owner-toggle-row-label{
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--op-ink);
+}
+
+.owner-toggle-row-desc{
+    font-size: 0.8rem;
+    color: var(--op-ink-soft);
+    margin-top: 2px;
+}
+
+/* Every checkbox and radio, not just the ones inside .owner-radio-option.
+   The browser default is its own blue -- the one colour in this UI that
+   belongs to nobody -- and it was showing on the payroll select-all and
+   per-row boxes, the schedule repeat-day chips, the rest-day toggle and
+   every filter checkbox. accent-color tints the NATIVE control, so this
+   needs no custom markup and keeps focus rings and keyboard behaviour
+   exactly as the OS provides them. */
+input[type="checkbox"],
+input[type="radio"]{
+    accent-color: var(--op-gold);
+}
+
+.owner-radio-option input{
+    accent-color: var(--op-gold);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Buttons                                                                 */
+/* ---------------------------------------------------------------------- */
+
+.owner-btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: var(--op-radius-sm);
+    border: 1px solid transparent;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s var(--op-ease), border-color 0.15s var(--op-ease), color 0.15s var(--op-ease), filter 0.15s var(--op-ease);
+}
+
+.owner-btn i{
+    font-size: 0.95rem;
+}
+
+.owner-btn-primary{
+    background: var(--op-gold);
+    color: #fff;
+}
+
+.owner-btn-primary:hover{
+    filter: brightness(0.92);
+}
+
+.owner-btn-secondary{
+    background: var(--op-surface);
+    border-color: var(--op-border);
+    color: var(--op-ink);
+}
+
+.owner-btn-secondary:hover{
+    background: var(--op-canvas);
+}
+
+.owner-btn-danger{
+    background: var(--op-surface);
+    border-color: var(--op-danger-soft);
+    color: var(--op-danger);
+}
+
+.owner-btn-danger:hover{
+    background: var(--op-danger-soft);
+}
+
+.owner-btn-success{
+    background: var(--op-surface);
+    border-color: var(--op-success);
+    color: var(--op-success);
+}
+
+.owner-btn-success:hover{
+    background: var(--op-success-soft);
+}
+
+.owner-btn-sm{
+    padding: 6px 11px;
+    font-size: 0.78rem;
+}
+
+.owner-btn-icon{
+    padding: 7px;
+    border-radius: var(--op-radius-sm);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Tables                                                                  */
+/* ---------------------------------------------------------------------- */
+
+.owner-table-wrap{
+    overflow-x: auto;
+}
+
+.owner-table{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.87rem;
+}
+
+.owner-table thead th{
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--op-ink-faint);
+    border-bottom: 1px solid var(--op-border);
+    white-space: nowrap;
+}
+
+.owner-table tbody td{
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--op-border-soft);
+    color: var(--op-ink);
+    vertical-align: middle;
+}
+
+.owner-table tbody tr:last-child td{
+    border-bottom: none;
+}
+
+.owner-table-actions{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+/* One empty state for the whole panel: same centring, same padding, no
+   icon, with an optional second line for a next-step hint. Callers must not
+   override the padding inline -- that is what made these differ page to page
+   (24 / 36 / 40px all appeared). */
+.owner-table-empty{
+    text-align: center;
+    padding: 32px 14px;
+    color: var(--op-ink-faint);
+    font-size: 0.87rem;
+}
+
+.owner-table-empty p{ margin: 0; }
+.owner-table-empty-hint{
+    margin-top: 4px;
+    font-size: 0.82rem;
+    color: var(--op-ink-faint);
+}
+.owner-table-empty .owner-btn{ margin-top: 10px; }
+/* An empty state inside a table cell has to out-specify .owner-table tbody td
+   (0,1,2), which otherwise wins on specificity alone no matter the order and
+   left every td-based empty state at the cell's 12px while the div-based ones
+   got 32px -- the single biggest reason these looked different page to page. */
+.owner-table tbody td.owner-table-empty{
+    padding: 32px 14px;
+    text-align: center;
+    color: var(--op-ink-faint);
+    font-size: 0.87rem;
+}
+
+.owner-inline-edit-row td{
+    background: var(--op-gold-soft);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Status pills + toggle switch                                            */
+/* ---------------------------------------------------------------------- */
+
+.owner-status-pill{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.owner-status-pill.is-active{
+    background: var(--op-gold-soft);
+    color: var(--op-gold);
+}
+
+.owner-status-pill.is-inactive{
+    background: var(--op-border);
+    color: var(--op-ink-faint);
+}
+
+.owner-toggle{
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--op-ink);
+}
+
+.owner-toggle input{
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.owner-toggle-track{
+    position: relative;
+    width: 38px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--op-border);
+    transition: background 0.15s var(--op-ease);
+    flex-shrink: 0;
+}
+
+.owner-toggle-track::after{
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.15s var(--op-ease);
+}
+
+.owner-toggle input:checked + .owner-toggle-track{
+    background: var(--op-gold);
+}
+
+.owner-toggle input:checked + .owner-toggle-track::after{
+    transform: translateX(16px);
+}
+
+.owner-toggle input:focus-visible + .owner-toggle-track{
+    outline: 2px solid var(--op-gold);
+    outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Credentials + masked secrets                                            */
+/* ---------------------------------------------------------------------- */
+
+.owner-credential-box{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: var(--op-radius-sm);
+    background: var(--op-gold-soft);
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.owner-credential-box code{
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--op-ink);
+    letter-spacing: 0.03em;
+}
+
+.owner-credential-box-meta{
+    font-size: 0.76rem;
+    color: var(--op-ink-soft);
+    flex-basis: 100%;
+}
+
+.owner-secret-field{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* .owner-secret-field sets its own display, which silently defeats the native
+   [hidden] attribute -- without this the Replace button left the masked row and
+   the replacement input stacked on screen at the same time. */
+.owner-secret-field[hidden]{
+    display: none;
+}
+
+.owner-secret-field code{
+    flex: 1;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    padding: 9px 12px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    background: var(--op-canvas);
+    color: var(--op-ink-soft);
+    letter-spacing: 0.05em;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Responsive — three tiers: laptop squeeze, mobile drawer, small phone    */
+/* ---------------------------------------------------------------------- */
+
+@media (max-width: 1100px) and (min-width: 901px){
+    :root{ --op-sidebar-w: 228px; }
+}
+
+/* Mobile drawer breakpoint. Above this, the sidebar is always a static
+   in-flow column and the hamburger button is hidden (see .owner-menu-toggle
+   above). Below it, the sidebar becomes an off-canvas drawer and the
+   hamburger is the only way to open it. */
+@media (max-width: 900px){
+    .owner-sidebar{
+        position: fixed;
+        left: 0;
+        top: 0;
+        transform: translateX(-100%);
+        transition: transform 0.24s var(--op-ease);
+        box-shadow: var(--op-shadow);
+    }
+
+    .owner-sidebar.is-open{
+        transform: translateX(0);
+    }
+
+    .owner-sidebar-backdrop{
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(20,15,11,0.4);
+        opacity: 0;
+        visibility: hidden;
+        z-index: 35;
+        transition: opacity 0.2s var(--op-ease), visibility 0.2s var(--op-ease);
+    }
+
+    .owner-sidebar-backdrop.is-visible{
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .owner-menu-toggle{
+        display: flex;
+    }
+
+}
+
+@media (max-width: 560px){
+    .owner-topbar{
+        padding: 0 16px;
+    }
+
+    .owner-page-title{
+        font-size: 1.02rem;
+    }
+
+    .owner-content{
+        padding: 16px;
+    }
+
+    .owner-profile-btn{
+        padding: 3px;
+    }
+
+    .owner-profile-btn-caret,
+    .owner-profile-btn-text{
+        display: none;
+    }
+
+    /* Fixed (not absolute-anchored-to-the-bell) so the panel's position
+       comes from the viewport, not from where the bell icon happens to
+       sit -- right:0 relative to the icon put the panel's left edge off
+       the left side of the screen on real phones, since the profile
+       avatar further right of the bell eats into the space a right:0
+       panel would need to expand into. */
+    .owner-notif-panel{
+        position: fixed;
+        /* max-height (shrink-to-content, capped), NOT top+bottom pinning --
+           pinning both edges forces the panel to always be exactly that
+           tall even when there are only 2-3 notifications, leaving a big
+           dead white gap below "View activity logs". max-height built from
+           100dvh (the real visible mobile viewport, unlike 100vh which is
+           the largest-possible one with the address bar collapsed) with a
+           generous margin gets both right: short lists stay short, long
+           lists still get capped and scroll instead of overflowing. */
+        top: calc(var(--op-topbar-h) + 10px);
+        left: 12px;
+        right: 12px;
+        width: auto;
+        max-width: none;
+        max-height: calc(100dvh - var(--op-topbar-h) - 30px);
+    }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Motion preferences                                                      */
+/* ---------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce){
+    *,
+    *::before,
+    *::after{
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+    }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Status pill extra variants (low stock / expiring / expired)            */
+/* Used by inventory.php, procurement.php, etc. — added alongside the     */
+/* existing .is-active / .is-inactive variants above.                     */
+/* ---------------------------------------------------------------------- */
+
+.owner-status-pill.is-warning{
+    background: rgba(201,162,78,0.18);
+    color: var(--op-gold-light);
+}
+
+.owner-status-pill.is-danger{
+    background: var(--op-danger-soft);
+    color: var(--op-danger);
+}
+
+.owner-status-pill.is-success{
+    background: var(--op-success-soft);
+    color: var(--op-success);
+}
+
+/* Critical stock -- a more urgent tier than is-danger/"Low stock", so it
+   gets a solid fill instead of the soft tint used above. */
+.owner-status-pill.is-critical{
+    background: var(--op-danger);
+    color: #fff;
+}
+
+/* is-info / is-neutral -- added for the reservation panel's
+   reservationStatusMeta() (customer/includes/reservation_functions.php),
+   which already returns these exact class names for 'seated'/'completed'. */
+.owner-status-pill.is-info{
+    background: rgba(63,126,166,0.14);
+    color: #3f7ea6;
+}
+
+.owner-status-pill.is-neutral{
+    background: var(--op-canvas);
+    color: var(--op-ink-soft);
+}
+
+/* -- Inventory: items table filter bar ----------------------------------- */
+.owner-inv-filters{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 0;
+}
+
+.owner-inv-filter-search{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 180px;
+    max-width: 280px;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    background: var(--op-canvas);
+    color: var(--op-ink-faint);
+    transition: border-color 0.15s var(--op-ease), background 0.15s var(--op-ease);
+}
+
+.owner-inv-filter-search:focus-within{
+    background: var(--op-surface);
+    border-color: var(--op-gold-soft-2);
+}
+
+.owner-inv-filter-search input{
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: none;
+    outline: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.85rem;
+    color: var(--op-ink);
+}
+
+.owner-inv-filter-search input::placeholder{
+    color: var(--op-ink-faint);
+}
+
+.owner-inv-filters .owner-select{
+    width: auto;
+    min-width: 150px;
+    height: 36px;
+    padding: 0 10px;
+}
+
+/* Filter bars only ever wrapped organically before (flex-wrap with no
+   breakpoint) -- two controls landing side by side purely because their
+   natural widths happened to sum under the viewport, while their neighbours
+   fell to their own line, reads as broken rather than responsive. Below
+   phone width every control (including ones carrying an inline
+   style="width:auto" from the page markup, hence !important) becomes one
+   full-width row instead. */
+@media (max-width: 560px){
+    .owner-inv-filters{
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .owner-inv-filters > *{
+        width: 100% !important;
+        max-width: none !important;
+        margin-left: 0 !important;
+    }
+    .owner-inv-filters > div{
+        flex-direction: column;
+    }
+    .owner-inv-filters > div > .owner-btn{
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* -- Inventory: item name + meta stacked in one table cell -------------- */
+.owner-cell-stack{
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.owner-cell-stack strong{
+    font-size: 0.87rem;
+    color: var(--op-ink);
+}
+
+.owner-cell-stack small{
+    font-size: 0.74rem;
+    color: var(--op-ink-faint);
+}
+
+.owner-stock-bar{
+    position: relative;
+    width: 84px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--op-border);
+    overflow: hidden;
+}
+
+.owner-stock-bar-fill{
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    border-radius: 999px;
+    background: var(--op-gold);
+}
+
+.owner-stock-bar-fill.is-low{
+    background: var(--op-danger);
+}
+
+.owner-stock-bar-fill.is-critical{
+    background: #a83f2e;
+}
+
+.owner-stock-bar-fill.is-overstock{
+    background: var(--op-gold-light);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Modal                                                                   */
+/* ---------------------------------------------------------------------- */
+
+.owner-modal-backdrop{
+    position: fixed;
+    inset: 0;
+    background: rgba(20,15,11,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.18s var(--op-ease), visibility 0.18s var(--op-ease);
+}
+
+.owner-modal-backdrop.is-open{
+    opacity: 1;
+    visibility: visible;
+}
+
+.owner-modal{
+    display: flex;
+    flex-direction: column;
+    background: var(--op-surface);
+    border-radius: var(--op-radius);
+    box-shadow: var(--op-shadow);
+    width: 100%;
+    max-width: 560px;
+    max-height: calc(100vh - 40px);
+    /* clip, not hidden: flex-shrunk children (see .owner-modal > form below)
+       still contribute their unshrunk intrinsic height to scrollHeight, so
+       with `hidden` this box is still programmatically scrollable even
+       though nothing looks like it overflows -- focusing/clicking a field
+       below the fold makes the browser scroll *this* box instead of the
+       intended .owner-modal-body, clipping the header out of view. `clip`
+       is identical visually but can't become a scroll target. */
+    overflow: clip;
+    transform: translateY(8px) scale(0.98);
+    transition: transform 0.18s var(--op-ease);
+}
+
+.owner-modal-lg{
+    max-width: 920px;
+}
+
+.owner-modal-sm{
+    max-width: 420px;
+}
+
+/* Several modals (suppliers.php, inventory_adjustments.php, etc.) wrap
+   .owner-modal-body/.owner-modal-footer in a <form> so the submit button
+   lives in the footer -- that form sits between .owner-modal and its
+   intended flex children, breaking .owner-modal-body's flex:1/overflow-y
+   scroll behavior (it's no longer a direct child of the flex container).
+   Making the form itself a flex column fixes scrolling for every modal
+   using this pattern without needing to touch each page's markup. */
+.owner-modal > form{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.owner-modal-backdrop.is-open .owner-modal{
+    transform: translateY(0) scale(1);
+}
+
+.owner-modal-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--op-border);
+    flex-shrink: 0;
+    background: var(--op-surface);
+}
+
+.owner-modal-title{
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--op-ink);
+    margin: 0;
+}
+
+.owner-modal-close{
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--op-border);
+    background: var(--op-surface);
+    color: var(--op-ink-soft);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s var(--op-ease), color 0.15s var(--op-ease);
+}
+
+.owner-modal-close:hover{
+    background: var(--op-danger-soft);
+    color: var(--op-danger);
+}
+
+.owner-modal-body{
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 22px;
+}
+
+.owner-modal-footer{
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 22px;
+    border-top: 1px solid var(--op-border);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    background: var(--op-surface);
+}
+
+body.owner-modal-open{
+    overflow: hidden;
+}
+
+.owner-input,
+.owner-select{
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    background: var(--op-surface);
+    color: var(--op-ink);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.87rem;
+    transition: border-color 0.15s var(--op-ease);
+}
+
+.owner-input:focus,
+.owner-select:focus{
+    outline: none;
+    border-color: var(--op-gold-soft-2);
+}
+
+.owner-input::placeholder{
+    color: var(--op-ink-faint);
+}
+
+.owner-radio-group{
+    display: flex;
+    gap: 16px;
+}
+
+.owner-radio-option{
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.87rem;
+    color: var(--op-ink);
+    cursor: pointer;
+}
+
+/* Two-way choice rendered as a pair of pill buttons instead of radios —
+   e.g. tax type (inclusive / exclusive). */
+.owner-segmented{
+    display: flex;
+    gap: 10px;
+}
+
+.owner-segmented-option{
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 12px 16px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    background: var(--op-surface);
+    font-size: 0.87rem;
+    font-weight: 600;
+    color: var(--op-ink-soft);
+    cursor: pointer;
+    transition: border-color 0.15s var(--op-ease), background 0.15s var(--op-ease), color 0.15s var(--op-ease);
+}
+
+.owner-segmented-option input{
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.owner-segmented-option:has(input:checked){
+    border-color: var(--op-gold);
+    background: var(--op-gold-soft);
+    color: var(--op-gold);
+}
+
+.owner-segmented-option:has(input:focus-visible){
+    outline: 2px solid var(--op-gold);
+    outline-offset: 2px;
+}
+
+/* A full-width toggle with its own label + helper text, e.g. "Enable tax". */
+.owner-toggle-row{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 18px;
+    background: var(--op-gold-soft);
+    border-radius: var(--op-radius);
+    margin-bottom: 20px;
+}
+
+.owner-toggle-row-label{
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--op-ink);
+}
+
+.owner-toggle-row-desc{
+    font-size: 0.8rem;
+    color: var(--op-ink-soft);
+    margin-top: 2px;
+}
+
+.owner-radio-option input{
+    accent-color: var(--op-gold);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Buttons                                                                 */
+/* ---------------------------------------------------------------------- */
+
+.owner-btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: var(--op-radius-sm);
+    border: 1px solid transparent;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s var(--op-ease), border-color 0.15s var(--op-ease), color 0.15s var(--op-ease), filter 0.15s var(--op-ease);
+}
+
+.owner-btn i{
+    font-size: 0.95rem;
+}
+
+.owner-btn-primary{
+    background: var(--op-gold);
+    color: #fff;
+}
+
+.owner-btn-primary:hover{
+    filter: brightness(0.92);
+}
+
+.owner-btn-secondary{
+    background: var(--op-surface);
+    border-color: var(--op-border);
+    color: var(--op-ink);
+}
+
+.owner-btn-secondary:hover{
+    background: var(--op-canvas);
+}
+
+.owner-btn-danger{
+    background: var(--op-surface);
+    border-color: var(--op-danger-soft);
+    color: var(--op-danger);
+}
+
+.owner-btn-danger:hover{
+    background: var(--op-danger-soft);
+}
+
+.owner-btn-success{
+    background: var(--op-surface);
+    border-color: var(--op-success);
+    color: var(--op-success);
+}
+
+.owner-btn-success:hover{
+    background: var(--op-success-soft);
+}
+
+.owner-btn-sm{
+    padding: 6px 11px;
+    font-size: 0.78rem;
+}
+
+.owner-btn-icon{
+    padding: 7px;
+    border-radius: var(--op-radius-sm);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Tables                                                                  */
+/* ---------------------------------------------------------------------- */
+
+.owner-table-wrap{
+    overflow-x: auto;
+}
+
+.owner-table{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.87rem;
+}
+
+.owner-table thead th{
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--op-ink-faint);
+    border-bottom: 1px solid var(--op-border);
+    white-space: nowrap;
+}
+
+.owner-table tbody td{
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--op-border-soft);
+    color: var(--op-ink);
+    vertical-align: middle;
+}
+
+.owner-table tbody tr:last-child td{
+    border-bottom: none;
+}
+
+.owner-table-actions{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+
+
+.owner-inline-edit-row td{
+    background: var(--op-gold-soft);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Status pills + toggle switch                                            */
+/* ---------------------------------------------------------------------- */
+
+.owner-status-pill{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.owner-status-pill.is-active{
+    background: var(--op-gold-soft);
+    color: var(--op-gold);
+}
+
+.owner-status-pill.is-inactive{
+    background: var(--op-border);
+    color: var(--op-ink-faint);
+}
+
+.owner-toggle{
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--op-ink);
+}
+
+.owner-toggle input{
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.owner-toggle-track{
+    position: relative;
+    width: 38px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--op-border);
+    transition: background 0.15s var(--op-ease);
+    flex-shrink: 0;
+}
+
+.owner-toggle-track::after{
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.15s var(--op-ease);
+}
+
+.owner-toggle input:checked + .owner-toggle-track{
+    background: var(--op-gold);
+}
+
+.owner-toggle input:checked + .owner-toggle-track::after{
+    transform: translateX(16px);
+}
+
+.owner-toggle input:focus-visible + .owner-toggle-track{
+    outline: 2px solid var(--op-gold);
+    outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Credentials + masked secrets                                            */
+/* ---------------------------------------------------------------------- */
+
+.owner-credential-box{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: var(--op-radius-sm);
+    background: var(--op-gold-soft);
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.owner-credential-box code{
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--op-ink);
+    letter-spacing: 0.03em;
+}
+
+.owner-credential-box-meta{
+    font-size: 0.76rem;
+    color: var(--op-ink-soft);
+    flex-basis: 100%;
+}
+
+.owner-secret-field{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.owner-secret-field code{
+    flex: 1;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    padding: 9px 12px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    background: var(--op-canvas);
+    color: var(--op-ink-soft);
+    letter-spacing: 0.05em;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Responsive — three tiers: laptop squeeze, mobile drawer, small phone    */
+/* ---------------------------------------------------------------------- */
+
+@media (max-width: 1100px) and (min-width: 901px){
+    :root{ --op-sidebar-w: 228px; }
+}
+
+/* Mobile drawer breakpoint. Above this, the sidebar is always a static
+   in-flow column and the hamburger button is hidden (see .owner-menu-toggle
+   above). Below it, the sidebar becomes an off-canvas drawer and the
+   hamburger is the only way to open it. */
+@media (max-width: 900px){
+    .owner-sidebar{
+        position: fixed;
+        left: 0;
+        top: 0;
+        transform: translateX(-100%);
+        transition: transform 0.24s var(--op-ease);
+        box-shadow: var(--op-shadow);
+    }
+
+    .owner-sidebar.is-open{
+        transform: translateX(0);
+    }
+
+    .owner-sidebar-backdrop{
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(20,15,11,0.4);
+        opacity: 0;
+        visibility: hidden;
+        z-index: 35;
+        transition: opacity 0.2s var(--op-ease), visibility 0.2s var(--op-ease);
+    }
+
+    .owner-sidebar-backdrop.is-visible{
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .owner-menu-toggle{
+        display: flex;
+    }
+
+}
+
+@media (max-width: 560px){
+    .owner-topbar{
+        padding: 0 16px;
+    }
+
+    .owner-page-title{
+        font-size: 1.02rem;
+    }
+
+    .owner-content{
+        padding: 16px;
+    }
+
+    .owner-profile-btn{
+        padding: 3px;
+    }
+
+    .owner-profile-btn-caret,
+    .owner-profile-btn-text{
+        display: none;
+    }
+
+    /* Fixed (not absolute-anchored-to-the-bell) so the panel's position
+       comes from the viewport, not from where the bell icon happens to
+       sit -- right:0 relative to the icon put the panel's left edge off
+       the left side of the screen on real phones, since the profile
+       avatar further right of the bell eats into the space a right:0
+       panel would need to expand into. */
+    .owner-notif-panel{
+        position: fixed;
+        /* max-height (shrink-to-content, capped), NOT top+bottom pinning --
+           pinning both edges forces the panel to always be exactly that
+           tall even when there are only 2-3 notifications, leaving a big
+           dead white gap below "View activity logs". max-height built from
+           100dvh (the real visible mobile viewport, unlike 100vh which is
+           the largest-possible one with the address bar collapsed) with a
+           generous margin gets both right: short lists stay short, long
+           lists still get capped and scroll instead of overflowing. */
+        top: calc(var(--op-topbar-h) + 10px);
+        left: 12px;
+        right: 12px;
+        width: auto;
+        max-width: none;
+        max-height: calc(100dvh - var(--op-topbar-h) - 30px);
+    }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Motion preferences                                                      */
+/* ---------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce){
+    *,
+    *::before,
+    *::after{
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+    }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Status pill extra variants (low stock / expiring / expired)            */
+/* Used by inventory.php, procurement.php, etc. — added alongside the     */
+/* existing .is-active / .is-inactive variants above.                     */
+/* ---------------------------------------------------------------------- */
+
+.owner-status-pill.is-warning{
+    background: rgba(201,162,78,0.18);
+    color: var(--op-gold-light);
+}
+
+.owner-status-pill.is-danger{
+    background: var(--op-danger-soft);
+    color: var(--op-danger);
+}
+
+.owner-status-pill.is-success{
+    background: var(--op-success-soft);
+    color: var(--op-success);
+}
+
+/* -- Inventory: item name + meta stacked in one table cell -------------- */
+.owner-cell-stack{
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.owner-cell-stack strong{
+    font-size: 0.87rem;
+    color: var(--op-ink);
+}
+
+.owner-cell-stack small{
+    font-size: 0.74rem;
+    color: var(--op-ink-faint);
+}
+
+.owner-stock-bar{
+    position: relative;
+    width: 84px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--op-border);
+    overflow: hidden;
+}
+
+.owner-stock-bar-fill{
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    border-radius: 999px;
+    background: var(--op-gold);
+}
+
+.owner-stock-bar-fill.is-low{
+    background: var(--op-danger);
+}
+
+.owner-summary-card-label{
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--op-ink-faint);
+    margin-bottom: 4px;
+}
+
+.owner-summary-card-value{
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--op-ink);
+}
+
+.owner-summary-card-meta{
+    font-size: 0.82rem;
+    color: var(--op-ink-soft);
+}
+
+/* One card per group (Sales this shift / Cash drawer reconciliation, etc.)
+   instead of one card per stat -- same label/value/meta text, just without
+   each stat's own border/background, laid out in a grid inside a single
+   shared card. */
+.owner-summary-card-group{
+    background: var(--op-surface);
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px 20px;
+}
+
+.owner-view-hero{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    background: var(--op-canvas);
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.owner-view-hero-main{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.owner-view-hero-name{
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--op-ink);
+}
+
+.owner-view-hero-number{
+    font-size: 0.8rem;
+    color: var(--op-ink-faint);
+    margin-bottom: 4px;
+}
+
+.owner-view-hero-meta{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--op-ink-soft);
+    margin-top: 3px;
+}
+
+.owner-view-hero-meta .ph{ color: var(--op-gold); }
+
+/* ---------------------------------------------------------------------- */
+/* Forms                                                                   */
+/* ---------------------------------------------------------------------- */
+
+.owner-form-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+}
+
+.owner-form-group{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.owner-form-group[hidden]{ display: none; }
+
+.owner-form-group label{
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--op-ink);
+}
+
+.owner-form-hint{
+    font-size: 0.76rem;
+    color: var(--op-ink-faint);
+    margin-top: -2px;
+}
+
+.owner-dropzone{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 28px 16px;
+    border: 1.5px dashed var(--op-border);
+    border-radius: var(--op-radius-sm);
+    background: var(--op-canvas);
+    text-align: center;
+    color: var(--op-ink-faint);
+    font-size: 0.85rem;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.owner-dropzone i{
+    font-size: 1.4rem;
+    color: var(--op-ink-faint);
+}
+
+.owner-dropzone-text strong{
+    color: var(--op-gold);
+}
+
+.owner-dropzone-filename{
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--op-ink);
+}
+
+.owner-dropzone.is-dragover{
+    border-color: var(--op-gold);
+    background: var(--op-gold-soft);
+}
+
+.owner-dropzone-input{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.owner-input,
+.owner-select{
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    background: var(--op-surface);
+    color: var(--op-ink);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.87rem;
+    transition: border-color 0.15s var(--op-ease);
+}
+
+.owner-input:focus,
+.owner-select:focus{
+    outline: none;
+    border-color: var(--op-gold-soft-2);
+}
+
+.owner-input::placeholder{
+    color: var(--op-ink-faint);
+}
+
+.owner-radio-group{
+    display: flex;
+    gap: 16px;
+}
+
+.owner-radio-option{
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.87rem;
+    color: var(--op-ink);
+    cursor: pointer;
+}
+
+/* Two-way choice rendered as a pair of pill buttons instead of radios —
+   e.g. tax type (inclusive / exclusive). */
+.owner-segmented{
+    display: flex;
+    gap: 10px;
+}
+
+.owner-segmented-option{
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 12px 16px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    background: var(--op-surface);
+    font-size: 0.87rem;
+    font-weight: 600;
+    color: var(--op-ink-soft);
+    cursor: pointer;
+    transition: border-color 0.15s var(--op-ease), background 0.15s var(--op-ease), color 0.15s var(--op-ease);
+}
+
+.owner-segmented-option input{
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.owner-segmented-option:has(input:checked){
+    border-color: var(--op-gold);
+    background: var(--op-gold-soft);
+    color: var(--op-gold);
+}
+
+.owner-segmented-option:has(input:focus-visible){
+    outline: 2px solid var(--op-gold);
+    outline-offset: 2px;
+}
+
+/* A full-width toggle with its own label + helper text, e.g. "Enable tax". */
+.owner-toggle-row{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 18px;
+    background: var(--op-gold-soft);
+    border-radius: var(--op-radius);
+    margin-bottom: 20px;
+}
+
+.owner-toggle-row-label{
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--op-ink);
+}
+
+.owner-toggle-row-desc{
+    font-size: 0.8rem;
+    color: var(--op-ink-soft);
+    margin-top: 2px;
+}
+
+.owner-radio-option input{
+    accent-color: var(--op-gold);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Buttons                                                                 */
+/* ---------------------------------------------------------------------- */
+
+.owner-btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: var(--op-radius-sm);
+    border: 1px solid transparent;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s var(--op-ease), border-color 0.15s var(--op-ease), color 0.15s var(--op-ease), filter 0.15s var(--op-ease);
+}
+
+.owner-btn i{
+    font-size: 0.95rem;
+}
+
+.owner-btn-primary{
+    background: var(--op-gold);
+    color: #fff;
+}
+
+.owner-btn-primary:hover{
+    filter: brightness(0.92);
+}
+
+.owner-btn-secondary{
+    background: var(--op-surface);
+    border-color: var(--op-border);
+    color: var(--op-ink);
+}
+
+.owner-btn-secondary:hover{
+    background: var(--op-canvas);
+}
+
+.owner-btn-danger{
+    background: var(--op-surface);
+    border-color: var(--op-danger-soft);
+    color: var(--op-danger);
+}
+
+.owner-btn-danger:hover{
+    background: var(--op-danger-soft);
+}
+
+.owner-btn-success{
+    background: var(--op-surface);
+    border-color: var(--op-success);
+    color: var(--op-success);
+}
+
+.owner-btn-success:hover{
+    background: var(--op-success-soft);
+}
+
+.owner-btn-sm{
+    padding: 6px 11px;
+    font-size: 0.78rem;
+}
+
+.owner-btn-icon{
+    padding: 7px;
+    border-radius: var(--op-radius-sm);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Tables                                                                  */
+/* ---------------------------------------------------------------------- */
+
+.owner-table-wrap{
+    overflow-x: auto;
+}
+
+.owner-table{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.87rem;
+}
+
+.owner-table thead th{
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--op-ink-faint);
+    border-bottom: 1px solid var(--op-border);
+    white-space: nowrap;
+}
+
+.owner-table tbody td{
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--op-border-soft);
+    color: var(--op-ink);
+    vertical-align: middle;
+}
+
+.owner-table tbody tr:last-child td{
+    border-bottom: none;
+}
+
+.owner-table-actions{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+
+
+.owner-inline-edit-row td{
+    background: var(--op-gold-soft);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Status pills + toggle switch                                            */
+/* ---------------------------------------------------------------------- */
+
+.owner-status-pill{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.owner-status-pill.is-active{
+    background: var(--op-gold-soft);
+    color: var(--op-gold);
+}
+
+.owner-status-pill.is-inactive{
+    background: var(--op-border);
+    color: var(--op-ink-faint);
+}
+
+.owner-toggle{
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--op-ink);
+}
+
+.owner-toggle input{
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.owner-toggle-track{
+    position: relative;
+    width: 38px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--op-border);
+    transition: background 0.15s var(--op-ease);
+    flex-shrink: 0;
+}
+
+.owner-toggle-track::after{
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.15s var(--op-ease);
+}
+
+.owner-toggle input:checked + .owner-toggle-track{
+    background: var(--op-gold);
+}
+
+.owner-toggle input:checked + .owner-toggle-track::after{
+    transform: translateX(16px);
+}
+
+.owner-toggle input:focus-visible + .owner-toggle-track{
+    outline: 2px solid var(--op-gold);
+    outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Credentials + masked secrets                                            */
+/* ---------------------------------------------------------------------- */
+
+.owner-credential-box{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: var(--op-radius-sm);
+    background: var(--op-gold-soft);
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.owner-credential-box code{
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--op-ink);
+    letter-spacing: 0.03em;
+}
+
+.owner-credential-box-meta{
+    font-size: 0.76rem;
+    color: var(--op-ink-soft);
+    flex-basis: 100%;
+}
+
+.owner-secret-field{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.owner-secret-field code{
+    flex: 1;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    padding: 9px 12px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    background: var(--op-canvas);
+    color: var(--op-ink-soft);
+    letter-spacing: 0.05em;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Responsive — three tiers: laptop squeeze, mobile drawer, small phone    */
+/* ---------------------------------------------------------------------- */
+
+@media (max-width: 1100px) and (min-width: 901px){
+    :root{ --op-sidebar-w: 228px; }
+}
+
+/* Mobile drawer breakpoint. Above this, the sidebar is always a static
+   in-flow column and the hamburger button is hidden (see .owner-menu-toggle
+   above). Below it, the sidebar becomes an off-canvas drawer and the
+   hamburger is the only way to open it. */
+@media (max-width: 900px){
+    .owner-sidebar{
+        position: fixed;
+        left: 0;
+        top: 0;
+        transform: translateX(-100%);
+        transition: transform 0.24s var(--op-ease);
+        box-shadow: var(--op-shadow);
+    }
+
+    .owner-sidebar.is-open{
+        transform: translateX(0);
+    }
+
+    .owner-sidebar-backdrop{
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(20,15,11,0.4);
+        opacity: 0;
+        visibility: hidden;
+        z-index: 35;
+        transition: opacity 0.2s var(--op-ease), visibility 0.2s var(--op-ease);
+    }
+
+    .owner-sidebar-backdrop.is-visible{
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .owner-menu-toggle{
+        display: flex;
+    }
+
+}
+
+@media (max-width: 560px){
+    .owner-topbar{
+        padding: 0 16px;
+    }
+
+    .owner-page-title{
+        font-size: 1.02rem;
+    }
+
+    .owner-content{
+        padding: 16px;
+    }
+
+    .owner-profile-btn{
+        padding: 3px;
+    }
+
+    .owner-profile-btn-caret,
+    .owner-profile-btn-text{
+        display: none;
+    }
+
+    /* Fixed (not absolute-anchored-to-the-bell) so the panel's position
+       comes from the viewport, not from where the bell icon happens to
+       sit -- right:0 relative to the icon put the panel's left edge off
+       the left side of the screen on real phones, since the profile
+       avatar further right of the bell eats into the space a right:0
+       panel would need to expand into. */
+    .owner-notif-panel{
+        position: fixed;
+        /* max-height (shrink-to-content, capped), NOT top+bottom pinning --
+           pinning both edges forces the panel to always be exactly that
+           tall even when there are only 2-3 notifications, leaving a big
+           dead white gap below "View activity logs". max-height built from
+           100dvh (the real visible mobile viewport, unlike 100vh which is
+           the largest-possible one with the address bar collapsed) with a
+           generous margin gets both right: short lists stay short, long
+           lists still get capped and scroll instead of overflowing. */
+        top: calc(var(--op-topbar-h) + 10px);
+        left: 12px;
+        right: 12px;
+        width: auto;
+        max-width: none;
+        max-height: calc(100dvh - var(--op-topbar-h) - 30px);
+    }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Motion preferences                                                      */
+/* ---------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce){
+    *,
+    *::before,
+    *::after{
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+    }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Form sections (grouped fields inside modals, e.g. Add inventory item)   */
+/* ---------------------------------------------------------------------- */
+
+.owner-form-section{
+    margin-bottom: 24px;
+}
+
+.owner-form-section:last-child{
+    margin-bottom: 0;
+}
+
+.owner-form-section-title{
+    font-family: 'Lexend', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--op-ink-faint);
+    margin: 0 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--op-border-soft);
+}
+
+.owner-form-group-full{
+    grid-column: 1 / -1;
+}
+
+.owner-required{
+    color: var(--op-danger);
+    margin-left: 2px;
+}
+
+.owner-form-optional{
+    font-weight: 400;
+    color: var(--op-ink-faint);
+    font-size: 0.78rem;
+}
+
+/* -- Inline validation ---------------------------------------------------*/
+
+.owner-input.is-invalid,
+.owner-select.is-invalid,
+.owner-combobox-input.is-invalid{
+    border-color: var(--op-danger);
+}
+
+.owner-input.is-invalid:focus,
+.owner-select.is-invalid:focus,
+.owner-combobox-input.is-invalid:focus{
+    border-color: var(--op-danger);
+    box-shadow: 0 0 0 3px var(--op-danger-soft);
+}
+
+.owner-form-error{
+    display: block;
+    min-height: 14px;
+    font-size: 0.76rem;
+    color: var(--op-danger);
+    margin-top: -2px;
+}
+
+/* -- Searchable dropdown (category / unit / supplier) ---------------------*/
+
+.owner-combobox-control{
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.owner-combobox-input{
+    padding-right: 32px;
+    cursor: text;
+}
+
+.owner-combobox-caret{
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8rem;
+    color: var(--op-ink-faint);
+    pointer-events: none;
+}
+
+.owner-combobox-clear{
+    position: absolute;
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: none;
+    color: var(--op-ink-faint);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    transition: background 0.15s var(--op-ease), color 0.15s var(--op-ease);
+}
+
+.owner-combobox-clear:hover{
+    background: var(--op-danger-soft);
+    color: var(--op-danger);
+}
+
+.owner-combobox-panel{
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 6px);
+    background: var(--op-surface);
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    box-shadow: var(--op-shadow);
+    max-height: 220px;
+    overflow-y: auto;
+    list-style: none;
+    margin: 0;
+    padding: 6px;
+    z-index: 20;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.12s var(--op-ease), transform 0.12s var(--op-ease), visibility 0.12s var(--op-ease);
+}
+
+.owner-combobox-panel.is-open{
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.owner-combobox-option{
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--op-ink);
+    cursor: pointer;
+}
+
+.owner-combobox-option:hover,
+.owner-combobox-option.is-active{
+    background: var(--op-gold-soft);
+}
+
+.owner-combobox-option.is-selected{
+    font-weight: 600;
+    color: var(--op-gold);
+}
+
+.owner-combobox-empty{
+    padding: 10px;
+    font-size: 0.82rem;
+    color: var(--op-ink-faint);
+    text-align: center;
+}
+
+/* -- Checkbox row (e.g. Active item) --------------------------------------*/
+
+.owner-checkbox-row{
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    cursor: pointer;
+    transition: border-color 0.15s var(--op-ease);
+}
+
+.owner-checkbox-row:hover{
+    border-color: var(--op-gold-soft-2);
+}
+
+.owner-checkbox-input{
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.owner-checkbox-box{
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    border: 1.5px solid var(--op-border);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background: var(--op-surface);
+    transition: background 0.15s var(--op-ease), border-color 0.15s var(--op-ease);
+}
+
+.owner-checkbox-box i{
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.1s var(--op-ease);
+}
+
+.owner-checkbox-row:has(.owner-checkbox-input:checked) .owner-checkbox-box{
+    background: var(--op-gold);
+    border-color: var(--op-gold);
+}
+
+/* Compact variant of .owner-checkbox-row for a run of short options (the
+   seven operating-day toggles) -- same gold box and check, but centred
+   beside a single label instead of the stacked label/description block, and
+   with less padding so seven of them sit on one line. */
+.owner-checkbox-inline{
+    padding: 8px 12px;
+    align-items: center;
+    gap: 8px;
+}
+.owner-checkbox-inline .owner-checkbox-box{ margin-top: 0; }
+.owner-checkbox-inline .owner-checkbox-label{ font-size: 0.86rem; }
+
+
+.owner-checkbox-row:has(.owner-checkbox-input:checked) .owner-checkbox-box i{
+    opacity: 1;
+}
+
+.owner-checkbox-row:has(.owner-checkbox-input:focus-visible){
+    outline: 2px solid var(--op-gold);
+    outline-offset: 2px;
+}
+
+.owner-checkbox-text{
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.owner-checkbox-label{
+    font-size: 0.87rem;
+    font-weight: 600;
+    color: var(--op-ink);
+}
+
+.owner-checkbox-desc{
+    font-size: 0.78rem;
+    color: var(--op-ink-soft);
+    line-height: 1.4;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Reservation panel (reservation/reservations.php) — card grid + detail   */
+/* modal, shared by Owner and Manager.                                     */
+/* ---------------------------------------------------------------------- */
+
+.owner-res-date-filter{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.owner-res-date-filter input[type="date"]{ width: auto; }
+
+.owner-res-toolbar{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+.owner-res-search{
+    flex: 1;
+    min-width: 220px;
+}
+
+.owner-res-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 14px;
+}
+
+.owner-res-card{
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    background: var(--op-surface);
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    font-family: inherit;
+    transition: border-color 0.15s var(--op-ease), box-shadow 0.15s var(--op-ease);
+}
+.owner-res-card:hover{
+    border-color: var(--op-gold-soft-2);
+    box-shadow: 0 8px 20px -14px rgba(30,24,16,0.3);
+}
+.owner-res-card[hidden]{ display: none; }
+
+.owner-res-card-date{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    background: var(--op-canvas);
+    flex-shrink: 0;
+}
+.owner-res-card-date .day{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--op-ink);
+    line-height: 1;
+}
+.owner-res-card-date .mon{
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--op-ink-faint);
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.owner-res-card-main{ flex: 1; min-width: 0; }
+.owner-res-card-top{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+.owner-res-card-number{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--op-ink);
+}
+.owner-res-card-customer{
+    font-size: 0.82rem;
+    color: var(--op-ink-soft);
+    margin-top: 1px;
+}
+.owner-res-card-meta{
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 0.78rem;
+    color: var(--op-ink-faint);
+}
+.owner-res-card-meta span{ display: flex; align-items: center; gap: 4px; }
+
+/* -- Detail modal content ------------------------------------------------- */
+.owner-res-detail-row{
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 3px 0;
+    font-size: 0.87rem;
+}
+.owner-res-detail-row span:first-child{ color: var(--op-ink-soft); flex-shrink: 0; }
+.owner-res-detail-row span:last-child{ font-weight: 500; color: var(--op-ink); text-align: right; min-width: 0; word-break: break-word; }
+
+@media (max-width: 640px){
+    .owner-res-grid{ grid-template-columns: 1fr; }
+    .owner-res-toolbar{ flex-direction: column; align-items: stretch; }
+    .owner-card-head:has(.owner-res-date-filter){ flex-wrap: wrap; }
+    .owner-res-date-filter{ width: 100%; }
+    .owner-res-date-filter input[type="date"]{ flex: 1; min-width: 130px; }
+}
+
+/* -- Employee directory cards (employee_management/employees.php) --------
+   One card per employee on the canvas, replacing the list table. Every colour
+   here comes from the existing panel tokens -- gold avatar, cream field strip,
+   the same .owner-status-pill the rest of the system uses -- so it reads as
+   part of this panel rather than a transplant.
+
+   Deliberately NOT on the card face: SSS and TIN. A grid shows a dozen people
+   at once, and government IDs plus salary readable from across the room is a
+   different exposure from the same fields inside one opened record. They stay
+   in the employee record view. */
+.owner-emp-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+}
+
+/* Siblings on the canvas: the generic 20px stack margin would fight the grid gap. */
+.owner-emp-grid .owner-card + .owner-card{ margin-top: 0; }
+
+.owner-emp-card{
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 0;
+    overflow: hidden;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.owner-emp-card:hover{
+    border-color: var(--op-gold);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.owner-emp-card-head{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px 14px;
+}
+
+.owner-emp-card-id{
+    min-width: 0;
+    flex: 1 1 auto;
+}
+.owner-emp-card-name{
+    display: block;
+    font-weight: 700;
+    font-size: 0.92rem;
+    line-height: 1.3;
+    color: var(--op-ink);
+    overflow-wrap: anywhere;
+}
+.owner-emp-card-number{
+    display: block;
+    margin-top: 2px;
+    font-size: 0.75rem;
+    color: var(--op-ink-faint);
+}
+
+/* The field strip. White, NOT --op-canvas: the canvas IS the page background,
+   so a canvas-coloured band read as a hole punched through the card rather than
+   a section inside it. On a cream page a card only separates cleanly when the
+   whole card is lighter than the background -- the hairlines below do the
+   grouping instead of a fill. */
+.owner-emp-card-fields{
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding: 14px 18px;
+    background: var(--op-surface);
+    border-top: 1px solid var(--op-border-soft);
+    border-bottom: 1px solid var(--op-border-soft);
+}
+
+.owner-emp-card-row{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+    font-size: 0.82rem;
+}
+.owner-emp-card-label{
+    flex-shrink: 0;
+    color: var(--op-ink-soft);
+}
+.owner-emp-card-value{
+    min-width: 0;
+    text-align: right;
+    font-weight: 600;
+    color: var(--op-ink);
+    overflow-wrap: anywhere;
+}
+
+.owner-emp-card-foot{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 12px 18px;
+}
+
+/* Text link, not an icon button -- "201 file" is the term PH HR actually
+   uses, and it matches the labels-over-icons direction of the rest of the UI. */
+.owner-emp-card-link{
+    background: none;
+    border: 0;
+    padding: 0;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--op-gold);
+    cursor: pointer;
+}
+.owner-emp-card-link:hover{ text-decoration: underline; }
+
+.owner-emp-card-actions{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.owner-emp-empty{
+    padding: 44px 20px;
+    text-align: center;
+    color: var(--op-ink-faint);
+    font-size: 0.88rem;
+}
+
+@media (max-width: 560px){
+    .owner-emp-grid{ grid-template-columns: 1fr; }
+}
+
+/* -- Detail modal: compact summary strip + card grid + timeline ---------- */
+.owner-res-card-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.owner-res-info-card{
+    min-width: 0;
+    background: var(--op-surface);
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius);
+    padding: 16px 18px;
+}
+
+.owner-res-info-card-title{
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--op-ink-faint);
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.owner-res-info-empty{
+    color: var(--op-ink-faint);
+    font-size: 0.85rem;
+}
+
+@media (max-width: 720px){
+    .owner-res-card-grid{ grid-template-columns: 1fr; }
+}
+
+/* Print an open modal on its own. Scoped with :has() so the blanket hiding
+   only applies WHILE a modal is open -- the earlier unscoped version hid
+   body * unconditionally, so printing any ordinary page with no modal open
+   produced a blank sheet. */
+@media print{
+    body:has(.owner-modal-backdrop.is-open) *{ visibility: hidden; }
+    body:has(.owner-modal-backdrop.is-open) .owner-modal-backdrop.is-open,
+    body:has(.owner-modal-backdrop.is-open) .owner-modal-backdrop.is-open *{ visibility: visible; }
+    .owner-modal-backdrop.is-open{
+        position: absolute;
+        inset: 0;
+        background: #fff;
+        padding: 0;
+    }
+    .owner-modal-backdrop.is-open .owner-modal{
+        max-width: 100%;
+        max-height: none;
+        box-shadow: none;
+        border-radius: 0;
+    }
+    .owner-modal-backdrop.is-open .owner-modal-body{ overflow: visible; }
+    .owner-modal-backdrop.is-open .owner-modal-close,
+    .owner-modal-backdrop.is-open .owner-modal-footer{ display: none !important; }
+}
+
+/* -- Pagination (reservation grid, and any future card/table list) -------- */
+.owner-pagination{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 20px;
+}
+.owner-pagination[hidden]{ display: none; }
+
+.owner-pagination-info{
+    font-size: 0.84rem;
+    color: var(--op-ink-soft);
+}
+
+/* A disabled button used to look exactly like an enabled one anywhere outside
+   the pager -- "Mark all as read" with nothing unread read as clickable. The
+   pager's own rule below is kept for its slightly stronger fade. */
+.owner-btn:disabled,
+.owner-btn[disabled]{
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.owner-pagination .owner-btn:disabled{
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* -- Print: show only the currently-open modal ---------------------------- */
+/* Unit-of-measure tag next to a bare quantity input (purchase order line
+   rows) -- was previously just unstyled interpolated text sitting right
+   next to the number field, easy to miss. */
+.owner-input-unit{
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--op-ink-soft);
+    background: var(--op-canvas);
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Metric bar (color-coded % indicator, e.g. Food Cost % / Margin % on     */
+/* Recipes & Costing) and line-item cost breakdown (per-ingredient modal)  */
+/* ---------------------------------------------------------------------- */
+
+.owner-metric{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.owner-metric-bar{
+    position: relative;
+    width: 56px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--op-border);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.owner-metric-bar span{
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+}
+
+.owner-metric-bar span.is-success{ background: var(--op-success); }
+.owner-metric-bar span.is-active{  background: var(--op-gold); }
+.owner-metric-bar span.is-warning{ background: var(--op-gold-light); }
+.owner-metric-bar span.is-danger{  background: var(--op-danger); }
+.owner-metric-bar span.is-info{    background: #3f7ea6; }
+.owner-metric-bar span.is-neutral{ background: var(--op-ink-faint); }
+
+.owner-metric-value{
+    font-size: 0.82rem;
+    color: var(--op-ink);
+    white-space: nowrap;
+}
+
+.owner-metric-bar-lg{
+    width: 100%;
+    height: 8px;
+}
+
+.owner-line-breakdown{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.owner-line-breakdown-label{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: var(--op-ink);
+    margin-bottom: 4px;
+}
+
+.owner-ink-faint{
+    color: var(--op-ink-faint);
+    font-size: 0.78rem;
+    white-space: nowrap;
+}
+/* ---- Feedback pages: purpose line + cross-link -----------------------------
+   Sentiment analysis and feedback moderation were one page. Splitting them is
+   only an improvement if each states what it covers and where the other half
+   went -- otherwise an owner looking for the flagged queue concludes it was
+   deleted. Hence a permanent one-line purpose and a labelled link, not a tab. */
+.fb-page-intro{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+.fb-page-purpose{
+    flex: 1 1 320px;
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--op-ink-faint);
+    max-width: 72ch;
+}
+.fb-page-switch{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border: 1px solid var(--op-line);
+    border-radius: 10px;
+    background: var(--op-surface, #fff);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.fb-page-switch:hover{ border-color: var(--op-gold); transform: translateY(-1px); }
+.fb-page-switch > i:first-child{ font-size: 1.35rem; color: var(--op-gold); flex-shrink: 0; }
+.fb-page-switch-text{ display: flex; flex-direction: column; line-height: 1.35; }
+.fb-page-switch-text strong{ font-size: 0.88rem; }
+.fb-page-switch-text span{ font-size: 0.76rem; color: var(--op-ink-faint); }
+.fb-page-switch-go{ margin-left: 4px; color: var(--op-ink-faint); flex-shrink: 0; }
+
+@media (max-width: 700px){
+    .fb-page-switch{ width: 100%; }
+    .fb-page-purpose{ max-width: none; }
+}
+
+/* ============================================================================
+   Sentiment analysis dashboard. Scoped .sa- so nothing bleeds into the other
+   owner pages sharing this stylesheet.
+   ========================================================================= */
+
+/* -- Headline metrics ----------------------------------------------------- */
+/* Six status cards on the sentiment page. repeat(6, 1fr) was fixed at six
+   columns and could not wrap, so on anything narrower than a desktop the cards
+   were crushed rather than reflowing. auto-fit lets them wrap; minmax(min(...))
+   rather than a bare 1fr, because a bare 1fr is minmax(auto,1fr) and will not
+   shrink below its content. */
+.sa-kpis{
+    grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+    margin-bottom: 20px;
+}
+/* The house card carries a 20px bottom margin for standalone use; the grid gap
+   already spaces these, so it is cleared to stop a doubled gutter when the row
+   wraps. */
+.sa-kpis > .owner-summary-card{ margin-bottom: 0; }
+.sa-kpis .ph{ font-size: 1.6rem; color: var(--op-gold); flex-shrink: 0; }
+
+/* The only card that navigates -- it points at the moderation page rather than
+   reporting something this page can act on. */
+.sa-kpi-link{ text-decoration: none; color: inherit; transition: border-color 0.15s ease; }
+.sa-kpi-link:hover{ border-color: var(--op-gold); }
+
+.sa-kpi-unit{ font-size: 0.8rem; font-weight: 500; color: var(--op-ink-faint); margin-left: 3px; }
+.sa-kpi-stars{ font-size: 0.75rem; color: var(--op-line); margin-top: 1px; }
+.sa-kpi-stars .is-filled{ color: var(--op-gold); }
+
+
+/* -- Insight band --------------------------------------------------------- */
+/* Insights take roughly two thirds; the action list is a scannable column
+   beside them rather than a footer nobody scrolls to. */
+.sa-insight-layout{
+    display: grid;
+    grid-template-columns: minmax(0, 2.15fr) minmax(0, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+    /* stretch (the default) rather than start: cards in one row share a
+       height, so the band reads as a single unit instead of a ragged edge. */
+    align-items: stretch;
+}
+.sa-insight-grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding: 4px 20px 12px;
+}
+/* -- Insight cards --------------------------------------------------------
+   Each sentiment declares its palette ONCE as custom properties and every rule
+   below reads var(--sa-tone*). Three near-identical rule blocks would drift the
+   first time one colour is adjusted. */
+.sa-insight.is-positive{
+    --sa-tone:      #4c9a63;
+    --sa-tone-deep: #3d7d51;
+    --sa-tone-bg:   #f4f9f6;
+    --sa-tone-soft: #e6f1ea;
+    --sa-tone-line: #d5e7dc;
+}
+.sa-insight.is-neutral{
+    --sa-tone:      #9c7734;
+    --sa-tone-deep: #7f6029;
+    --sa-tone-bg:   #fbf8f1;
+    --sa-tone-soft: #f4ecdb;
+    --sa-tone-line: #e9dcc6;
+}
+.sa-insight.is-negative{
+    --sa-tone:      #b3483f;
+    --sa-tone-deep: #963a32;
+    --sa-tone-bg:   #fdf5f4;
+    --sa-tone-soft: #f8e7e5;
+    --sa-tone-line: #efd4d1;
+}
+
+.sa-insight{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--sa-tone-line);
+    border-radius: 13px;
+    padding: 15px 16px 16px;
+    /* Tint fades out downward so the card reads as a surface rather than a
+       coloured block, and the text at the bottom keeps full contrast. */
+    background: linear-gradient(180deg, var(--sa-tone-bg) 0%, #fff 62%);
+}
+
+.sa-insight-head{
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 11px;
+}
+.sa-insight-badge{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    background: var(--sa-tone);
+    color: #fff;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+.sa-insight-title{
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--sa-tone-deep);
+}
+
+/* Slightly heavier than body copy: this sentence is the card's actual finding,
+   and the label/chips beneath it are supporting detail. */
+.sa-insight-text{
+    margin: 0 0 12px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    font-weight: 500;
+    color: var(--op-ink);
+}
+
+.sa-insight-divider{
+    height: 1px;
+    background: var(--sa-tone-line);
+    margin: 0 0 11px;
+}
+
+.sa-insight-sub{
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--op-ink-faint);
+    margin-bottom: 6px;
+}
+
+/* Toned chip, used inside an insight card. The plain variant in the Recent
+   feedback table stays neutral -- there is no single sentiment there to tone
+   it with, and colouring it per row would imply a meaning it does not carry. */
+.sa-topic-chip.is-toned{
+    background: var(--sa-tone-soft);
+    border-color: var(--sa-tone-line);
+    color: var(--sa-tone-deep);
+    font-weight: 600;
+    padding: 3px 4px 3px 10px;
+    gap: 7px;
+}
+.sa-topic-count{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--sa-tone-deep);
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* The action gets its own panel because it is the only part of the card that
+   asks the reader to DO something -- separating it from the description stops
+   the two being skimmed as one paragraph. */
+.sa-insight-action{
+    margin-top: 13px;
+    padding: 11px 12px;
+    border-radius: 10px;
+    background: var(--sa-tone-soft);
+    border: 1px solid var(--sa-tone-line);
+}
+.sa-insight-action .sa-insight-sub{ color: var(--sa-tone-deep); margin-bottom: 4px; }
+.sa-insight-action p{
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.55;
+    color: var(--op-ink);
+}
+
+/* -- Card header meta ----------------------------------------------------- */
+.sa-insight-meta{ display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.sa-insight-meta strong{ color: var(--op-ink); font-weight: 700; }
+/* A dot instead of a third icon -- the separator only needs to be a pause. */
+.sa-meta-sep{
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--op-ink-faint);
+    opacity: 0.55;
+}
+
+/* -- Provenance note ------------------------------------------------------ */
+/* Set apart rather than styled as body copy: it is a statement about where the
+   text above came from, and it stops mattering once read. */
+.sa-insight-footnote{
+    margin: 4px 20px 18px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    background: var(--op-canvas);
+    border: 1px solid var(--op-line);
+}
+.sa-insight-footnote p{
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.55;
+    color: var(--op-ink-faint);
+}
+.sa-insight-footnote p + p{ margin-top: 2px; }
+
+.sa-topic-chips{ display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 4px; }
+.sa-topic-chip{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--op-canvas);
+    border: 1px solid var(--op-line);
+    font-size: 0.72rem;
+    white-space: nowrap;
+}
+.sa-topic-chip span{ color: var(--op-ink-faint); font-variant-numeric: tabular-nums; }
+.sa-topic-chip.is-plain{ margin: 1px 3px 1px 0; }
+
+/* -- Ranked actions -------------------------------------------------------
+   Same tone-variable system as the insight cards, so the two halves of this
+   band read as one component rather than two designs sharing a row.
+
+   The palette is doing real work here: this is a list scanned for the urgent
+   item, and priority was previously carried only by a 3px edge in a colour
+   close to the default border. It has to survive a glance. */
+.sa-action.is-high{
+    --sa-tone:      #b3483f;
+    --sa-tone-deep: #963a32;
+    --sa-tone-bg:   #fdf5f4;
+    --sa-tone-soft: #f8e7e5;
+    --sa-tone-line: #efd4d1;
+}
+.sa-action.is-maintain{
+    --sa-tone:      #4c9a63;
+    --sa-tone-deep: #3d7d51;
+    --sa-tone-bg:   #f4f9f6;
+    --sa-tone-soft: #e6f1ea;
+    --sa-tone-line: #d5e7dc;
+}
+/* Monitor stays deliberately colourless. Giving every row a colour would make
+   none of them stand out, and "no action needed yet" is exactly the row that
+   should recede. */
+.sa-action.is-monitor{
+    --sa-tone:      #8a8f98;
+    --sa-tone-deep: #6b7079;
+    --sa-tone-bg:   #fbfbfc;
+    --sa-tone-soft: #f1f2f4;
+    --sa-tone-line: var(--op-line);
+}
+
+.sa-actions{
+    padding: 6px 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sa-action{
+    position: relative;
+    padding: 12px 14px 13px 16px;
+    border: 1px solid var(--sa-tone-line);
+    border-radius: 11px;
+    background: linear-gradient(180deg, var(--sa-tone-bg) 0%, #fff 70%);
+    overflow: hidden;
+}
+/* Left accent as a pseudo-element rather than a thick border, so it hugs the
+   rounded corners instead of squaring them off. */
+.sa-action::before{
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--sa-tone);
+}
+
+.sa-action-priority{
+    display: inline-block;
+    padding: 2px 8px;
+    margin-bottom: 7px;
+    border-radius: 999px;
+    background: var(--sa-tone-soft);
+    color: var(--sa-tone-deep);
+    font-size: 0.63rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.sa-action-title{
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--op-ink);
+}
+/* The evidence line. Kept quiet because the title is the instruction and this
+   is the reason for it -- but present, because an instruction without its
+   evidence is just an opinion. */
+.sa-action-desc{
+    margin: 5px 0 0;
+    font-size: 0.77rem;
+    line-height: 1.55;
+    color: var(--op-ink-faint);
+}
+
+/* -- Analytics band ------------------------------------------------------- */
+.sa-analytics-row{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+    align-items: stretch;
+}
+.sa-chart{ padding: 10px 20px 6px; height: 220px; }
+.sa-chart-total{
+    padding: 0 20px 16px;
+    font-size: 0.78rem;
+    color: var(--op-ink-faint);
+    text-align: center;
+}
+.sa-chart-total strong{ color: var(--op-ink); }
+
+.sa-complaints{ padding: 6px 20px 18px; display: flex; flex-direction: column; gap: 11px; }
+.sa-complaint-head{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+}
+.sa-complaint-pct{ color: var(--op-ink-faint); font-size: 0.74rem; font-variant-numeric: tabular-nums; }
+.sa-complaint-bar{ height: 6px; border-radius: 999px; background: var(--op-canvas); overflow: hidden; }
+.sa-complaint-bar span{ display: block; height: 100%; border-radius: 999px; background: #b3483f; }
+
+/* Cards become flex columns so their contents can absorb the extra height a
+   stretched row hands them -- otherwise the card grows and the content stays
+   pinned to the top with a pool of dead space beneath it.
+
+   margin-top is cleared for a separate reason. Inside a grid the second and
+   third cards are still ADJACENT SIBLINGS of the first, so
+   `.owner-card + .owner-card{margin-top:20px}` fires on them and drops every
+   card except the leftmost by 20px -- the row looked staggered rather than
+   aligned. Same specificity (0-2-0) as that rule, but declared later in this
+   file, so it wins on source order without needing !important. */
+.sa-insight-layout > .owner-card,
+.sa-analytics-row  > .owner-card{
+    display: flex;
+    flex-direction: column;
+    margin-top: 0;
+}
+/* The canvas takes whatever is left after the header, with a floor so it never
+   collapses in a short row. Chart.js is already maintainAspectRatio:false, so
+   it fills its container rather than fighting it. */
+.sa-analytics-row .sa-chart{
+    flex: 1 1 auto;
+    min-height: 200px;
+}
+/* Content blocks stay top-aligned and simply take the slack, so the ranked
+   lists still read top-down rather than floating mid-card. */
+.sa-actions,
+.sa-complaints,
+.sa-insight-grid{ flex: 1 1 auto; }
+
+/* -- Empty states --------------------------------------------------------- */
+/* Every one says what is missing and what would fill it. A bare "no data"
+   reads as a fault; naming the threshold turns it into a status. */
+.sa-empty{
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: center;
+    /* Centred vertically, because a stretched card gives an empty state far
+       more room than its text needs and top-pinned copy under a tall blank
+       looks like content failed to load rather than like there is none. */
+    justify-content: center;
+    gap: 5px;
+    text-align: center;
+    padding: 30px 22px;
+    color: var(--op-ink-faint);
+}
+.sa-empty i{ font-size: 1.7rem; margin-bottom: 3px; opacity: 0.7; }
+.sa-empty strong{ color: var(--op-ink); font-size: 0.86rem; }
+.sa-empty span{ font-size: 0.78rem; line-height: 1.5; max-width: 46ch; }
+.sa-empty-note{ font-size: 0.72rem; opacity: 0.8; margin-top: 3px; }
+.sa-empty-sm{ padding: 22px 18px; }
+.sa-empty-sm i{ font-size: 1.4rem; }
+
+.sa-rating-cell{ color: var(--op-gold); white-space: nowrap; }
+
+/* -- Responsive ----------------------------------------------------------- */
+@media (max-width: 1200px){
+    .sa-insight-layout{ grid-template-columns: 1fr; }
+    .sa-analytics-row{ grid-template-columns: 1fr; }
+}
+@media (max-width: 900px){
+    .sa-insight-grid{ grid-template-columns: 1fr; }
+}
+
+
+/* ---------------------------------------------------------------------- */
+/* Sidebar: only the links scroll                                          */
+/* ---------------------------------------------------------------------- */
+/* The sidebar used to scroll as one piece, so on a short viewport -- or a
+   long menu like the Owner's -- Log out slid off the bottom and you had to
+   scroll a menu to leave. Scrolling now belongs to .owner-nav alone: the
+   brand stays at the top, Log out stays at the bottom, and only the links
+   between them move.
+
+   min-height:0 on .owner-nav is the load-bearing line. A flex child's default
+   min-height is auto, which refuses to shrink below its content, so
+   overflow-y:auto would never actually scroll without it.
+
+   Height is 100dvh with a 100vh fallback: on mobile browsers 100vh counts the
+   address bar that isn't there yet, which pushes the pinned footer below the
+   fold -- the exact thing this change exists to prevent. */
+.owner-sidebar{
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+.owner-sidebar-brand{ flex-shrink: 0; }
+
+.owner-nav{
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+/* The scrollbar appears only while the menu is in use. A permanent track down
+   the side of a sidebar reads as a border that is not there, and on a menu that
+   only just overflows it draws attention to a scroll of a few pixels.
+   Both engines are covered: scrollbar-color for Firefox, the ::-webkit- rules
+   for Chrome, Edge and Safari. Nothing is hidden from a keyboard user -- focus
+   inside the nav brings it back, as does hover. */
+.owner-nav{
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.18s var(--op-ease);
+}
+.owner-nav:hover,
+.owner-nav:focus-within{ scrollbar-color: var(--op-border) transparent; }
+
+.owner-nav::-webkit-scrollbar{ width: 8px; }
+.owner-nav::-webkit-scrollbar-track{ background: transparent; }
+.owner-nav::-webkit-scrollbar-thumb{
+    background: transparent;
+    border-radius: 4px;
+    transition: background 0.18s var(--op-ease);
+}
+.owner-nav:hover::-webkit-scrollbar-thumb,
+.owner-nav:focus-within::-webkit-scrollbar-thumb{ background: var(--op-border); }
+
+/* One rule above Log out, separating it from the scrolling list. There
+   used to be two lines here: this border plus a .owner-nav-divider left
+   dangling at the end of the nav once Log out moved out from under it.
+   The dangling one is gone; this one is the separator. */
+.owner-sidebar-foot{
+    flex-shrink: 0;
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--op-border);
+}
+
+
+/* ---------------------------------------------------------------------- */
+/* Schedules: week picker popover                                          */
+/* ---------------------------------------------------------------------- */
+/* [hidden] alone is not enough here: any display rule on the element itself
+   beats the browser's [hidden]{display:none}, so the pair below is what
+   actually keeps the panel shut. */
+.sched-weekpop[hidden]{ display: none !important; }
+
+.sched-weekpick{ position: relative; display: inline-flex; }
+
+.sched-weekpick-face{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 11px;
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--op-ink);
+    background: var(--op-surface);
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    cursor: pointer;
+    transition: border-color 0.15s var(--op-ease), background 0.15s var(--op-ease);
+}
+.sched-weekpick-face .ph{ color: var(--op-gold); font-size: 0.95rem; }
+.sched-weekpick-caret{ font-size: 0.75rem !important; color: var(--op-ink-faint) !important; }
+.sched-weekpick-face:hover{ border-color: var(--op-gold); background: var(--op-gold-soft); }
+.sched-weekpick-face:focus-visible{ outline: 2px solid var(--op-gold); outline-offset: 2px; }
+
+.sched-weekpop{
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 60;
+    min-width: 250px;
+    background: var(--op-surface);
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius);
+    box-shadow: var(--op-shadow);
+    overflow: hidden;
+}
+
+.sched-weekpop-head{
+    padding: 10px 14px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--op-ink-faint);
+    border-bottom: 1px solid var(--op-border);
+}
+
+.sched-weekpop-nav{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--op-border);
+}
+
+.sched-weekpop-arrow{
+    display: grid;
+    place-items: center;
+    width: 26px; height: 26px;
+    border: 1px solid var(--op-border);
+    border-radius: var(--op-radius-sm);
+    background: var(--op-surface);
+    color: var(--op-ink-soft);
+    cursor: pointer;
+}
+.sched-weekpop-arrow:hover{ border-color: var(--op-gold); color: var(--op-gold); }
+.sched-weekpop-arrow:focus-visible{ outline: 2px solid var(--op-gold); outline-offset: 1px; }
+
+.sched-weekpop-month{
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--op-ink);
+}
+
+.sched-weekpop-list{ padding: 5px; max-height: 260px; overflow-y: auto; }
+
+.sched-weekpop-item{
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 8px 10px;
+    border-radius: var(--op-radius-sm);
+    text-decoration: none;
+    color: var(--op-ink);
+    font-size: 0.82rem;
+}
+.sched-weekpop-item:hover{ background: var(--op-gold-soft); }
+.sched-weekpop-item:focus-visible{ outline: 2px solid var(--op-gold); outline-offset: -2px; }
+.sched-weekpop-item.is-current{ background: var(--op-gold-soft); font-weight: 600; }
+
+.sched-weekpop-wk{ min-width: 58px; color: var(--op-ink-faint); }
+.sched-weekpop-item.is-current .sched-weekpop-wk{ color: var(--op-gold); }
+.sched-weekpop-rg{ font-variant-numeric: tabular-nums; }
+
+/* On a phone an absolutely positioned panel anchored to a control near the
+   right edge runs off screen. Pin it to the viewport instead. */
+@media (max-width: 560px){
+    .sched-weekpop{
+        position: fixed;
+        top: auto;
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        min-width: 0;
+    }
+    .sched-weekpop-list{ max-height: 46dvh; }
+}
+
+
+/* ---------------------------------------------------------------------- */
+/* Schedules head                                                          */
+/* ---------------------------------------------------------------------- */
+/* .owner-card-head is justify-content:space-between, which shoves six
+   controls into the right half of the card where they wrap into a ragged
+   stack. Switching this one head to a column puts the heading on its own row
+   and gives the controls the full width beneath it.
+
+   Within that row: reading controls (search, week navigation) sit left,
+   writing controls (the modals) are pushed right by margin-left:auto. When
+   the row is too narrow to hold both, the actions wrap as one block instead
+   of shedding one button at a time. */
+.sched-head{
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+}
+
+.sched-controls{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.sched-browse-controls{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+/* When the controls row IS the card head, it inherits .owner-card-head's
+   justify-content:space-between -- which pushed search, the week stepper and
+   the picker to opposite ends of a very wide card with nothing between them.
+   Grouped at the right instead, so they read as one set of controls. */
+.owner-card-head.sched-controls{
+    justify-content: flex-start;
+}
+
+.sched-search{ width: 210px; }
+
+.sched-step{ display: flex; gap: 4px; }
+
+.sched-actions{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    min-width: 0;
+}
+
+@media (max-width: 900px){
+    /* No room to hold the two groups apart; let the actions start a new line
+       at the left rather than trailing off the right edge. */
+    .sched-actions{ flex-basis: 100%; margin-left: 0; }
+}
+
+@media (max-width: 560px){
+    .sched-search{ width: 100%; }
+    .sched-actions{ width: 100%; }
+    .sched-actions .owner-btn{ flex: 1 1 auto; justify-content: center; }
+}
+
+
+/* ---------------------------------------------------------------------- */
+/* Sidebar nav: children keep their own height                             */
+/* ---------------------------------------------------------------------- */
+/* .owner-nav is a flex column with a bounded height, so by default every
+   child is allowed to shrink to fit -- and the section headings, which carry
+   overflow:hidden, were the first to give: their text was sliced in half.
+   The nav is supposed to scroll, not compress. flex-shrink:0 on the children
+   is what makes it scroll instead.
+
+   The headings also need a minimum height of their own: a shrunk line-box
+   clips before the element is fully collapsed, so the label went first and the
+   layout still looked "fine". */
+.owner-nav > *{ flex-shrink: 0; }
+
+.owner-nav-section{
+    line-height: 1.4;
+    min-height: 1.4em;
+}
+
+
+/* ---------------------------------------------------------------------- */
+/* Every scrolling pane matches the sidebar nav                            */
+/* ---------------------------------------------------------------------- */
+/* The nav was styled while the notification list, tab strips, wide tables,
+   modal bodies and dropdown panels all fell back to the operating system's
+   scrollbar -- a wide grey track with stepper arrows, sitting inches from the
+   thin one in the sidebar. Same treatment, listed together so they cannot
+   drift: invisible until the pane is hovered or focused.
+
+   width covers vertical scrollers, height the horizontal ones (.owner-tabs
+   and .owner-table-wrap scroll sideways). */
+.owner-notif-list,
+.owner-tabs,
+.owner-table-wrap,
+.owner-modal-body,
+.owner-combobox-panel,
+.sched-weekpop-list{
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.18s var(--op-ease);
+}
+
+.owner-notif-list:hover, .owner-notif-list:focus-within,
+.owner-tabs:hover, .owner-tabs:focus-within,
+.owner-table-wrap:hover, .owner-table-wrap:focus-within,
+.owner-modal-body:hover, .owner-modal-body:focus-within,
+.owner-combobox-panel:hover, .owner-combobox-panel:focus-within,
+.sched-weekpop-list:hover, .sched-weekpop-list:focus-within{
+    scrollbar-color: var(--op-border) transparent;
+}
+
+.owner-notif-list::-webkit-scrollbar,
+.owner-tabs::-webkit-scrollbar,
+.owner-table-wrap::-webkit-scrollbar,
+.owner-modal-body::-webkit-scrollbar,
+.owner-combobox-panel::-webkit-scrollbar,
+.sched-weekpop-list::-webkit-scrollbar{ width: 8px; height: 8px; }
+
+.owner-notif-list::-webkit-scrollbar-track,
+.owner-tabs::-webkit-scrollbar-track,
+.owner-table-wrap::-webkit-scrollbar-track,
+.owner-modal-body::-webkit-scrollbar-track,
+.owner-combobox-panel::-webkit-scrollbar-track,
+.sched-weekpop-list::-webkit-scrollbar-track{ background: transparent; }
+
+.owner-notif-list::-webkit-scrollbar-thumb,
+.owner-tabs::-webkit-scrollbar-thumb,
+.owner-table-wrap::-webkit-scrollbar-thumb,
+.owner-modal-body::-webkit-scrollbar-thumb,
+.owner-combobox-panel::-webkit-scrollbar-thumb,
+.sched-weekpop-list::-webkit-scrollbar-thumb{
+    background: transparent;
+    border-radius: 4px;
+    transition: background 0.18s var(--op-ease);
+}
+
+.owner-notif-list:hover::-webkit-scrollbar-thumb, .owner-notif-list:focus-within::-webkit-scrollbar-thumb,
+.owner-tabs:hover::-webkit-scrollbar-thumb, .owner-tabs:focus-within::-webkit-scrollbar-thumb,
+.owner-table-wrap:hover::-webkit-scrollbar-thumb, .owner-table-wrap:focus-within::-webkit-scrollbar-thumb,
+.owner-modal-body:hover::-webkit-scrollbar-thumb, .owner-modal-body:focus-within::-webkit-scrollbar-thumb,
+.owner-combobox-panel:hover::-webkit-scrollbar-thumb, .owner-combobox-panel:focus-within::-webkit-scrollbar-thumb,
+.sched-weekpop-list:hover::-webkit-scrollbar-thumb, .sched-weekpop-list:focus-within::-webkit-scrollbar-thumb{
+    background: var(--op-border);
+}
+
+
+/* ---------------------------------------------------------------------- */
+/* The page's own scrollbar                                                */
+/* ---------------------------------------------------------------------- */
+/* .owner-shell is min-height:100vh, so the page scrolls in the browser window
+   rather than inside a pane -- and that window scrollbar is the one nothing had
+   touched. Every styled bar so far was inside a panel, which is why the thin
+   ones and the operating system's wide grey one appeared side by side.
+
+   Deliberately always visible, unlike the panel scrollbars. Those hide until
+   hovered because they sit inside a component; this one is the page's own
+   position indicator, and hover would mean nothing for it -- the pointer is
+   inside the window whenever anyone is reading. */
+html{
+    scrollbar-width: thin;
+    scrollbar-color: var(--op-border) transparent;
+}
+
+html::-webkit-scrollbar{ width: 10px; height: 10px; }
+html::-webkit-scrollbar-track{ background: transparent; }
+html::-webkit-scrollbar-thumb{
+    background: var(--op-border);
+    border-radius: 5px;
+    border: 2px solid var(--op-canvas);
+    background-clip: padding-box;
+    transition: background 0.18s var(--op-ease);
+}
+html::-webkit-scrollbar-thumb:hover{
+    background: var(--op-ink-faint);
+    background-clip: padding-box;
+}
+
+
+/* ---------------------------------------------------------------------- */
+/* Performance Monitoring                                                  */
+/* ---------------------------------------------------------------------- */
+/* .owner-summary-card centres its children, which is right for a one-line
+   card and wrong for a row of four where one meta wraps: that card grew, its
+   icon drifted to the middle, and the row looked misaligned. Top-align the
+   icon, stretch every card to the tallest, and the row reads as a set. */
+.pm-kpi{
+    align-items: flex-start;
+    height: 100%;
+}
+
+.pm-kpi-text{ min-width: 0; }
+
+.pm-kpi-icon{
+    font-size: 1.5rem;
+    color: var(--op-gold);
+    flex-shrink: 0;
+    line-height: 1.2;
+}
+
+/* The grid's own items must stretch, or height:100% has nothing to fill. */
+.owner-form-grid > .pm-kpi{ align-self: stretch; }
+
+.atr-dtr-cell{ text-align: right; white-space: nowrap; }
+
+/* The row is clickable, so the button must not look like the only target --
+   it inherits the row's hover instead of fighting it. */
+.atr-row-clickable:hover .atr-dtr-btn{
+    border-color: var(--op-gold);
+    color: var(--op-gold);
+}
+
+@media print{
+    /* The record only -- the table behind it and the button column are noise
+       on paper. */
+    .atr-dtr-cell{ display: none !important; }
+}
+
+
+
+
+/* Dashboard widget bodies scroll inside their card (both the Admin's
+   .adm-widget-body and the Manager's .dash-widget-body). They are declared in
+   each dashboard's own <style>, which is why they were missed when every other
+   scrolling pane was styled -- a grep of this file would never have found
+   them. Same treatment as the rest: invisible until hovered or focused. */
+.adm-widget-body,
+.dash-widget-body{
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.18s var(--op-ease);
+}
+.adm-widget-body:hover, .adm-widget-body:focus-within,
+.dash-widget-body:hover, .dash-widget-body:focus-within{
+    scrollbar-color: var(--op-border) transparent;
+}
+
+.adm-widget-body::-webkit-scrollbar,
+.dash-widget-body::-webkit-scrollbar{ width: 8px; height: 8px; }
+
+.adm-widget-body::-webkit-scrollbar-track,
+.dash-widget-body::-webkit-scrollbar-track{ background: transparent; }
+
+.adm-widget-body::-webkit-scrollbar-thumb,
+.dash-widget-body::-webkit-scrollbar-thumb{
+    background: transparent;
+    border-radius: 4px;
+    transition: background 0.18s var(--op-ease);
+}
+
+.adm-widget-body:hover::-webkit-scrollbar-thumb, .adm-widget-body:focus-within::-webkit-scrollbar-thumb,
+.dash-widget-body:hover::-webkit-scrollbar-thumb, .dash-widget-body:focus-within::-webkit-scrollbar-thumb{
+    background: var(--op-border);
+}

@@ -1,0 +1,96 @@
+/* ==========================================================================
+   menu.css
+   Customer-facing menu browse page. The card grid itself (.ca-menu-card
+   family: search box, filter chips, cards, badges) is shared with the
+   booking wizard's advance-order step -- lives in make-reservation.css,
+   loaded before this file. Reusing it here (rather than the page's own
+   separate .ca-menuitem-* set an earlier version of this file had) is
+   deliberate: that component already has a real Out of Stock badge wired
+   to real data, and a tuned mobile->desktop responsive
+   grid -- forking a second copy would just mean this page's cards stay
+   permanently behind the booking wizard's every time that one improves.
+   Everything below is only the handful of things genuinely specific to a
+   read-only browsing page (no cart/click-to-order here, unlike the
+   wizard) that the shared file doesn't already cover.
+   ========================================================================== */
+
+/* -- Search + filter chip toolbar ------------------------------------------
+   Stacks the search box above the chip row on narrow screens (the wizard's
+   version never needs this since it lives inside a fixed-height modal
+   step, not a full page) so neither one gets squeezed on mobile. */
+.ca-menu-toolbar{
+    display: flex;
+    flex-direction: column;
+    /* make-reservation.css's own .ca-menu-toolbar sets align-items:center for
+       its single-row layout. Flipping the direction to column here turns that
+       into a CROSS-axis rule, so the search box shrank to its content width
+       (~234px) and sat centred while the chip row beneath it ran edge to edge.
+       Stretch is what gives it the full width of the toolbar. */
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+@media (min-width: 640px){
+    .ca-menu-toolbar{ flex-direction: row; align-items: center; }
+    /* .ca-menu-search's max-width now lives in make-reservation.css so the
+       advance-order step gets the same cap. */
+    .ca-menu-filter-chips{ flex: 1; overflow-x: auto; }
+}
+
+/* -- Read-only card behavior -------------------------------------------------
+   make-reservation.css's .ca-menu-card is built for the wizard's "tap to
+   open item detail sheet" interaction (cursor:pointer, press-down scale
+   on :active). Nothing is clickable on this page -- browsing only -- so
+   those affordances would falsely promise an action that doesn't exist.
+   The hover lift stays; it's just a nice visual response to a card, not a
+   claim about clickability. */
+.ca-menu-card{ cursor: default; }
+.ca-menu-card:active{ transform: none; }
+
+/* An element's own display rule (here, flex) silently defeats the native
+   [hidden] attribute unless paired with an explicit override -- same
+   pattern as .ca-menu-tab-panel[hidden] elsewhere in this app. Not needed
+   in make-reservation.css itself since the wizard re-renders its grid's
+   innerHTML on every filter change instead of toggling [hidden]. */
+.ca-menu-card[hidden]{ display: none; }
+
+/* Scarcity nudge next to the price -- shown only when stock is genuinely
+   low (<=5, real recipe-vs-inventory math from computeMenuItemStock()),
+   never a fabricated "X left" for unconstrained items (stock === null). */
+.ca-menu-card-lowstock{
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--ca-warning);
+}
+
+/* -- Wider desktop refinement -----------------------------------------------
+   make-reservation.css's auto-fill(minmax(200px,1fr)) already scales
+   smoothly from tablet up, but on a genuinely wide desktop viewport
+   200px-minimum cards pack in a bit tightly for a full page (as opposed
+   to the wizard's narrower modal column) -- a slightly larger minimum
+   reads as more deliberate at that size. Scoped to this page only (menu.
+   css loads after make-reservation.css, and the wizard never loads this
+   file), so the booking wizard's own grid is untouched. */
+@media (min-width: 1024px){
+    .ca-menu-grid{ grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 20px; }
+}
+
+/* -- Uniform card sizing -----------------------------------------------------
+   The bulk of this now lives in make-reservation.css with the rest of the
+   component (fixed image-band height, 2-line reserved name), because the
+   booking wizard's advance-order step needs exactly the same treatment and
+   keeping the fix here meant only this page ever got it -- precisely the
+   drift this file's header warns about.
+
+   What stays below is only what is genuinely specific to a full browsing
+   page: taller photos at desktop width, where the cards are wider than the
+   wizard's narrower column, and a roomier 3-line description since there is
+   no cart competing for vertical space here. */
+@media (min-width: 1024px){
+    .ca-menu-card-img-wrap{ height: 220px; }
+}
+
+.ca-menu-card-desc{
+    -webkit-line-clamp: 3;
+    min-height: 4.2em; /* 3 lines reserved at this component's 1.4 line-height (base component reserves 2) */
+}

@@ -1,0 +1,17 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#fff} svg{display:block} body.solo svg{display:none} body.solo svg.on{display:block}</style>
+</head><body><div id="host"></div>
+<script src="dfd_engine.js"></script>
+<script src="dfd_specs.js"></script>
+<script src="dfd_specs2.js"></script>
+<script>
+window.exportSvg = (id) => {
+  const s = document.getElementById(id), c = s.cloneNode(true);
+  c.removeAttribute('class');
+  return { svg: '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(c),
+           w: Number(s.getAttribute('width')), h: Number(s.getAttribute('height')) };
+};
+window.show = (id) => { document.body.classList.add('solo');
+  document.querySelectorAll('svg').forEach(s => s.classList.toggle('on', s.id === id)); window.scrollTo(0,0); };
+window.__built = true;
+</script></body></html>

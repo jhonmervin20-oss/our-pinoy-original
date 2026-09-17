@@ -1,0 +1,102 @@
+/* ==========================================================================
+   reservation-details.css
+   Standalone reservation detail page — no topbar/bottom-nav shell, just a
+   minimal back-button header. Reuses customer-app.css tokens plus
+   make-reservation.css's .ca-receipt/.ca-btn/.ca-loading-overlay and
+   reservations.css's .ca-res-badge — nothing here redefines those.
+   ========================================================================== */
+
+body.ca-body.ca-plain{ padding-top: 0; }
+
+/* -- Minimal header ---------------------------------------------------------- */
+.ca-subpage-header{
+    background: var(--ca-surface);
+    border-bottom: 1px solid var(--ca-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.ca-subpage-header-inner{
+    /* Mirrors .ca-topbar-inner on the booking wizard: same 1280px cap and 28px
+       gutter, so the back button sits at the left of the page rather than
+       centred over the narrow 560px content column below. No logo here -- the
+       wizard carries one because it's a standalone flow with no navbar; this
+       page is reached from within the app. */
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.ca-subpage-back{
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    border: 1px solid var(--ca-border);
+    background: var(--ca-surface);
+    color: var(--ca-ink-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.05rem;
+    transition: background 0.15s var(--ca-ease), color 0.15s var(--ca-ease);
+}
+.ca-subpage-back:hover{ background: var(--ca-canvas); color: var(--ca-gold); }
+.ca-subpage-heading{
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.3;
+}
+.ca-subpage-title{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--ca-ink);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* The reservation number, kept in the sticky header so it stays on screen
+   after .ca-detail-number has scrolled out of view. */
+.ca-subpage-sub{
+    font-size: 0.78rem;
+    color: var(--ca-ink-faint);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+@media (max-width: 480px){
+    .ca-subpage-header-inner{ padding: 14px 20px; }
+    .ca-subpage-sub{ display: none; }
+}
+
+/* -- Content ------------------------------------------------------------------- */
+.ca-detail-content{
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 28px 20px 60px;
+}
+.ca-detail-number{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--ca-ink);
+    margin: 10px 0 18px;
+}
+
+/* -- Actions --------------------------------------------------------------------- */
+.ca-detail-actions{
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+.ca-detail-actions form,
+.ca-detail-actions > button{ flex: 1; }
+
+@media (max-width: 480px){
+    .ca-detail-actions{ flex-direction: column; }
+}

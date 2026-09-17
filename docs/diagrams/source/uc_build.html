@@ -1,0 +1,11 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#fff} svg{display:block}</style>
+</head><body><div id="host"></div>
+<script src="uc_engine.js"></script>
+<script src="uc_spec.js"></script>
+<script>
+window.exportSvg = (id) => { const s = document.getElementById(id), c = s.cloneNode(true);
+  return { svg: '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(c),
+           w: Number(s.getAttribute('width')), h: Number(s.getAttribute('height')) }; };
+window.__built = true;
+</script></body></html>

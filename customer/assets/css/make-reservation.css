@@ -1,0 +1,1725 @@
+/* ==========================================================================
+   make-reservation.css
+   Multi-step reservation booking wizard. Built entirely from the existing
+   customer-app.css token set (--ca-*) — no Bootstrap, no second design
+   system. Adds a couple of complementary tokens (success color) that
+   customer-app.css didn't need until now.
+   ========================================================================== */
+
+:root{
+    --ca-success:      #4a7c59;
+    --ca-success-soft: rgba(74,124,89,0.10);
+    --ca-warning:      #b8863b;
+    --ca-warning-soft: rgba(184,134,59,0.12);
+}
+
+/* -- Standalone page header (no navbar.php on this page) ------------------- */
+
+/* body.ca-body's default padding reserves space for navbar.php's
+   .ca-topbar + .ca-bottom-nav; this page brings its own compact .ca-topbar
+   instead and has no bottom nav at all, so both get overridden here. */
+.ca-standalone{
+    padding-top: var(--ca-topbar-h);
+    /* Clears the fixed Back/Continue bar, which no longer occupies flow. When
+       the cart bar replaces it on the advance step, body.ca-has-cartbar's own
+       (larger) padding wins on specificity -- element+class beats class. */
+    padding-bottom: 84px;
+}
+
+@media (max-width: 767px){
+    .ca-standalone{
+        padding-top: calc(var(--ca-topbar-h) - 12px);
+        padding-bottom: 84px;
+    }
+}
+
+/* .ca-topbar/.ca-topbar-inner/.ca-icon-btn/.ca-logo are reused as-is from
+   customer-app.css for the outer chrome -- only the title/subtitle block
+   in the middle is new. flex:1 on it fills the space between the back
+   button and the logo, same way .ca-topbar-actions' margin-left:auto
+   pushes the real nav's right cluster to the edge. */
+.ca-wizard-topbar-info{
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+}
+
+.ca-wizard-topbar-title{
+    font-family: 'Lexend', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ca-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ca-wizard-topbar-sub{
+    font-size: 0.78rem;
+    color: var(--ca-ink-faint);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 480px){
+    .ca-wizard-topbar-sub{ display: none; }
+}
+
+/* -- Page-level alert (customer-themed flash) ---------------------------- */
+.ca-alert{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 16px;
+    border-radius: var(--ca-radius-sm);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+.ca-alert i{ font-size: 1.1rem; flex-shrink: 0; }
+.ca-alert-success{ background: var(--ca-success-soft); color: var(--ca-success); }
+.ca-alert-error{ background: var(--ca-danger-soft); color: var(--ca-danger); }
+
+/* -- Wizard shell ---------------------------------------------------------- */
+.ca-wizard{
+    max-width: 880px;
+    margin: 0 auto;
+}
+/* 880px was a flat mobile-derived cap applied at every viewport width --
+   above it the wizard sat as a narrow column with large empty gutters on
+   both sides even on a full desktop monitor (this page's outer frame,
+   .ca-content in customer-app.css, allows up to 1280px). Widen the column
+   in two steps as real width becomes available, rather than a fixed-width
+   two-column redesign -- lower risk, and the wizard's own step content
+   (cards, the menu grid) already reflows to use the extra width via their
+   own auto-fill/auto-fit rules. */
+@media (min-width: 992px){
+    .ca-wizard{ max-width: 1040px; }
+}
+@media (min-width: 1280px){
+    .ca-wizard{ max-width: 1120px; }
+}
+
+.ca-wizard-progress{
+    display: flex;
+    align-items: center;
+    margin-bottom: 32px;
+    gap: 4px;
+}
+.ca-wizard-step{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+.ca-wizard-step-num{
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--ca-surface);
+    border: 2px solid var(--ca-border);
+    color: var(--ca-ink-faint);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Lexend', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    transition: background 0.2s var(--ca-ease), border-color 0.2s var(--ca-ease), color 0.2s var(--ca-ease);
+}
+.ca-wizard-step-label{
+    font-size: 0.85rem;
+    color: var(--ca-ink-faint);
+    font-weight: 500;
+    white-space: nowrap;
+}
+.ca-wizard-step.is-active .ca-wizard-step-num{
+    background: var(--ca-gold);
+    border-color: var(--ca-gold);
+    color: #fff;
+}
+.ca-wizard-step.is-active .ca-wizard-step-label{ color: var(--ca-ink); }
+.ca-wizard-step.is-done .ca-wizard-step-num{
+    background: var(--ca-success);
+    border-color: var(--ca-success);
+    color: #fff;
+}
+.ca-wizard-step.is-done .ca-wizard-step-num::before{ content: '\2713'; }
+.ca-wizard-step.is-done .ca-wizard-step-num span{ display: none; }
+.ca-wizard-connector{
+    flex: 1;
+    height: 2px;
+    background: var(--ca-border);
+    margin: 0 6px;
+    min-width: 16px;
+}
+
+.ca-wizard-panel{ display: none; }
+.ca-wizard-panel.is-active{ display: block; animation: caFadeIn 0.25s var(--ca-ease); }
+
+@keyframes caFadeIn{
+    from{ opacity: 0; transform: translateY(6px); }
+    to{ opacity: 1; transform: translateY(0); }
+}
+
+.ca-wizard-card{ margin-bottom: 20px; }
+.ca-wizard-card h2{
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 0 6px;
+    color: var(--ca-ink);
+}
+.ca-wizard-card-sub{
+    font-size: 0.87rem;
+    color: var(--ca-ink-soft);
+    margin: 0 0 18px;
+}
+/* Heading with a leading icon. Applied per-heading rather than to every
+   .ca-wizard-card h2, since steps 2 and 3 have plain headings. */
+.ca-wizard-card-h{
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+.ca-wizard-card-h i{ color: var(--ca-gold); font-size: 1.35rem; flex-shrink: 0; }
+/* A card whose heading is followed straight by content (no .ca-wizard-card-sub)
+   still needs the gap that sub would have provided. */
+.ca-wizard-card-h + .ca-prefs-sub{ margin-top: 16px; }
+
+.ca-wizard-nav{
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 8px;
+    /* So .ca-wizard-alert can claim a full-width row above Back/Continue. */
+    flex-wrap: wrap;
+}
+
+/* -- In-wizard validation warning ------------------------------------------
+   The details step used to raise a native alert() for "pick a date and time
+   slot" and party-size problems: an OS chrome dialog with the origin in its
+   title, no relation to the page's own language, and a browser OK button.
+   This is the same message as a row of the action bar, styled like the rest
+   of the app, with a real dismiss button. ------------------------------- */
+.ca-wizard-alert{
+    flex: 0 0 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px 11px 14px;
+    margin-bottom: 2px;
+    border-radius: var(--ca-radius-sm);
+    background: var(--ca-danger-soft);
+    color: var(--ca-danger);
+    font-size: 0.86rem;
+    line-height: 1.45;
+}
+/* The display:flex above defeats the UA's [hidden] rule -- same trap, and
+   same fix, as .ca-wizard-nav[hidden] below. */
+.ca-wizard-alert[hidden]{ display: none; }
+.ca-wizard-alert i{ font-size: 1.15rem; flex-shrink: 0; }
+.ca-wizard-alert span{ flex: 1; min-width: 0; }
+.ca-wizard-alert-close{
+    flex-shrink: 0;
+    background: transparent;
+    border: 1px solid currentColor;
+    color: inherit;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 7px 15px;
+    border-radius: var(--ca-radius-sm);
+    cursor: pointer;
+    transition: background .18s ease;
+}
+.ca-wizard-alert-close:hover{ background: rgba(207,90,68,0.14); }
+.ca-wizard-alert-close:focus-visible{ outline: 2px solid currentColor; outline-offset: 2px; }
+@media (max-width: 460px){
+    /* At this width the message wraps to two or three lines and the button
+       beside it squeezes the text into a narrow column -- give it its own
+       row, aligned right, under the message. */
+    .ca-wizard-alert{ flex-wrap: wrap; }
+    /* icon (1.15rem ~= 18px) + the 10px flex gap, with a little slack. */
+    .ca-wizard-alert span{ flex: 1 1 calc(100% - 32px); }
+    .ca-wizard-alert-close{ margin-left: auto; }
+}
+/* This element's own display:flex above silently defeats the browser's
+   default [hidden]{display:none} UA rule (an author rule always wins
+   regardless of source order), so anything that hides this element needs an
+   explicit override. Kept for any caller still toggling the attribute. */
+.ca-wizard-nav[hidden]{ display: none; }
+/* On phones the fixed cart bar takes over the nav's job once there's an order,
+   so the nav gets out of the way. updateBottomBarMode() toggles this class
+   rather than the hidden attribute, because whether the nav should really
+   disappear is viewport-dependent -- the >=1100px block puts it back, since
+   there is no cart bar on desktop to replace it. */
+.ca-wizard-nav.is-replaced-by-cartbar{ display: none; }
+
+/* Pinned Back/Continue. Applies everywhere by default -- every step can be
+   long enough that the action scrolls out of reach, and a bar that appears on
+   some steps but not others reads as a bug.
+
+   position:fixed, not sticky: sticky only pins while there is content
+   scrolling past it, so on a short step (the advance step before a choice is
+   made, or any step on a tall monitor) it simply sat wherever the content
+   ended instead of at the bottom of the screen. Fixed matches .ca-cart-bar,
+   which is this app's existing pinned-action-bar pattern -- same centring,
+   same max-width steps, same rounded top and shadow, so the two never look
+   like different components when they swap places on the advance step.
+
+   Because it's fixed it no longer occupies flow, so .ca-standalone carries a
+   matching padding-bottom to keep the last card clear of it.
+
+   White (--ca-surface) with a top border: the cards behind it are white too,
+   so the border is what marks its edge as content scrolls underneath. */
+.ca-wizard .ca-wizard-nav{
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 30;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 12px 20px;
+    background: var(--ca-surface);
+    border-top: 1px solid var(--ca-border);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    box-shadow: 0 -10px 30px -14px rgba(30,24,16,0.32);
+}
+/* Stay in sync with .ca-wizard's own desktop widening, exactly as
+   .ca-cart-bar does -- otherwise the bar stays at 880px while the wizard
+   above it grows, visibly misaligned on desktop. */
+@media (min-width: 992px){
+    .ca-wizard .ca-wizard-nav{ max-width: 1040px; }
+}
+@media (min-width: 1280px){
+    .ca-wizard .ca-wizard-nav{ max-width: 1120px; }
+}
+@media (min-width: 1100px){
+    /* Order panel is on screen and holds Continue -- a second pinned bar under
+       it would be a duplicate, so the nav returns to normal flow with Back. */
+    .ca-wizard.is-order-panel-open .ca-wizard-nav{
+        position: static;
+        max-width: none;
+        margin-top: 8px;
+        padding: 0;
+        background: none;
+        border-top: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+}
+
+/* -- Buttons ---------------------------------------------------------------- */
+.ca-btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border-radius: var(--ca-radius-sm);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: filter 0.15s var(--ca-ease), transform 0.1s var(--ca-ease), background 0.15s var(--ca-ease);
+}
+.ca-btn:active{ transform: scale(0.98); }
+.ca-btn:disabled{ opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+.ca-btn .ph-spinner{ animation: caSpin 0.7s linear infinite; }
+.ca-btn-primary{ background: var(--ca-gold); color: #fff; }
+.ca-btn-primary:hover{ filter: brightness(1.06); }
+.ca-btn-secondary{ background: var(--ca-surface); color: var(--ca-ink); border-color: var(--ca-border); }
+.ca-btn-secondary:hover{ background: var(--ca-canvas); }
+.ca-btn-block{ width: 100%; }
+
+.ca-gcash-badge{
+    height: 26px;
+    width: auto;
+    display: block;
+}
+
+/* -- Form controls ------------------------------------------------------------ */
+.ca-input, .ca-select, .ca-textarea{
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius-sm);
+    background: var(--ca-surface);
+    color: var(--ca-ink);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.88rem;
+    transition: border-color 0.15s var(--ca-ease);
+}
+.ca-input:focus, .ca-select:focus, .ca-textarea:focus{
+    outline: none;
+    border-color: var(--ca-gold-soft-2);
+}
+.ca-textarea{ resize: vertical; min-height: 84px; }
+.ca-form-group{ margin-bottom: 18px; }
+.ca-form-group label{
+    display: block;
+    font-size: 0.83rem;
+    font-weight: 500;
+    color: var(--ca-ink-soft);
+    margin-bottom: 7px;
+}
+.ca-form-optional{ font-weight: 400; color: var(--ca-ink-faint); }
+.ca-form-error{
+    display: block;
+    font-size: 0.78rem;
+    color: var(--ca-danger);
+    margin-top: 6px;
+}
+
+/* -- Calendar ------------------------------------------------------------------ */
+.ca-calendar{ margin-bottom: 24px; }
+.ca-calendar-head{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+.ca-calendar-title{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+}
+.ca-calendar-nav{
+    display: flex;
+    gap: 6px;
+}
+.ca-calendar-nav-btn{
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--ca-border);
+    background: var(--ca-surface);
+    color: var(--ca-ink-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s var(--ca-ease);
+}
+.ca-calendar-nav-btn:hover{ background: var(--ca-canvas); }
+.ca-calendar-nav-btn:disabled{ opacity: 0.35; cursor: not-allowed; }
+
+.ca-calendar-weekdays, .ca-calendar-grid{
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+.ca-calendar-weekdays{
+    margin-bottom: 6px;
+}
+.ca-calendar-weekdays span{
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ca-ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.ca-calendar-day{
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--ca-ink);
+    background: var(--ca-surface);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 0.15s var(--ca-ease), color 0.15s var(--ca-ease), border-color 0.15s var(--ca-ease);
+}
+.ca-calendar-day:hover:not(.is-disabled){ background: var(--ca-gold-soft); }
+.ca-calendar-day.is-empty{ visibility: hidden; }
+.ca-calendar-day.is-disabled{
+    color: var(--ca-ink-faint);
+    background: var(--ca-canvas);
+    cursor: not-allowed;
+}
+.ca-calendar-day.is-today{ border-color: var(--ca-gold-soft-2); font-weight: 700; }
+.ca-calendar-day.is-selected{
+    background: var(--ca-gold);
+    color: #fff;
+}
+.ca-calendar-legend{
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+.ca-calendar-legend span{
+    font-size: 0.76rem;
+    color: var(--ca-ink-faint);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.ca-calendar-legend i{
+    width: 10px; height: 10px; border-radius: 3px; display: inline-block;
+}
+
+/* -- Date + time-slot layout: stacked (calendar, then slots below) by
+   default; a real two-column desktop layout is added further down. -------- */
+.ca-slot-panel-label{
+    display: block;
+    font-size: 0.83rem;
+    font-weight: 500;
+    color: var(--ca-ink-soft);
+    margin-bottom: 10px;
+}
+.ca-slot-placeholder{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 120px;
+    padding: 20px;
+    border: 1px dashed var(--ca-border);
+    border-radius: var(--ca-radius-sm, 10px);
+    color: var(--ca-ink-faint);
+    font-size: 0.85rem;
+    text-align: center;
+}
+.ca-slot-placeholder i{ font-size: 1.4rem; }
+.ca-slot-placeholder[hidden]{ display: none; }
+
+@media (min-width: 992px){
+    /* Calendar shrinks to a fixed, narrower column instead of stretching
+       across the whole (now-widened, see .ca-wizard's own desktop rule)
+       card; the time-slot panel takes the remaining space beside it,
+       always showing its "Available time slots" label + a placeholder
+       until a date is picked, rather than appearing/disappearing below. */
+    .ca-date-time-layout{
+        display: flex;
+        align-items: flex-start;
+        gap: 32px;
+    }
+    .ca-date-time-layout .ca-calendar{
+        flex: 0 0 340px;
+        margin-bottom: 0;
+    }
+    .ca-slot-panel{
+        flex: 1;
+        min-width: 0;
+        padding-top: 4px;
+    }
+}
+
+/* -- Time slot chips ------------------------------------------------------------ */
+.ca-slot-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 8px;
+}
+.ca-slot-chip{
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    text-align: left;
+    padding: 12px 14px;
+    border-radius: var(--ca-radius-sm);
+    border: 1.5px solid var(--ca-border);
+    background: var(--ca-surface);
+    cursor: pointer;
+    transition: border-color 0.15s var(--ca-ease), background 0.15s var(--ca-ease), transform 0.1s var(--ca-ease);
+}
+/* The clock is a fixed leading column; min-width:0 on the text side lets a
+   long slot label wrap instead of stretching the grid cell. */
+.ca-slot-chip > i{
+    font-size: 1.05rem;
+    line-height: 1.15;
+    color: var(--ca-gold);
+    flex-shrink: 0;
+}
+.ca-slot-chip-text{ min-width: 0; }
+.ca-slot-chip:disabled > i{ color: var(--ca-ink-faint); }
+.ca-slot-chip:hover:not(:disabled){ border-color: var(--ca-gold-soft-2); transform: translateY(-1px); }
+.ca-slot-chip-label{ font-weight: 600; font-size: 0.87rem; color: var(--ca-ink); display: block; margin-bottom: 4px; }
+.ca-slot-chip-meta{ font-size: 0.76rem; color: var(--ca-ink-soft); }
+.ca-slot-chip.is-selected{ border-color: var(--ca-gold); background: var(--ca-gold-soft); }
+.ca-slot-chip.is-selected .ca-slot-chip-label{ color: var(--ca-gold); }
+.ca-slot-chip.is-limited .ca-slot-chip-meta{ color: var(--ca-warning); }
+
+.ca-slot-chip:disabled{
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--ca-canvas);
+}
+.ca-slot-chip:disabled .ca-slot-chip-meta{ color: var(--ca-danger); }
+
+/* -- Advance-order step: desktop menu + order panel split ---------------------- */
+/* Mobile-first: single column, and the order panel does not exist on screen at
+   all -- the fixed bottom cart bar is the summary there. Everything that turns
+   this into two columns lives in the >=1100px block further down, so none of
+   it can reach a phone. */
+.ca-advance-layout{ display: block; }
+.ca-order-panel{ display: none; }
+
+@media (min-width: 1100px){
+    /* The wizard's normal cap (1120px) is too narrow to hold a menu grid and a
+       340px panel side by side, so it widens -- but only while the panel is
+       actually open, so steps 1 and 3 keep their comfortable reading width. */
+    .ca-wizard.is-order-panel-open{ max-width: 1440px; }
+
+    .ca-advance-layout{
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 340px;
+        align-items: start;
+        gap: 22px;
+    }
+    /* Not open yet -> the prompt card shouldn't stretch across a phantom
+       second column. */
+    .ca-wizard:not(.is-order-panel-open) .ca-advance-layout{
+        display: block;
+    }
+    .ca-advance-main{ min-width: 0; }
+
+    .ca-order-panel[hidden]{ display: none; }
+    .ca-order-panel{
+        display: block;
+        position: sticky;
+        top: 22px;
+        background: var(--ca-surface);
+        border: 1px solid var(--ca-border);
+        border-radius: var(--ca-radius);
+        padding: 20px;
+        /* Never taller than the viewport: the list scrolls inside instead, so
+           the totals and the Continue button stay reachable with a long cart. */
+        max-height: calc(100dvh - 44px);
+        overflow-y: auto;
+    }
+    /* The bottom cart bar is the phone's answer to the same problem -- with the
+       panel on screen it would be a duplicate, so it never shows here. */
+    .ca-cart-bar{ display: none !important; }
+    body.ca-has-cartbar{ padding-bottom: 0; }
+    /* On desktop there is no cart bar, so the nav is never replaced -- it stays
+       and keeps Back reachable. The panel carries the forward action, so the
+       nav's own Continue would be a duplicate. */
+    .ca-wizard-nav.is-replaced-by-cartbar{ display: flex; }
+    .ca-wizard.is-order-panel-open #wizNext{ display: none; }
+}
+
+.ca-order-panel-title{
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ca-ink);
+    margin: 0 0 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--ca-border);
+}
+.ca-order-panel-lines{
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 14px;
+}
+.ca-order-panel-totals{
+    padding-top: 14px;
+    border-top: 1px solid var(--ca-border);
+}
+.ca-order-panel-continue{
+    width: 100%;
+    justify-content: center;
+    margin-top: 16px;
+}
+
+/* -- Party size ----------------------------------------------------------------- */
+/* The stepper and its reassurance chip sit on one row, the chip pushed to the
+   far edge, so the card reads across its full width instead of leaving the
+   right two-thirds blank. Wraps to two lines on a phone. */
+.ca-party-row{
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 16px;
+}
+.ca-party-row .ca-prefs-hint{ margin: 0 0 0 auto; }
+@media (max-width: 560px){
+    .ca-party-row .ca-prefs-hint{ margin-left: 0; }
+}
+
+.ca-prefs-sub{
+    font-size: 0.82rem;
+    color: var(--ca-ink-soft);
+    margin: 0 0 14px;
+    line-height: 1.5;
+}
+/* Soft chip -- it states a hard limit, so it gets a surface of its own
+   rather than reading as more body copy under the stepper. */
+.ca-prefs-hint{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 0 0;
+    padding: 9px 13px;
+    border-radius: var(--ca-radius-sm);
+    background: var(--ca-canvas);
+    font-size: 0.79rem;
+    color: var(--ca-ink-soft);
+}
+.ca-prefs-hint i{ color: var(--ca-gold); font-size: 0.95rem; flex-shrink: 0; }
+
+/* -- Guest stepper --------------------------------------------------------------- */
+.ca-stepper-unit-wrap{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ca-ink-soft);
+    font-size: 0.87rem;
+}
+.ca-stepper-unit-wrap i{ color: var(--ca-gold); font-size: 1rem; }
+.ca-stepper{
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius-sm);
+    padding: 8px 16px;
+}
+.ca-stepper-btn{
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--ca-border);
+    background: var(--ca-surface);
+    color: var(--ca-ink);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s var(--ca-ease);
+}
+.ca-stepper-btn:hover:not(:disabled){ background: var(--ca-gold-soft); }
+.ca-stepper-btn:disabled{ opacity: 0.35; cursor: not-allowed; }
+.ca-stepper-value{ font-family: 'Lexend', sans-serif; font-weight: 700; font-size: 1.1rem; min-width: 24px; text-align: center; }
+.ca-stepper-unit{ font-size: 0.82rem; color: var(--ca-ink-soft); }
+
+/* -- Advance order toggle -------------------------------------------------------- */
+.ca-toggle-choice{
+    display: flex;
+    gap: 14px;
+    margin-bottom: 8px;
+}
+.ca-toggle-card{
+    flex: 1;
+    padding: 20px;
+    border: 1.5px solid var(--ca-border);
+    border-radius: var(--ca-radius-sm);
+    text-align: center;
+    cursor: pointer;
+    background: var(--ca-surface);
+    transition: border-color 0.15s var(--ca-ease), background 0.15s var(--ca-ease);
+}
+.ca-toggle-card:hover{ border-color: var(--ca-gold-soft-2); }
+.ca-toggle-card.is-selected{ border-color: var(--ca-gold); background: var(--ca-gold-soft); }
+.ca-toggle-card strong{ display: block; font-family: 'Lexend', sans-serif; font-size: 0.95rem; }
+.ca-toggle-card-sub{
+    display: block;
+    margin-top: 4px;
+    font-size: 0.8rem;
+    color: var(--ca-ink-soft);
+}
+
+/* -- Menu cards / cart ------------------------------------------------------------- */
+
+.ca-menu-toolbar{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+/* ---- "Describe your preference" AI filter -------------------------------
+   Used by the advance-order step (it was deliberately removed from
+   customer/menu.php). Sits above the category chips as its own block rather
+   than inside .ca-menu-toolbar, so the long field never competes with the
+   chips for horizontal space on a phone. */
+.ca-menu-ai{ margin-top: 18px; margin-bottom: 14px; }
+/* First thing inside the menu card, so the card's own 24px padding is already
+   the breathing room -- the 18px above would just stack on top of it. */
+#advMenuAiMount .ca-menu-ai{ margin-top: 0; }
+
+.ca-menu-ai-label{
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ca-ink-soft);
+    margin-bottom: 8px;
+}
+
+.ca-menu-ai-row{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ca-menu-ai-field{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;              /* lets the field shrink instead of pushing the button off-screen */
+    padding: 11px 16px;
+    border: 1px solid var(--ca-gold-soft-2);
+    /* Rectangular, matching the search field and filter chips it sits above --
+       a pill here read as a different family of control from the rest of the
+       toolbar. */
+    border-radius: 8px;
+    background: var(--ca-surface);
+    box-shadow: 0 6px 18px -14px rgba(30, 24, 16, 0.28);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.ca-menu-ai-field:focus-within{
+    border-color: var(--ca-gold-light);
+    box-shadow: 0 6px 18px -14px rgba(30, 24, 16, 0.32), 0 0 0 3px var(--ca-gold-soft);
+}
+.ca-menu-ai-field > i{
+    color: var(--ca-gold-light);
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+.ca-menu-ai-field input{
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: none;
+    font-family: inherit;
+    font-size: 0.82rem;
+    color: var(--ca-ink);
+}
+.ca-menu-ai-field input::placeholder{ color: var(--ca-ink-faint); }
+
+.ca-menu-ai-clear{
+    flex-shrink: 0;
+    border: none;
+    background: none;
+    padding: 2px;
+    cursor: pointer;
+    color: var(--ca-ink-faint);
+    font-size: 0.95rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+}
+.ca-menu-ai-clear:hover{ color: var(--ca-ink-soft); }
+.ca-menu-ai-clear[hidden]{ display: none; }
+
+.ca-menu-ai-btn{
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 11px 20px;
+    border: none;
+    border-radius: 8px;
+    background: var(--ca-gold);
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 6px 18px -12px rgba(156, 119, 52, 0.75);
+    transition: background 0.15s ease, opacity 0.15s ease;
+}
+.ca-menu-ai-btn:hover:not(:disabled){ background: #8a682d; }
+.ca-menu-ai-btn:disabled{ opacity: 0.6; cursor: default; }
+.ca-menu-ai-btn i{ font-size: 0.95rem; }
+.ca-menu-ai-btn.is-loading i{ animation: ca-menu-ai-spin 0.9s linear infinite; }
+@keyframes ca-menu-ai-spin{ to{ transform: rotate(360deg); } }
+
+/* Result line + any "couldn't filter on that" notes. Hidden until there is
+   actually something to say, so the toolbar stays quiet at rest. */
+.ca-menu-ai-result{
+    margin-top: 9px;
+    font-size: 0.74rem;
+    line-height: 1.5;
+    color: var(--ca-ink-soft);
+}
+.ca-menu-ai-result[hidden]{ display: none; }
+.ca-menu-ai-note{ display: block; color: var(--ca-ink-faint); }
+.ca-menu-ai-error{ color: #a4442f; }
+
+/* The button gets its own full-width row before it would squeeze the field
+   down to an unusable width. */
+@media (max-width: 640px){
+    .ca-menu-ai-row{ flex-wrap: wrap; }
+    .ca-menu-ai-field{ flex-basis: 100%; }
+    .ca-menu-ai-btn{ width: 100%; }
+}
+
+.ca-menu-search{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 200px;
+    padding: 10px 14px;
+    border: 1px solid var(--ca-border);
+    border-radius: 8px;
+    /* --ca-surface, NOT --ca-canvas: the page background is --ca-canvas, so a
+       canvas-filled field with only a faint border was effectively invisible
+       against it -- the box read as empty page. White also matches the filter
+       chips sitting on the same row. */
+    background: var(--ca-surface);
+}
+/* Capped once there's room, so the search box doesn't swallow the whole row
+   and shove the category chips against the far edge. Same value the menu page
+   already used; kept here so the advance-order step matches it. */
+@media (min-width: 640px){
+    .ca-menu-search{ max-width: 320px; }
+}
+.ca-menu-search:focus-within{ border-color: var(--ca-gold-light); }
+.ca-menu-search i{ color: var(--ca-ink-faint); font-size: 0.95rem; flex-shrink: 0; }
+.ca-menu-search input{
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: none;
+    font-family: inherit;
+    font-size: 0.88rem;
+    color: var(--ca-ink);
+}
+.ca-menu-search input::placeholder{ color: var(--ca-ink-faint); }
+
+.ca-menu-filter-chips{
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    max-width: 100%;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.ca-menu-filter-chips::-webkit-scrollbar{ display: none; }
+
+/* Desktop: search and category chips share one row instead of stacking.
+   Below this width the toolbar keeps wrapping, because a 300px field plus 12
+   chips on one line leaves the chips almost no room on a phone.
+
+   The search is pinned at a fixed 300px (flex: 0 0) so it never grows or
+   shrinks as categories change -- it stays exactly where it is. The chip strip
+   takes whatever is left; min-width:0 is what lets it shrink below its content
+   width and scroll horizontally (its existing overflow-x) rather than forcing
+   the row to wrap, which is what pushed the search onto its own line. */
+@media (min-width: 992px){
+    .ca-menu-toolbar{ flex-wrap: nowrap; }
+    .ca-menu-search{
+        flex: 0 0 300px;
+        max-width: 300px;
+    }
+    .ca-menu-filter-chips{
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+}
+.ca-menu-filter-chip{
+    flex: 0 0 auto;
+    padding: 9px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--ca-border);
+    background: var(--ca-surface);
+    color: var(--ca-ink-soft);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.83rem;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.15s var(--ca-ease), border-color 0.15s var(--ca-ease), color 0.15s var(--ca-ease);
+}
+.ca-menu-filter-chip:hover{ border-color: var(--ca-gold-soft-2); }
+.ca-menu-filter-chip.is-active{ background: var(--ca-gold); border-color: var(--ca-gold); color: #fff; }
+
+/* Mobile-first: 2 fixed columns down to 360px (the grid gap shrinks
+   slightly at the very bottom of that range instead of the columns
+   themselves, so cards never get uncomfortably narrow). Above 640px there's
+   room for cards to keep their natural width instead of stretching two
+   columns across a much wider screen, so it switches to auto-fill. */
+.ca-menu-grid{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+@media (min-width: 640px){
+    .ca-menu-grid{
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+    }
+}
+
+.ca-menu-card{
+    display: flex;
+    flex-direction: column;
+    background: var(--ca-surface);
+    border-radius: 16px;
+    box-shadow: 0 2px 10px -4px rgba(30,24,16,0.16);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s var(--ca-ease), box-shadow 0.15s var(--ca-ease);
+}
+.ca-menu-card:hover{
+    transform: translateY(-3px);
+    box-shadow: 0 12px 26px -12px rgba(30,24,16,0.3);
+}
+.ca-menu-card:active{ transform: translateY(-1px) scale(0.98); }
+.ca-menu-card.is-outofstock{ opacity: 0.6; }
+.ca-menu-card.is-outofstock:hover{ transform: none; box-shadow: 0 2px 10px -4px rgba(30,24,16,0.16); }
+
+/* Uniform image band. An EXPLICIT height, not aspect-ratio: the wrap is a
+   flex-column child, so its default min-height:auto lets the <img>'s own
+   natural height win and stretch the band -- which is exactly what made the
+   advance-order cards ragged, every photo sizing itself and pushing the name,
+   price and Add button to a different spot on every card. flex-shrink:0 stops
+   it collapsing the other way when a card's text runs long.
+
+   These live here, in the shared component, rather than in one page's
+   stylesheet, so both the menu page and the booking wizard's advance-order
+   step stay identical -- the fix used to exist only in menu.css, scoped away
+   from the wizard, which is the drift menu.css's own header warns about. */
+.ca-menu-card-img-wrap{
+    position: relative;
+    width: 100%;
+    height: 170px;
+    flex-shrink: 0;
+    background: var(--ca-canvas);
+}
+@media (min-width: 640px){
+    .ca-menu-card-img-wrap{ height: 190px; }
+}
+.ca-menu-card-img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+.ca-menu-card-img-placeholder{
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ca-ink-faint); font-size: 1.5rem;
+}
+
+.ca-menu-card-badges{
+    position: absolute; top: 8px; left: 8px;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+}
+.ca-menu-badge{
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: #fff;
+    background: var(--ca-ink);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+}
+.ca-menu-badge i{ font-size: 0.62rem; }
+.ca-menu-badge.is-outofstock{ background: var(--ca-danger); }
+
+.ca-menu-card-body{ padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+
+/* Clamped to 2 lines AND reserving 2 lines even for a 1-line name, so a
+   "Sisig" card and an "Inihaw na Bangus sa Dahon ng Saging" card put their
+   description, price and Add button on exactly the same baseline. Without the
+   reserved space the shorter name pulls everything below it up. */
+.ca-menu-card-name{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.6em;
+}
+
+/* -webkit-line-clamp caps the description at 2 lines regardless of actual
+   text length; min-height reserves that same 2-line space even when a
+   description is shorter (or missing, since the div isn't rendered at all
+   then) -- both together are what keep every card in a row the same
+   height without any card visibly stretching to fill leftover space. */
+.ca-menu-card-desc{
+    font-size: 0.72rem;
+    color: var(--ca-ink-soft);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.02em;
+}
+
+/* Serving size ("Good for 2-3 pax"), shown only when the restaurant has
+   recorded one -- no min-height reserved, since a card without it should
+   simply be shorter rather than carry an empty gap. */
+/* .ca-menu-card-serves lived here -- serving size removed from menu_items (2026-09-18). */
+
+/* Price and the add/stepper control sit side by side on one row (used to
+   stack, each full-width, which read as loose and disconnected -- this is
+   the layout most food-ordering apps use), pinned to the card's bottom via
+   margin-top:auto regardless of how much text sits above it. */
+.ca-menu-card-footer{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 6px;
+}
+.ca-menu-card-price{ font-weight: 700; color: var(--ca-gold); font-size: 0.85rem; }
+.ca-menu-card-unavailable{ font-size: 0.7rem; font-weight: 600; color: var(--ca-ink-faint); }
+
+/* Starts as a compact "Add" pill; changeCartQty()/setCartLine() swap this
+   for .ca-menu-card-stepper once quantity > 0, and back again at 0 -- the
+   add-then-step pattern most pre-order/food-delivery UIs use, instead of
+   showing an always-visible stepper sitting at 0. */
+.ca-menu-card-add{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    /* A fixed height (rather than padding alone) keeps the footer row exactly
+       the same height whether the card is showing Add or the stepper, so a
+       card doesn't change size the moment something is added to the cart. */
+    height: 30px;
+    padding: 0 12px;
+    border: none;
+    border-radius: 8px;
+    background: var(--ca-gold);
+    color: #fff;
+    font-family: 'Lexend', sans-serif;
+    font-weight: 600;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: filter 0.15s var(--ca-ease), transform 0.15s var(--ca-ease);
+}
+.ca-menu-card-add:hover{ filter: brightness(0.94); }
+.ca-menu-card-add:active{ transform: scale(0.94); }
+.ca-menu-card-add i{ font-size: 0.75rem; }
+
+/* Matches the Add button's height and corner radius so the two states swap
+   in place without the row shifting. */
+.ca-menu-card-stepper{
+    height: 30px;
+    padding: 0 6px;
+    gap: 8px;
+    border-radius: 8px;
+}
+.ca-menu-card-stepper .ca-stepper-value{ font-size: 0.85rem; min-width: 16px; }
+.ca-menu-card-stepper .ca-stepper-btn{ width: 22px; height: 22px; border-radius: 6px; }
+
+/* -- Cart (used both for the sticky bar's expanded sheet, see further down,
+   and for step 3's read-only summary) -------------------------------------- */
+.ca-cart-empty{
+    text-align: center;
+    color: var(--ca-ink-faint);
+    padding: 24px;
+    font-size: 0.87rem;
+}
+.ca-cart-row{
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--ca-border);
+}
+.ca-cart-row-main{ flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ca-cart-row-name{ font-size: 0.87rem; font-weight: 600; color: var(--ca-ink); }
+.ca-cart-row-sub{ font-size: 0.9rem; font-weight: 600; color: var(--ca-ink); white-space: nowrap; }
+
+/* Inline quantity stepper on a cart line. Deliberately smaller than the menu
+   card's .ca-stepper-btn (26px vs 30px, square-ish rather than a big circle):
+   this sits inside a dense list of rows, where the card's control would
+   dominate the item name it belongs to. margin-top separates it from the name
+   above, since .ca-cart-row-main stacks them. */
+.ca-cart-qty-stepper{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    align-self: flex-start;
+}
+.ca-cart-qty-btn{
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--ca-border);
+    border-radius: 6px;
+    background: var(--ca-surface);
+    color: var(--ca-ink);
+    font-size: 0.95rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color 0.15s var(--ca-ease), background 0.15s var(--ca-ease);
+}
+.ca-cart-qty-btn:hover{ border-color: var(--ca-gold); background: var(--ca-gold-soft); }
+.ca-cart-qty-btn:focus-visible{ outline: 2px solid var(--ca-gold); outline-offset: 1px; }
+.ca-cart-qty-value{
+    min-width: 18px;
+    text-align: center;
+    font-size: 0.83rem;
+    font-weight: 600;
+    color: var(--ca-ink);
+    font-variant-numeric: tabular-nums;
+}
+/* Real touchscreens get bigger targets, same rule the other steppers follow. */
+@media (pointer: coarse){
+    .ca-cart-qty-btn{ width: 32px; height: 32px; }
+}
+.ca-cart-remove{
+    background: none; border: none; color: var(--ca-ink-faint); cursor: pointer; font-size: 1rem;
+    display: flex; align-items: center; flex-shrink: 0; padding: 2px;
+}
+.ca-cart-remove:hover{ color: var(--ca-danger); }
+
+/* -- Receipt-style summary card ------------------------------------------------------ */
+.ca-receipt{
+    background: var(--ca-surface);
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius);
+}
+.ca-receipt-section{ padding: 18px 22px; border-bottom: 1px dashed var(--ca-border); }
+.ca-receipt-section:last-child{ border-bottom: none; }
+.ca-receipt-section-title{
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ca-ink-faint);
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+.ca-receipt-row{
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+    font-size: 0.87rem;
+}
+.ca-receipt-row span:first-child{ color: var(--ca-ink-soft); flex-shrink: 0; }
+.ca-receipt-row span:last-child{ font-weight: 500; color: var(--ca-ink); text-align: right; min-width: 0; }
+.ca-receipt-row.ca-receipt-grand{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    padding-top: 10px;
+    margin-top: 6px;
+    border-top: 1px solid var(--ca-border);
+}
+.ca-receipt-row.ca-receipt-grand span{ color: var(--ca-ink); }
+.ca-receipt-breakable{
+    word-break: break-all;
+}
+
+/* -- Terms & Conditions (step 3) ------------------------------------------------------ */
+.ca-terms-list{
+    margin: 0 0 16px;
+    padding-left: 20px;
+    color: var(--ca-ink-soft);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+.ca-terms-list li{ margin-bottom: 8px; }
+.ca-terms-list li:last-child{ margin-bottom: 0; }
+.ca-terms-list strong{ color: var(--ca-ink); }
+
+.ca-terms-agree{
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+}
+.ca-terms-agree input[type="checkbox"]{
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    accent-color: var(--ca-gold);
+    cursor: pointer;
+}
+.ca-terms-agree span{
+    font-size: 0.87rem;
+    color: var(--ca-ink);
+    line-height: 1.4;
+}
+
+/* -- Countdown badge ----------------------------------------------------------------- */
+.ca-countdown{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--ca-warning-soft);
+    color: var(--ca-warning);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 0.83rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+/* -- Skeleton loaders ------------------------------------------------------------------ */
+.ca-skeleton{
+    background: linear-gradient(90deg, var(--ca-canvas) 25%, var(--ca-border) 37%, var(--ca-canvas) 63%);
+    background-size: 400% 100%;
+    animation: caSkeleton 1.4s ease infinite;
+    border-radius: 8px;
+}
+@keyframes caSkeleton{
+    0%{ background-position: 100% 50%; }
+    100%{ background-position: 0 50%; }
+}
+
+/* -- Loading overlay --------------------------------------------------------------------- */
+.ca-loading-overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(246,243,236,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 14px;
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s var(--ca-ease), visibility 0.2s var(--ca-ease);
+}
+.ca-loading-overlay.is-open{ opacity: 1; visibility: visible; }
+.ca-spinner{
+    width: 40px; height: 40px;
+    border: 3px solid var(--ca-border);
+    border-top-color: var(--ca-gold);
+    border-radius: 50%;
+    animation: caSpin 0.7s linear infinite;
+}
+@keyframes caSpin{ to{ transform: rotate(360deg); } }
+.ca-loading-text{ font-size: 0.87rem; color: var(--ca-ink-soft); font-weight: 500; }
+
+/* -- Success page ------------------------------------------------------------------------- */
+.ca-success-hero{
+    text-align: center;
+    padding: 36px 20px;
+}
+.ca-success-icon{
+    width: 76px; height: 76px;
+    border-radius: 50%;
+    background: var(--ca-success-soft);
+    color: var(--ca-success);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    margin: 0 auto 18px;
+    animation: caPop 0.4s var(--ca-ease);
+}
+@keyframes caPop{
+    0%{ transform: scale(0.5); opacity: 0; }
+    70%{ transform: scale(1.08); opacity: 1; }
+    100%{ transform: scale(1); }
+}
+.ca-success-title{ font-family: 'Lexend', sans-serif; font-weight: 700; font-size: 1.4rem; margin: 0 0 6px; }
+.ca-success-sub{ color: var(--ca-ink-soft); font-size: 0.9rem; margin: 0; }
+.ca-success-number{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: var(--ca-gold);
+    margin: 14px 0;
+    letter-spacing: 0.02em;
+}
+.ca-qr-wrap{
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+.ca-qr-wrap canvas{
+    border-radius: var(--ca-radius-sm);
+    border: 1px solid var(--ca-border);
+    padding: 10px;
+    background: #fff;
+}
+.ca-success-actions{
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+/* -- E-Ticket (QR + perforated stub + details grid) --------------------------------------------- */
+.ca-eticket{
+    background: var(--ca-surface);
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius);
+    overflow: hidden;
+    text-align: left;
+}
+.ca-eticket-qr-section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 28px 20px 20px;
+}
+.ca-eticket-qr-section canvas{
+    border-radius: var(--ca-radius-sm);
+    border: 1px solid var(--ca-border);
+    padding: 10px;
+    background: #fff;
+}
+.ca-eticket-caption{
+    font-size: 0.82rem;
+    color: var(--ca-ink-soft);
+    line-height: 1.4;
+    max-width: 260px;
+    margin: 14px 0 0;
+}
+/* Perforated tear-off divider — two semicircle notches punched into the
+   card's own edges via overflow:hidden, colored to match the page canvas
+   behind it, plus a dashed line. Pure CSS, no image assets. */
+.ca-eticket-perforation{
+    position: relative;
+    height: 0;
+    border-top: 2px dashed var(--ca-border);
+    margin: 4px 24px 0;
+}
+.ca-eticket-perforation::before,
+.ca-eticket-perforation::after{
+    content: '';
+    position: absolute;
+    top: -14px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--ca-canvas);
+}
+.ca-eticket-perforation::before{ left: -38px; }
+.ca-eticket-perforation::after{ right: -38px; }
+.ca-eticket-details{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 16px;
+    padding: 24px 22px;
+}
+.ca-eticket-field-label{
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ca-ink-faint);
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.ca-eticket-field-value{
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--ca-ink);
+    word-break: break-word;
+}
+/* -- Empty state ------------------------------------------------------------------------------ */
+.ca-empty-state{
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--ca-ink-faint);
+}
+.ca-empty-state i{ font-size: 2rem; margin-bottom: 10px; display: block; }
+
+/* -- Sticky summary (desktop) / bottom sheet (mobile) ------------------------------------------ */
+.ca-summary-sticky{
+    position: sticky;
+    top: calc(var(--ca-topbar-h) + 16px);
+}
+
+/* -- Sticky cart bar --------------------------------------------------------------------------- */
+/* Fixed to the viewport (not just the wizard's own scroll area) -- this
+   page has no bottom nav of its own to conflict with (see .ca-standalone),
+   so it's a clean, always-on-top summary the same way most mobile
+   food-ordering apps keep an order bar pinned above the fold. Collapsed by
+   default; .is-expanded (toggled by cartBarToggle in make-reservation.js)
+   grows the sheet below it in place via a max-height transition. */
+.ca-cart-bar{
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 350;
+    max-width: 880px;
+    margin: 0 auto;
+    background: var(--ca-surface);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    box-shadow: 0 -10px 30px -14px rgba(30,24,16,0.32);
+    overflow: hidden;
+}
+/* Stay in sync with .ca-wizard's own desktop widening above -- otherwise
+   the cart bar would stay pinned to the old 880px width while the wizard
+   above it grows wider, visually misaligned on desktop. */
+@media (min-width: 992px){
+    .ca-cart-bar{ max-width: 1040px; }
+}
+@media (min-width: 1280px){
+    .ca-cart-bar{ max-width: 1120px; }
+}
+
+.ca-cart-bar-summary{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
+    border: none;
+    border-radius: inherit;
+    background: var(--ca-gold);
+    color: #fff;
+    cursor: pointer;
+    transition: filter 0.15s var(--ca-ease);
+}
+.ca-cart-bar-summary:hover{ filter: brightness(0.97); }
+.ca-cart-bar-summary:active{ transform: scale(0.99); }
+
+.ca-cart-bar-icon{ position: relative; font-size: 1.15rem; flex-shrink: 0; display: flex; }
+.ca-cart-bar-count{
+    position: absolute; top: -8px; right: -10px;
+    min-width: 17px; height: 17px; padding: 0 3px;
+    border-radius: 999px;
+    background: #fff; color: var(--ca-gold);
+    font-size: 0.62rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.ca-cart-bar-text{
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column; align-items: flex-start;
+    line-height: 1.3; text-align: left;
+}
+.ca-cart-bar-text strong{ font-family: 'Lexend', sans-serif; font-size: 0.87rem; }
+.ca-cart-bar-text span{ font-size: 0.76rem; opacity: 0.9; }
+
+.ca-cart-bar-action{
+    display: flex; align-items: center; gap: 5px;
+    font-size: 0.78rem; font-weight: 600;
+    flex-shrink: 0; white-space: nowrap;
+}
+.ca-cart-bar-action i{ transition: transform 0.2s var(--ca-ease); }
+.ca-cart-bar.is-expanded .ca-cart-bar-action i{ transform: rotate(180deg); }
+
+.ca-cart-sheet-body{
+    max-height: 0;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    transition: max-height 0.28s var(--ca-ease);
+    padding: 0 18px;
+}
+.ca-cart-bar.is-expanded .ca-cart-sheet-body{
+    max-height: 58vh;
+    padding: 16px 18px calc(16px + env(safe-area-inset-bottom));
+}
+.ca-cart-sheet-handle{ display: none; }
+.ca-cart-sheet-title{ font-family: 'Lexend', sans-serif; font-size: 1rem; font-weight: 700; margin: 0 0 10px; color: var(--ca-ink); }
+
+.ca-cart-sheet-totals{ padding-top: 4px; }
+.ca-cart-total-row{ display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--ca-ink-soft); padding: 3px 0; }
+.ca-cart-total-row.ca-cart-total-grand{
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--ca-ink);
+    border-top: 1px solid var(--ca-border);
+    margin-top: 6px;
+    padding-top: 10px;
+}
+.ca-cart-sheet-continue{ width: 100%; margin-top: 14px; justify-content: center; }
+
+/* Room at the bottom of the page for the fixed cart bar to sit over
+   without covering the last bit of content -- toggled on <body> by
+   updateBottomBarMode() in make-reservation.js exactly when the bar itself
+   is visible. */
+body.ca-has-cartbar{ padding-bottom: 92px; }
+
+/* -- Item detail bottom sheet -------------------------------------------------------------------- */
+.ca-sheet-backdrop{
+    position: fixed;
+    inset: 0;
+    z-index: 400;
+    background: rgba(20,15,11,0.5);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s var(--ca-ease), visibility 0.2s var(--ca-ease);
+}
+.ca-sheet-backdrop.is-open{ opacity: 1; visibility: visible; }
+
+body.ca-modal-open{ overflow: hidden; }
+
+/* The item detail sheet (menu card click) stays a bottom sheet -- see
+   .ca-item-sheet below. The shared confirm dialog (confirm-modal.js) is
+   scoped to .is-confirm so it renders as a centered modal instead of a
+   bottom sheet, matching how a confirmation prompt should read. */
+.ca-sheet-backdrop.is-confirm{
+    align-items: center;
+    padding: 20px;
+}
+.ca-sheet-backdrop.is-confirm .ca-item-sheet{
+    border-radius: 20px;
+    transform: translateY(16px) scale(0.98);
+}
+.ca-sheet-backdrop.is-confirm.is-open .ca-item-sheet{ transform: translateY(0) scale(1); }
+
+.ca-item-sheet{
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    background: var(--ca-surface);
+    border-radius: 20px 20px 0 0;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(.32,.72,0,1);
+}
+.ca-sheet-backdrop.is-open .ca-item-sheet{ transform: translateY(0); }
+
+.ca-modal-close{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.92);
+    color: var(--ca-ink);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.ca-modal-close:hover{ background: #fff; }
+.ca-item-sheet-close{ position: absolute; top: 12px; right: 12px; z-index: 2; }
+
+.ca-item-sheet-image-wrap{ width: 100%; aspect-ratio: 4/3; background: var(--ca-canvas); }
+.ca-item-sheet-image-wrap img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+.ca-item-sheet-image-placeholder{
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ca-ink-faint); font-size: 2.2rem;
+}
+
+.ca-item-sheet-body{ padding: 18px 20px calc(20px + env(safe-area-inset-bottom)); }
+.ca-item-sheet-badges{ display: flex; gap: 6px; margin-bottom: 8px; }
+.ca-item-sheet-badges:empty{ display: none; margin: 0; }
+.ca-item-sheet-name{ font-family: 'Lexend', sans-serif; font-size: 1.1rem; font-weight: 700; margin: 0 0 6px; color: var(--ca-ink); }
+.ca-item-sheet-desc{ font-size: 0.87rem; color: var(--ca-ink-soft); line-height: 1.5; margin: 0 0 10px; }
+.ca-item-sheet-desc[hidden]{ display: none; }
+.ca-item-sheet-price{ font-family: 'Lexend', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--ca-gold); margin-bottom: 16px; }
+
+.ca-item-sheet-footer{ display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+.ca-item-sheet-footer .ca-stepper{ flex-shrink: 0; }
+.ca-item-sheet-footer .ca-btn{ flex: 1; justify-content: center; }
+
+/* -- Animations ------------------------------------------------------------------------------- */
+@keyframes caBump{
+    0%{ transform: scale(1); }
+    45%{ transform: scale(1.35); }
+    100%{ transform: scale(1); }
+}
+.is-bump{ display: inline-block; animation: caBump 0.28s var(--ca-ease); }
+
+@keyframes caCartPulse{
+    0%{ box-shadow: 0 -10px 30px -14px rgba(30,24,16,0.32); }
+    35%{ box-shadow: 0 -10px 30px -14px rgba(156,119,52,0.75), 0 0 0 3px rgba(156,119,52,0.4) inset; }
+    100%{ box-shadow: 0 -10px 30px -14px rgba(30,24,16,0.32); }
+}
+.ca-cart-bar.is-pulse .ca-cart-bar-summary{ animation: caCartPulse 0.5s var(--ca-ease); }
+
+/* -- Print (receipt) --------------------------------------------------------------------------- */
+@media print{
+    .ca-topbar, .ca-bottom-nav, .ca-wizard-progress, .ca-wizard-nav, .ca-cart-bar, .ca-success-actions, .ca-no-print{
+        display: none !important;
+    }
+}
+
+/* -- Responsive ------------------------------------------------------------------------------------ */
+@media (max-width: 640px){
+    .ca-wizard-step-label{ display: none; }
+    .ca-toggle-choice{ flex-direction: column; }
+    .ca-slot-grid{ grid-template-columns: repeat(2, 1fr); }
+    .ca-wizard{ max-width: 100%; }
+}
+
+/* -- Touch targets — real touchscreens (not just narrow desktop windows),
+   per WCAG 2.5.5's >=44x44px recommendation. pointer:coarse also covers a
+   tablet-width window, unlike a max-width breakpoint alone. -------------- */
+@media (pointer: coarse){
+    .ca-calendar-nav-btn{ width: 40px; height: 40px; }
+    .ca-stepper-btn{ width: 38px; height: 38px; }
+}
+
+
+
+/* -- Time slot chips: dark brown, white text ------------------------------------ */
+/* No brown this dark exists in the customer palette -- every brown token there
+   is gold-family (#9c7734 and its shades) -- so these are local to the slot
+   grid rather than pretending to be brand tokens.
+
+   White on #5C3A21 measures 10.09:1, so every line on a chip clears WCAG AA
+   comfortably, including the 0.76rem seat count. */
+.ca-slot-grid{
+    --slot-brown:       #A87932;
+    --slot-brown-hover: #633B22;
+}
+
+.ca-slot-chip:not(:disabled){
+    background: var(--slot-brown);
+    border-color: var(--slot-brown);
+}
+.ca-slot-chip:not(:disabled) > i,
+.ca-slot-chip:not(:disabled) .ca-slot-chip-label,
+.ca-slot-chip:not(:disabled) .ca-slot-chip-meta{ color: #fff; }
+
+/* Hierarchy between label and seat count comes from size and weight, never
+   from dimming the text -- dimming is what costs contrast. */
+.ca-slot-chip:not(:disabled) .ca-slot-chip-meta{ opacity: 0.92; }
+
+.ca-slot-chip:hover:not(:disabled){
+    background: var(--slot-brown-hover);
+    border-color: var(--slot-brown-hover);
+}
+
+/* Selection can't be "a different brown" when every chip is brown, so it is a
+   gold ring -- the brand colour doing the one job it is unambiguous at. */
+.ca-slot-chip.is-selected:not(:disabled){
+    background: var(--slot-brown-hover);
+    border-color: var(--ca-gold);
+    box-shadow: 0 0 0 2px var(--ca-gold);
+}
+
+/* "Only a few left" stays a warning, in a warm tint that still clears AA on
+   this ground. */
+.ca-slot-chip.is-limited:not(:disabled) .ca-slot-chip-meta{
+    color: #ffd88a;
+    opacity: 1;
+    font-weight: 600;
+}
+
+/* Unavailable stays pale and obviously inert -- it must not read as an option
+   that merely happens to be a different colour. */
+.ca-slot-chip:disabled{
+    background: var(--ca-canvas);
+    border-color: var(--ca-border);
+}

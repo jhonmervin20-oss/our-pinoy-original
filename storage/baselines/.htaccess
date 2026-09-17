@@ -1,0 +1,5 @@
+# Same "Require all denied" form as storage/cache/ and storage/logs/ --
+# this folder's the only one of the three that hadn't gotten it yet. Holds
+# forecast baseline snapshots (JSON); nothing in the app links or serves
+# them, and nothing a browser should be able to fetch directly.
+Require all denied

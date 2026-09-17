@@ -1,0 +1,4 @@
+# The Prophet microservice is reached over HTTP on its own port (FastAPI), not
+# through Apache. Its source, virtualenv and any local .env have no reason to
+# be fetchable from the web root.
+Require all denied

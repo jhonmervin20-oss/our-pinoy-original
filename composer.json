@@ -1,0 +1,13 @@
+{
+    "require": {
+        "phpmailer/phpmailer": "^7.1",
+        "google/apiclient": "^2.19",
+        "dompdf/dompdf": "^3.1",
+        "endroid/qr-code": "^5.0"
+    },
+    "config": {
+        "platform": {
+            "php": "8.2.12"
+        }
+    }
+}

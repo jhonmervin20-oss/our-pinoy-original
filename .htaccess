@@ -1,0 +1,69 @@
+# ---------------------------------------------------------------------------
+# Deny direct HTTP access to files that are part of the source tree but must
+# never be downloadable. Everything here was reachable and returning 200
+# before this file existed -- most seriously .env (OpenAI key, Google OAuth
+# secret, SMTP password) and database/*.sql (a full dump including password
+# hashes and customer PII). Same "Require all denied" form already proven to
+# work in storage/backups/.htaccess and storage/logs/.htaccess.
+#
+# This denies FILES by name/extension only -- no directory or rewrite rules --
+# so application pages, assets, and uploads are unaffected.
+# ---------------------------------------------------------------------------
+
+# Dotfiles: .env above all, plus .gitignore/.htaccess and friends.
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Database dumps, backups, raw logs and config-ish payloads.
+<FilesMatch "\.(sql|sqlite|db|bak|old|orig|swp|log|ini|env)$">
+    Require all denied
+</FilesMatch>
+
+# Dependency manifests -- they advertise exact package versions, which is a
+# ready-made checklist of known CVEs to try.
+<FilesMatch "^(composer\.(json|lock)|package(-lock)?\.json|yarn\.lock|requirements\.txt)$">
+    Require all denied
+</FilesMatch>
+
+# Project documentation / notes.
+<FilesMatch "\.(md|markdown)$">
+    Require all denied
+</FilesMatch>
+
+# Python sources. The whole forecasting pipeline sat under the web root and
+# returned 200 -- forecasting/stages/*.py gave away the reorder policy, and
+# forecasting/db.py names the database user and its fallback credentials
+# (root, empty password) in plain text. Nothing in the app is served from a
+# .py file; PHP shells out to the interpreter on disk, so denying these costs
+# the application nothing.
+<FilesMatch "\.(py|pyc|pyi|pyd|pyw)$">
+    Require all denied
+</FilesMatch>
+
+# ---------------------------------------------------------------------------
+# Baseline security response headers. Cheap, low-risk, no functional
+# dependency on anything else being configured first (unlike HSTS or a real
+# Content-Security-Policy, neither of which belongs here yet -- HSTS can lock
+# visitors out if HTTPS is not yet reliably in place, and this app's real set
+# of legitimate external origins (fonts, Phosphor CDN, Chart.js, PayMongo
+# checkout, any chatbot calls) needs to be enumerated deliberately, not
+# guessed at during an audit).
+# ---------------------------------------------------------------------------
+<IfModule mod_headers.c>
+    # Stop a browser guessing a file's type from its content and running it
+    # as something other than what the server declared (e.g. treating an
+    # uploaded image as HTML/script because it sniffed HTML-looking bytes).
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Refuse to be framed by another site -- the standard clickjacking
+    # defense. This app has no legitimate reason to be embedded in an iframe
+    # on a different origin.
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Do not leak the full referring URL (which can carry query strings --
+    # reservation numbers, search terms) to third-party destinations; still
+    # sends the origin for same-site/cross-site navigation, just trims the
+    # path+query on the cross-origin case.
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

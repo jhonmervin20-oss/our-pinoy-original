@@ -1,0 +1,3 @@
+﻿"Employee Number","Date (YYYY-MM-DD)",Status,"Time In (HH:MM)","Time Out (HH:MM)","Break Start (HH:MM)","Break End (HH:MM)","Overtime Minutes",Remarks
+EMP-0001,2026-07-23,present,08:00,17:00,12:00,13:00,0,
+EMP-0002,2026-07-23,absent,,,,,0,"No call, no show"
