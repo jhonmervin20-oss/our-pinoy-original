@@ -1,11 +1,58 @@
-# Render Blueprint for the Demand Forecast AI service (forecast_service/).
+# Render Blueprint for BOTH services this app needs on Render:
+#   - opo-app:               the PHP app (owner/, cashier/, config/, etc.),
+#                             built from the root Dockerfile
+#   - opo-forecast-service:   the Demand Forecast AI microservice
+#                             (forecast_service/), Python/FastAPI
+#
 # Deploy: connect this repo on https://dashboard.render.com/blueprints and
 # Render reads this file automatically -- no manual service setup needed.
 #
-# Only this one Python service is deployed here. The PHP app (owner/,
-# cashier/, etc.) is a separate deployment target (e.g. Hostinger/
-# InfinityFree) and is not described by this file.
+# The database is NOT here. Render has no free/managed MySQL, and this
+# schema's 5 stored routines and MySQL-specific SQL are not something to
+# migrate to Postgres under demo-deadline pressure -- MySQL is hosted
+# elsewhere (see DB_* below) and both services just reach out to it.
 services:
+  - type: web
+    name: opo-app
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DB_HOST
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASS
+        sync: false
+      - key: FORECAST_SERVICE_ENABLED
+        value: "true"
+      - key: FORECAST_SERVICE_URL
+        sync: false # https://opo-forecast-service.onrender.com/forecast once that service is live
+      - key: FORECAST_SERVICE_API_KEY
+        sync: false # must match the same key set on opo-forecast-service below
+      - key: FORECAST_SERVICE_TIMEOUT_SECONDS
+        value: "60"
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_ENCRYPTION
+        value: tls
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_FROM_ADDRESS
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: "OPO! - Our Pinoy Original"
+      - key: OPENAI_API_KEY
+        sync: false
+
   - type: web
     name: opo-forecast-service
     runtime: python
@@ -15,6 +62,6 @@ services:
     startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: FORECAST_SERVICE_API_KEY
-        sync: false # set your own value in the Render dashboard -- required once this URL is public
+        sync: false # must match the same key set on opo-app above
       - key: PYTHON_VERSION
         value: 3.11.9
