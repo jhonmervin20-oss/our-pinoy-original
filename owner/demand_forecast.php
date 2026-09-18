@@ -37,6 +37,13 @@ $defaultHorizon = (int)($pdo->query(
     "SELECT setting_value FROM system_settings WHERE setting_key = 'forecast_default_horizon'"
 )->fetchColumn() ?: 7);
 
+// Re-run forecast shells out to forecasting/run.py, a local Python pipeline
+// -- present on a machine that's set it up (e.g. XAMPP dev), absent on a
+// plain PHP host like Hostinger with no Python install. Same check
+// forecast_rerun.php itself makes before running; done here too so the
+// button isn't shown somewhere it can only ever fail.
+$forecastPipelineAvailable = is_file(forecastPythonPath()) && is_file(dirname(__DIR__) . '/forecasting/run.py');
+
 $horizon = (int)($_GET['h'] ?? $defaultHorizon);
 if (!in_array($horizon, FORECAST_HORIZONS, true)) {
     $horizon = $defaultHorizon;
@@ -260,8 +267,12 @@ function dfLink(array $over = []): string
                 <div class="owner-card">
                     <h2 class="owner-card-title">No forecast yet</h2>
                     <p class="owner-card-subtitle">
-                        Nothing has been forecast. Run <code>php forecasting/run.py</code>, or press
-                        Re-run forecast once a run exists.
+                        <?php if ($forecastPipelineAvailable): ?>
+                            Nothing has been forecast. Run <code>php forecasting/run.py</code>, or press
+                            Re-run forecast once a run exists.
+                        <?php else: ?>
+                            Nothing has been forecast yet on this server.
+                        <?php endif; ?>
                     </p>
                 </div>
             <?php else: ?>
@@ -287,6 +298,7 @@ function dfLink(array $over = []): string
                             <button type="submit" class="owner-btn owner-btn-secondary owner-btn-sm"><i class="ph ph-funnel" aria-hidden="true"></i> Filter</button>
                         </form>
                     </div>
+                    <?php if ($forecastPipelineAvailable): ?>
                     <div style="display:flex;gap:8px;align-items:center;">
                         <form method="post" action="forecast_rerun.php">
                             <?= csrf_field() ?>
@@ -296,6 +308,7 @@ function dfLink(array $over = []): string
                             </button>
                         </form>
                     </div>
+                    <?php endif; ?>
                 </div>
                 <?php if ($caution = forecastHorizonCaution($horizon)): ?>
                     <div class="df-caution" style="margin-top:14px;margin-bottom:0;"><?= htmlspecialchars($caution) ?></div>
