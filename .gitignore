@@ -17,6 +17,7 @@
 database/*.sql
 !database/restaurant_management_system_db_template.sql
 database/backups/
+database/recovery_*/
 # Two loose pre-change safety snapshots (real forecast/PO data) that live
 # directly in database/ instead of database/backups/ -- same category, same
 # reason to exclude.

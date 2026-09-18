@@ -131,10 +131,11 @@ $ownerBase         = '../';
 
             <div class="owner-card">
                 <h2 class="owner-card-title">Pricing & Costing settings</h2>
-                <p class="owner-card-subtitle">Defaults used by the Pricing calculator on each menu item, plus Packaging Fee policy applied at checkout.</p>
+                <p class="owner-card-subtitle">Defaults used by the Pricing calculator on each menu item.</p>
 
                 <form method="POST" action="pricing.php">
                     <?= csrf_field() ?>
+                    <input type="hidden" name="packaging_fee_policy" value="<?= htmlspecialchars($settings['packaging_fee_policy']) ?>">
 
                     <div class="owner-form-section">
                         <h3 class="owner-form-section-title">Default pricing method</h3>
@@ -172,27 +173,6 @@ $ownerBase         = '../';
                                 <input type="number" id="target_food_cost_percentage" name="target_food_cost_percentage" class="owner-input" min="0.01" max="99.99" step="0.01" value="<?= htmlspecialchars($settings['target_food_cost_percentage']) ?>" required>
                                 <span class="owner-form-hint">Sets the "excellent" cutoff for the Food Cost %/Margin % color bands on Menu items and Costing (industry-typical is 28&ndash;35%).</span>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="owner-form-section">
-                        <h3 class="owner-form-section-title">Packaging fee policy</h3>
-                        <div class="owner-form-group">
-                            <div class="owner-segmented">
-                                <label class="owner-segmented-option">
-                                    <input type="radio" name="packaging_fee_policy" value="included" <?= $settings['packaging_fee_policy'] === 'included' ? 'checked' : '' ?>>
-                                    Included in selling price
-                                </label>
-                                <label class="owner-segmented-option">
-                                    <input type="radio" name="packaging_fee_policy" value="separate" <?= $settings['packaging_fee_policy'] === 'separate' ? 'checked' : '' ?>>
-                                    Charge separate fee
-                                </label>
-                                <label class="owner-segmented-option">
-                                    <input type="radio" name="packaging_fee_policy" value="none" <?= $settings['packaging_fee_policy'] === 'none' ? 'checked' : '' ?>>
-                                    No packaging charge
-                                </label>
-                            </div>
-                            <span class="owner-form-hint">"Charge separate fee" adds packaging cost as its own line on takeout orders (e.g. Food &#8369;180 + Packaging fee &#8369;15 = &#8369;195). "No packaging charge" absorbs it as a business cost.</span>
                         </div>
                     </div>
 
