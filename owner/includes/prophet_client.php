@@ -29,6 +29,21 @@ function forecastServiceUrl(): string
 }
 
 /**
+ * Request timeout, in seconds. A free-tier host (e.g. Render) spins the
+ * service down after idle and takes 30-50s to wake back up on the next
+ * request -- the hardcoded 5s/8s timeouts below were sized for a
+ * same-machine call and would fail every cold start. Defaults to each
+ * call site's original value so local dev (always-on, same machine) is
+ * unaffected; set FORECAST_SERVICE_TIMEOUT_SECONDS once deployed against
+ * a host that sleeps.
+ */
+function forecastServiceTimeout(int $default): int
+{
+    $override = getenv('FORECAST_SERVICE_TIMEOUT_SECONDS');
+    return ($override !== false && is_numeric($override) && (int)$override > 0) ? (int)$override : $default;
+}
+
+/**
  * $history: dense, oldest-first [['date' => 'Y-m-d', 'quantity' => float], ...].
  * $holidays: [['date' => 'Y-m-d', 'holiday_type' => 'regular'|'special'], ...],
  * pooled by type on the Python side (see forecast_service/engine/
@@ -66,8 +81,8 @@ function callProphetForecastService(array $history, string $granularity, int $ho
         CURLOPT_POSTFIELDS     => $payload,
         CURLOPT_HTTPHEADER     => $headers,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_CONNECTTIMEOUT => 3,
-        CURLOPT_TIMEOUT        => 5,
+        CURLOPT_CONNECTTIMEOUT => forecastServiceTimeout(3),
+        CURLOPT_TIMEOUT        => forecastServiceTimeout(5),
     ]);
 
     $response  = curl_exec($ch);
@@ -166,8 +181,8 @@ function callProphetPolicyService(
         CURLOPT_POSTFIELDS     => $payload,
         CURLOPT_HTTPHEADER     => $headers,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_CONNECTTIMEOUT => 3,
-        CURLOPT_TIMEOUT        => 8, // one real Prophet fit per call -- slightly higher than the plain /forecast endpoint's 5s
+        CURLOPT_CONNECTTIMEOUT => forecastServiceTimeout(3),
+        CURLOPT_TIMEOUT        => forecastServiceTimeout(8), // one real Prophet fit per call -- slightly higher than the plain /forecast endpoint's 5s
     ]);
 
     $response  = curl_exec($ch);

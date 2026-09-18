@@ -1,0 +1,20 @@
+# Render Blueprint for the Demand Forecast AI service (forecast_service/).
+# Deploy: connect this repo on https://dashboard.render.com/blueprints and
+# Render reads this file automatically -- no manual service setup needed.
+#
+# Only this one Python service is deployed here. The PHP app (owner/,
+# cashier/, etc.) is a separate deployment target (e.g. Hostinger/
+# InfinityFree) and is not described by this file.
+services:
+  - type: web
+    name: opo-forecast-service
+    runtime: python
+    rootDir: forecast_service
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: FORECAST_SERVICE_API_KEY
+        sync: false # set your own value in the Render dashboard -- required once this URL is public
+      - key: PYTHON_VERSION
+        value: 3.11.9
