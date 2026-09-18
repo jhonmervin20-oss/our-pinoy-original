@@ -203,10 +203,7 @@ try {
                                 <label for="undertimeGrace">Undertime grace period (minutes)</label>
                                 <input type="number" id="undertimeGrace" name="undertime_grace_period_minutes" class="owner-input" min="0" value="<?= (int)$settings['undertime_grace_period_minutes'] ?>" required>
                             </div>
-                            <div class="owner-form-group">
-                                <label for="attendanceImportCutoff">Attendance import cutoff (hours)</label>
-                                <input type="number" id="attendanceImportCutoff" name="attendance_import_cutoff_hours" class="owner-input" min="0" value="<?= (int)$settings['attendance_import_cutoff_hours'] ?>" required>
-                            </div>
+                            <input type="hidden" name="attendance_import_cutoff_hours" value="<?= (int)$settings['attendance_import_cutoff_hours'] ?>">
                             <div class="owner-form-group">
                                 <label for="stdHours">Standard work hours / day</label>
                                 <input type="number" id="stdHours" name="standard_work_hours_per_day" class="owner-input" step="0.01" min="0" value="<?= htmlspecialchars($settings['standard_work_hours_per_day']) ?>" required>
