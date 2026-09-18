@@ -952,7 +952,12 @@ function buildPayrollRunsQuery(array $filters): array
         $params[] = '%' . $filters['search'] . '%';
     }
 
-    $sql .= " ORDER BY r.cutoff_period_start DESC, r.payroll_run_id DESC";
+    // Sorted by when the run was actually CREATED, matching the "Created"
+    // column shown in the table -- not by cutoff_period_start, which drifts
+    // out of creation order the moment a run for an earlier pay period gets
+    // generated after a later one already exists (e.g. a monthly run made
+    // after its overlapping semi-monthly runs).
+    $sql .= " ORDER BY r.created_at DESC, r.payroll_run_id DESC";
 
     return [$sql, $params];
 }
