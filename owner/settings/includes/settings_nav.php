@@ -47,9 +47,8 @@ function settingsTabLink(string $key, string $href, string $label, string $activ
 ?>
 <nav class="owner-tabs" aria-label="Settings">
     <?= settingsTabLink('general', $settingsNavBase . 'general.php', 'General', $activeSettingsTab, ['owner']) ?>
-    <?= settingsTabLink('tax', $settingsNavBase . 'tax.php', 'Tax', $activeSettingsTab, ['owner']) ?>
     <?= settingsTabLink('discounts', $settingsNavBase . 'discounts.php', 'Discounts', $activeSettingsTab, ['owner']) ?>
-    <?= settingsTabLink('pricing', $settingsNavBase . 'pricing.php', 'Pricing', $activeSettingsTab, ['owner']) ?>
+    <?= settingsTabLink('pricing', $settingsNavBase . 'pricing.php', 'Pricing & Costing', $activeSettingsTab, ['owner']) ?>
     <?= settingsTabLink('units', $settingsNavBase . 'units.php', 'Units & Conversions', $activeSettingsTab, ['owner']) ?>
     <?= settingsTabLink('reservation_settings', $settingsNavBase . 'reservation_settings.php', 'Reservation', $activeSettingsTab, ['owner']) ?>
     <?= settingsTabLink('purchasing_forecast', $settingsNavBase . 'purchasing_forecast.php', 'Purchasing & Forecasting', $activeSettingsTab, ['owner', 'manager']) ?>

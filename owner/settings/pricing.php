@@ -99,7 +99,7 @@ if (!$settings) {
 
 $activePage        = 'settings';
 $activeSettingsTab = 'pricing';
-$pageTitle         = 'Pricing settings';
+$pageTitle         = 'Pricing & Costing settings';
 $ownerBase         = '../';
 ?>
 <!DOCTYPE html>
@@ -107,7 +107,7 @@ $ownerBase         = '../';
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pricing settings | Owner Panel | OPO! Our Pinoy Original</title>
+<title>Pricing & Costing settings | Owner Panel | OPO! Our Pinoy Original</title>
 <link rel="icon" type="image/x-icon" href="../../favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -130,7 +130,7 @@ $ownerBase         = '../';
             <?php require __DIR__ . '/includes/settings_nav.php'; ?>
 
             <div class="owner-card">
-                <h2 class="owner-card-title">Pricing settings</h2>
+                <h2 class="owner-card-title">Pricing & Costing settings</h2>
                 <p class="owner-card-subtitle">Defaults used by the Pricing calculator on each menu item, plus Packaging Fee policy applied at checkout.</p>
 
                 <form method="POST" action="pricing.php">
