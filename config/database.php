@@ -60,7 +60,19 @@ class Database
             // silently falling back to zeros on every KPI, because
             // buildOwnerDashboardData()'s PDOException handler caught it and served
             // the empty defaults.
-            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$this->charset} COLLATE {$this->collation}",
+            //
+            // time_zone pinned to a fixed +08:00 offset (Philippine Time never
+            // observes DST, so this is exact, not an approximation) rather than
+            // left on time_zone=SYSTEM. config/env.php's date_default_timezone_set()
+            // fix assumed MySQL's SYSTEM zone would always read a UTC+8 OS clock --
+            // true on the original XAMPP box, false the moment this app runs on any
+            // host whose server clock is UTC (the near-universal default for shared
+            // hosting), which desyncs NOW() from PHP's now() by exactly that many
+            // hours. Every notification/timestamp read "8 hours ago" the instant it
+            // was created. A named zone ('Asia/Manila') isn't used here because it
+            // depends on the server's mysql.time_zone_name tables being loaded --
+            // not guaranteed on shared hosting -- while a fixed offset always works.
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$this->charset} COLLATE {$this->collation}, time_zone = '+08:00'",
         ];
 
         try {
