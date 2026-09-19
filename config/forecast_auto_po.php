@@ -420,19 +420,17 @@ function sweepForecastPipeline(PDO $db, bool $isManualTrigger = false): array
         return ['status' => 'disabled'];
     }
 
+    $ranToday = (int)$db->query(
+        "SELECT COUNT(*) FROM forecast_runs
+          WHERE run_type = 'ingredient_policy_sweep'
+            AND status = 'completed'
+            AND DATE(started_at) = CURDATE()"
+    )->fetchColumn();
+
     if (!$isManualTrigger) {
         $sweepHour = max(0, min(23, (int)($settings['auto_po_sweep_hour'] ?? 2)));
         if ((int)date('G') < $sweepHour) {
             return ['status' => 'before_sweep_hour'];
-        }
-        $ranToday = (int)$db->query(
-            "SELECT COUNT(*) FROM forecast_runs
-              WHERE run_type = 'ingredient_policy_sweep'
-                AND status = 'completed'
-                AND DATE(started_at) = CURDATE()"
-        )->fetchColumn();
-        if ($ranToday > 0) {
-            return ['status' => 'already_ran_today'];
         }
     }
 
@@ -440,25 +438,41 @@ function sweepForecastPipeline(PDO $db, bool $isManualTrigger = false): array
     $python = forecastPythonPath();
     $script = $root . '/forecasting/run.py';
 
-    if (!is_file($python) || !is_file($script)) {
+    // Only exec() locally when there's actually something new to produce: a
+    // manual trigger always wants a fresh run; an automatic tick only needs
+    // one if today doesn't already have a completed run.
+    if (($isManualTrigger || $ranToday === 0) && is_file($python) && is_file($script)) {
+        $output = [];
+        $exit   = 0;
+        exec(sprintf('%s %s 2>&1', escapeshellarg($python), escapeshellarg($script)), $output, $exit);
+
+        if ($exit !== 0) {
+            error_log('sweepForecastPipeline: run.py failed -- ' . implode("\n", array_slice($output, -12)));
+            notifyUsersByRole(
+                $db, ['owner'], 'procurement', 'Demand forecast run failed',
+                'The nightly demand forecast could not complete, so no purchase orders were drafted. The previous forecast is still shown.',
+                'forecast_run_failed', null
+            );
+            return ['status' => 'run_failed'];
+        }
+    } elseif ($ranToday === 0) {
+        // No Python pipeline on THIS host, and nothing else has written
+        // today's run yet either -- e.g. a separate host running
+        // forecasting/run.py against this same database (see
+        // forecastPythonPath()'s docblock) hasn't reached it yet this
+        // cycle. Nothing to apply until a completed run exists.
         error_log('sweepForecastPipeline: forecasting service not installed');
         return ['status' => 'not_installed'];
     }
 
-    $output = [];
-    $exit   = 0;
-    exec(sprintf('%s %s 2>&1', escapeshellarg($python), escapeshellarg($script)), $output, $exit);
-
-    if ($exit !== 0) {
-        error_log('sweepForecastPipeline: run.py failed -- ' . implode("\n", array_slice($output, -12)));
-        notifyUsersByRole(
-            $db, ['owner'], 'procurement', 'Demand forecast run failed',
-            'The nightly demand forecast could not complete, so no purchase orders were drafted. The previous forecast is still shown.',
-            'forecast_run_failed', null
-        );
-        return ['status' => 'run_failed'];
-    }
-
+    // Apply whatever the latest completed run is -- whether it was just
+    // produced above, or written earlier today by a DIFFERENT process
+    // running this same pipeline against this database (this host may have
+    // no Python at all). Safe to call repeatedly:
+    // draftPurchaseOrdersFromForecastRun() already counts any existing
+    // non-cancelled PO as "handled" before drafting another for the same
+    // shortfall, so re-applying an already-applied run is a no-op, not a
+    // duplicate.
     $runId = (int)$db->query(
         "SELECT run_id FROM forecast_runs
           WHERE run_type = 'ingredient_policy_sweep' AND status = 'completed'
