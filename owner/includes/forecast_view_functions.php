@@ -699,12 +699,15 @@ function planStatus(array $row): array
 {
     // Two outcomes are structural -- they describe the ingredient's setup, not
     // its stock level, so they cannot change between runs and are answered
-    // straight from the decision the pipeline recorded.
+    // straight from the decision the pipeline recorded. is-danger (soft red):
+    // these BLOCK auto-ordering entirely until the owner fixes the setup, so
+    // they need to read as a problem, not blend into the same grey as a
+    // status that means "handled, nothing to do."
     if ($row['decision'] === 'flagged_no_supplier') {
-        return ['No Supplier Set', 'is-neutral'];
+        return ['No Supplier Set', 'is-danger'];
     }
     if ($row['decision'] === 'skipped_conversion_gap') {
-        return ['Unit Mismatch', 'is-neutral'];
+        return ['Unit Mismatch', 'is-danger'];
     }
 
     // Four outcomes:
@@ -721,13 +724,20 @@ function planStatus(array $row): array
     // and a PO already in transit is doing the work. Folding them into one
     // label would credit the PO's coverage to stock that was never actually
     // enough on its own -- or worse, credit a PO that does not exist.
+    //
+    // is-info (blue) for both "something is already in motion" outcomes --
+    // previously is-neutral, the same grey as the two configuration problems
+    // above, which made a PO already drafted look exactly as unremarkable as
+    // a missing supplier. Blue reads as "in progress," distinct from green
+    // (nothing needed), gold/red (still needs your action), and the red
+    // "fix this" pair above.
     if ((float)($row['live_suggested'] ?? 0) <= 0) {
         return !empty($row['live_suppressed'])
-            ? ['Covered by Incoming PO', 'is-neutral']
+            ? ['Covered by Incoming PO', 'is-info']
             : ['Sufficient Stock', 'is-success'];
     }
 
     return !empty($row['po_id'])
-        ? ['Auto PO Generated', 'is-neutral']
+        ? ['Auto PO Generated', 'is-info']
         : ['Needs Replenishment', $row['urgency'] === 'critical' ? 'is-critical' : 'is-warning'];
 }

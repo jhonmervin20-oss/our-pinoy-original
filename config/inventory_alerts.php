@@ -61,6 +61,16 @@ const AUTO_PO_SWEEP_LOCK_NAME = 'opo_forecast_sweep';
 /** A 'running' forecast_runs row older than this is treated as abandoned (the process that owned it died before reaching its own status update) rather than genuinely in progress. */
 const AUTO_PO_SWEEP_STALE_RUNNING_MINUTES = 30;
 
+/**
+ * Minimum gap between automatic sweeps, in hours -- same constant and same
+ * reasoning as config/forecast_auto_po.php's AUTO_PO_SWEEP_INTERVAL_HOURS
+ * (not shared/imported from there to avoid a new cross-file dependency; keep
+ * the two in sync by hand if this ever changes). Real stock moves all day,
+ * not once at midnight, so the idempotency key below buckets by this
+ * interval instead of by calendar day.
+ */
+const AUTO_PO_SWEEP_INTERVAL_HOURS = 6;
+
 /** How many days an unresolved auto-generated draft PO sits before a reminder fires. */
 const DEFAULT_DRAFT_REMINDER_DAYS = 5;
 
@@ -218,9 +228,9 @@ function pruneIngredientDemandContributions(PDO $db): void
  * run. Once the lock is held:
  *   - No forecast_runs row for today's idempotency_key -> start a fresh run.
  *   - A row exists with status completed/partial:
- *       - automatic caller -> already ran today (cleanly or degraded);
- *         do NOT auto-retry (avoids hammering Python for hours if it's
- *         down); release the lock, return.
+ *       - automatic caller -> already ran within this AUTO_PO_SWEEP_INTERVAL_HOURS
+ *         bucket (cleanly or degraded); do NOT auto-retry (avoids hammering
+ *         Python/the AI service for hours if it's down); release the lock, return.
  *       - manual caller -> allowed; this is where a 'partial' retry
  *         lives -- exactly the case that matters, since 'partial' means
  *         the AI service was unreachable while evaluating some items,
@@ -269,19 +279,12 @@ function sweepAutoPurchaseOrders(PDO $db, bool $isManualTrigger = false, ?int $t
     $settingsStmt = $db->query(
         "SELECT setting_key, setting_value FROM system_settings
          WHERE setting_key IN ('auto_po_enabled', 'forecast_horizon_days', 'shortage_notification_horizon_days',
-             'auto_po_sweep_hour', 'auto_po_forecast_window_days')"
+             'auto_po_forecast_window_days')"
     );
     $settings = $settingsStmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
     if (empty($settings['auto_po_enabled'])) {
         return ['status' => 'disabled'];
-    }
-
-    if (!$isManualTrigger) {
-        $sweepHour = max(0, min(23, (int)($settings['auto_po_sweep_hour'] ?? 2)));
-        if ((int)date('G') < $sweepHour) {
-            return ['status' => 'before_sweep_hour'];
-        }
     }
 
     $lockAcquired = (bool)$db->query("SELECT GET_LOCK('" . AUTO_PO_SWEEP_LOCK_NAME . "', 0)")->fetchColumn();
@@ -290,7 +293,13 @@ function sweepAutoPurchaseOrders(PDO $db, bool $isManualTrigger = false, ?int $t
     }
 
     try {
-        $idempotencyKey = 'ingredient_policy_sweep:' . date('Y-m-d');
+        // Bucketed by AUTO_PO_SWEEP_INTERVAL_HOURS rather than by calendar
+        // day -- e.g. at 6h, hours 0-5/6-11/12-17/18-23 are four distinct
+        // buckets, so a busy lunch service that depletes stock by 1pm gets
+        // picked up by the 12-17 bucket's run instead of waiting for
+        // tomorrow. Same idempotency/retry mechanics below, just a finer key.
+        $bucket = intdiv((int)date('G'), AUTO_PO_SWEEP_INTERVAL_HOURS);
+        $idempotencyKey = 'ingredient_policy_sweep:' . date('Y-m-d') . '-b' . $bucket;
         $runStmt = $db->prepare("SELECT run_id, status, started_at FROM forecast_runs WHERE idempotency_key = ?");
         $runStmt->execute([$idempotencyKey]);
         $existingRun = $runStmt->fetch(PDO::FETCH_ASSOC);
@@ -311,7 +320,7 @@ function sweepAutoPurchaseOrders(PDO $db, bool $isManualTrigger = false, ?int $t
 
             if (!$isManualTrigger && in_array($status, ['completed', 'partial'], true)) {
                 $db->query("SELECT RELEASE_LOCK('" . AUTO_PO_SWEEP_LOCK_NAME . "')");
-                return ['status' => 'already_ran_today'];
+                return ['status' => 'ran_recently'];
             }
             if ($status === 'running' && $ageMinutes <= AUTO_PO_SWEEP_STALE_RUNNING_MINUTES) {
                 $db->query("SELECT RELEASE_LOCK('" . AUTO_PO_SWEEP_LOCK_NAME . "')");

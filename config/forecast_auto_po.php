@@ -405,35 +405,44 @@ function applyForecastRunOutputs(PDO $db, int $runId): array
 }
 
 /**
- * The nightly job: run the pipeline, then apply its outputs.
- *
- * Gated the same way the old sweep was -- `auto_po_sweep_hour`, and once per
- * calendar day unless triggered by hand -- so a five-minute cron tick does not
- * refit Prophet 288 times a day.
+ * Minimum gap between automatic sweeps, in hours. A restaurant's real stock
+ * moves all day, not once at midnight -- an ingredient that was fine when
+ * the sweep last ran can be genuinely short a few hours later (a busy lunch
+ * service is enough), and the Purchase Plan already shows that shortage
+ * live; only the PO-drafting sweep itself was still catching it once a day.
+ * Replaces the old auto_po_sweep_hour "wait until 2am" gate -- a single
+ * fixed hour and a same-day throttle don't compose into "check back every
+ * few hours", so this checks elapsed time since the last COMPLETED run
+ * directly instead.
+ */
+const AUTO_PO_SWEEP_INTERVAL_HOURS = 6;
+
+/**
+ * The scheduled job: run the pipeline, then apply its outputs. Gated to at
+ * most once every AUTO_PO_SWEEP_INTERVAL_HOURS unless triggered by hand, so
+ * a five-minute cron tick does not refit Prophet (or make 50 live HTTP
+ * calls, on the fallback path) every five minutes.
  */
 function sweepForecastPipeline(PDO $db, bool $isManualTrigger = false): array
 {
     $settings = $db->query(
         "SELECT setting_key, setting_value FROM system_settings
-          WHERE setting_key IN ('auto_po_enabled', 'auto_po_sweep_hour')"
+          WHERE setting_key IN ('auto_po_enabled')"
     )->fetchAll(PDO::FETCH_KEY_PAIR);
 
     if (empty($settings['auto_po_enabled'])) {
         return ['status' => 'disabled'];
     }
 
-    $ranToday = (int)$db->query(
+    $ranRecently = (int)$db->query(
         "SELECT COUNT(*) FROM forecast_runs
           WHERE run_type = 'ingredient_policy_sweep'
             AND status = 'completed'
-            AND DATE(started_at) = CURDATE()"
+            AND started_at >= (NOW() - INTERVAL " . AUTO_PO_SWEEP_INTERVAL_HOURS . " HOUR)"
     )->fetchColumn();
 
-    if (!$isManualTrigger) {
-        $sweepHour = max(0, min(23, (int)($settings['auto_po_sweep_hour'] ?? 2)));
-        if ((int)date('G') < $sweepHour) {
-            return ['status' => 'before_sweep_hour'];
-        }
+    if (!$isManualTrigger && $ranRecently > 0) {
+        return ['status' => 'ran_recently'];
     }
 
     $root   = dirname(__DIR__);
@@ -441,9 +450,10 @@ function sweepForecastPipeline(PDO $db, bool $isManualTrigger = false): array
     $script = $root . '/forecasting/run.py';
 
     // Only exec() locally when there's actually something new to produce: a
-    // manual trigger always wants a fresh run; an automatic tick only needs
-    // one if today doesn't already have a completed run.
-    if (($isManualTrigger || $ranToday === 0) && is_file($python) && is_file($script)) {
+    // manual trigger always wants a fresh run; an automatic tick only ever
+    // reaches here when $ranRecently was 0 (the early return above already
+    // filtered out "automatic and ran within the interval").
+    if (($isManualTrigger || $ranRecently === 0) && is_file($python) && is_file($script)) {
         $output = [];
         $exit   = 0;
         exec(sprintf('%s %s 2>&1', escapeshellarg($python), escapeshellarg($script)), $output, $exit);
@@ -457,9 +467,9 @@ function sweepForecastPipeline(PDO $db, bool $isManualTrigger = false): array
             );
             return ['status' => 'run_failed'];
         }
-    } elseif ($ranToday === 0) {
-        // No Python pipeline on THIS host, and nothing else has written
-        // today's run yet either -- e.g. a separate host running
+    } elseif ($ranRecently === 0) {
+        // No Python pipeline on THIS host, and nothing else has written a
+        // recent run either -- e.g. a separate host running
         // forecasting/run.py against this same database (see
         // forecastPythonPath()'s docblock) hasn't reached it yet this
         // cycle. Nothing to apply until a completed run exists.

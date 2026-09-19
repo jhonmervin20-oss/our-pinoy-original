@@ -22,8 +22,9 @@
  *   - sweepAutoPurchaseOrders() -- the entire point of demand-forecast-
  *     driven auto-PO is catching a restock need before a human would
  *     notice; gating it on a human opening the app defeats that. Already
- *     self-throttled to once/24h internally, so calling it every 5
- *     minutes just costs one cheap SELECT the other 287 times a day.
+ *     self-throttled to once per AUTO_PO_SWEEP_INTERVAL_HOURS internally,
+ *     so calling it every 5 minutes just costs one cheap SELECT the rest
+ *     of the time.
  *
  *   - notifyPendingAttendanceImports() / sweepAutoDetectAbsences() --
  *     otherwise a manager only ever sees a missing attendance log if they
