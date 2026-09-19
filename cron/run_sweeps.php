@@ -117,13 +117,17 @@ try {
     // levels written back to inventory_items, and draft purchase orders for
     // whatever the run decided to buy.
     //
-    // This replaced sweepAutoPurchaseOrders() on 2026-08-31. That function was
-    // the OLD engine -- it forecast each ingredient's own series through
-    // prophet_client.php and drafted from that. It is no longer called from
-    // anywhere: not here, and not from the six owner/manager page-load
-    // triggers it used to fire from. Two engines writing forecast_runs and
-    // reorder_suggestions meant whichever ran last won, and the old one won
-    // most days simply because a page load is more frequent than a cron tick.
+    // This replaced sweepAutoPurchaseOrders() on 2026-08-31 as the PRIMARY
+    // engine. That function forecasts each ingredient's own series live
+    // through prophet_client.php and drafts from that -- it was disconnected
+    // from every page-load trigger and from here because two engines writing
+    // forecast_runs/reorder_suggestions on the same schedule meant whichever
+    // ran last won, and the old one won most days simply because a page load
+    // is more frequent than a cron tick.
+    //
+    // It is wired back in below, but ONLY as a fallback for a host with no
+    // local Python at all (e.g. this app's own PHP host) -- see that call
+    // site for why this no longer reintroduces the same conflict.
     //
     // Self-gating: sweepForecastPipeline() returns early before
     // auto_po_sweep_hour and after the day's run has completed, so this costs
@@ -134,8 +138,26 @@ try {
             ? ' (' . (int)$forecast['purchase_orders']['created'] . ' PO drafted)'
             : '');
 } catch (Throwable $e) {
+    $forecast = ['status' => 'exception'];
     $results[] = 'sweepForecastPipeline: FAILED - ' . $e->getMessage();
     error_log('cron/run_sweeps.php sweepForecastPipeline failed: ' . $e->getMessage());
+}
+
+try {
+    // Fallback for a host with no local Python at all (e.g. this app's own
+    // PHP host, which can reach the Demand Forecast AI service over HTTP but
+    // can't exec() forecasting/run.py) -- only runs when the batch pipeline
+    // genuinely produced nothing to apply, never alongside it. This is the
+    // OLD engine the comment above describes as replaced: still correct, it
+    // was only ever disconnected because two engines ran on this same
+    // schedule -- gated here to exactly one of the two ever actually firing.
+    if (in_array($forecast['status'] ?? '', ['not_installed', 'no_completed_run'], true)) {
+        $livePo = sweepAutoPurchaseOrders($db);
+        $results[] = 'sweepAutoPurchaseOrders (live fallback): ' . $livePo['status'];
+    }
+} catch (Throwable $e) {
+    $results[] = 'sweepAutoPurchaseOrders (live fallback): FAILED - ' . $e->getMessage();
+    error_log('cron/run_sweeps.php sweepAutoPurchaseOrders failed: ' . $e->getMessage());
 }
 
 try {

@@ -16,11 +16,13 @@
  *   2. draftPurchaseOrdersFromForecastRun() -- turn the run's `drafted` rows
  *      into real draft purchase orders, grouped by supplier.
  *
- * This REPLACES config/inventory_alerts.php::sweepAutoPurchaseOrders(), which
- * was the old engine: it did its own forecasting through prophet_client.php,
+ * This REPLACES config/inventory_alerts.php::sweepAutoPurchaseOrders() as the
+ * PRIMARY engine: that one did its own forecasting through prophet_client.php,
  * wrote its own forecast_runs row, and drafted POs from that. Two engines
  * writing the same tables meant whichever ran last won, and the old one ran on
- * every owner/manager page load. It is no longer called from anywhere.
+ * every owner/manager page load. cron/run_sweeps.php now calls it back in,
+ * but ONLY as a fallback when this pipeline can't run at all (no local
+ * Python) -- see that file's own call site for how the conflict is avoided.
  *
  * The PO-shaped conventions here are deliberately unchanged from that old
  * sweep -- supplier grouping, expected delivery from the slowest lead time in
