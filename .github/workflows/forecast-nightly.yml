@@ -1,0 +1,53 @@
+name: Demand forecast pipeline (Hostinger)
+
+# Runs forecasting/run.py against Hostinger's live database over a direct
+# MySQL connection -- the piece nothing else currently does for that host.
+# The Render opo-forecast-service only answers one-off "what's the forecast
+# for this series" HTTP calls (used by the live ingredient-policy fallback);
+# it never runs the full 7-stage pipeline or writes forecast_runs /
+# menu_item_demand_forecast. This workflow is what does, on a schedule,
+# matching the same 6-hour cadence AUTO_PO_SWEEP_INTERVAL_HOURS uses locally
+# (config/forecast_auto_po.php) so "Menu demand" on the Demand Forecasting
+# page stays as fresh on Hostinger as the ingredient side already is.
+#
+# Requires four secrets on the "hostinger" GitHub Environment (Settings >
+# Environments > hostinger > Environment secrets) -- NOT the plain repo-level
+# secrets page, since the job below scopes itself to that environment:
+#   HOSTINGER_DB_HOST, HOSTINGER_DB_NAME, HOSTINGER_DB_USER, HOSTINGER_DB_PASS
+# -- Hostinger's Remote MySQL (hPanel > Databases > Remote MySQL) must allow
+# connections to that database from outside Hostinger's own network. GitHub
+# Actions runners have no fixed IP, so the allowed host there has to be `%`
+# (any host) -- the database user's password is what actually protects it,
+# so make sure it's a strong one, not shared with any other account.
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # every 6 hours, matching the local sweep's own interval
+  workflow_dispatch: {}      # lets you trigger a run by hand from the Actions tab
+
+jobs:
+  forecast:
+    runs-on: ubuntu-latest
+    environment: hostinger
+    defaults:
+      run:
+        working-directory: forecasting
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: forecasting/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run forecast pipeline
+        env:
+          DB_HOST: ${{ secrets.HOSTINGER_DB_HOST }}
+          DB_NAME: ${{ secrets.HOSTINGER_DB_NAME }}
+          DB_USER: ${{ secrets.HOSTINGER_DB_USER }}
+          DB_PASS: ${{ secrets.HOSTINGER_DB_PASS }}
+        run: python run.py

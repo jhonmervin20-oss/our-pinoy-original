@@ -33,13 +33,26 @@ function forecastHorizonCaution(int $horizon): ?string
     };
 }
 
-/** The most recent completed run. Everything on the page hangs off this. */
+/**
+ * The most recent completed run that actually has menu-level data. Everything
+ * on the page hangs off this.
+ *
+ * Not just "the most recent completed run": config/inventory_alerts.php's
+ * sweepAutoPurchaseOrders() -- the live-HTTP fallback for a host with no local
+ * Python (e.g. Hostinger) -- also writes a completed 'ingredient_policy_sweep'
+ * row, but it only ever forecasts ingredients, never per-dish demand. Picking
+ * that run here left "Menu demand" and the forecast line on the orders chart
+ * permanently empty on a Python-less host, since every run it will ever see
+ * is fallback-only. The EXISTS check skips straight past those to the latest
+ * run the full forecasting/run.py pipeline actually produced.
+ */
 function getLatestForecastRun(PDO $db): ?array
 {
     $row = $db->query(
         "SELECT run_id, status, engine_version, started_at, finished_at, params_json
-         FROM forecast_runs
+         FROM forecast_runs r
          WHERE run_type = 'ingredient_policy_sweep' AND status = 'completed'
+           AND EXISTS (SELECT 1 FROM menu_item_demand_forecast m WHERE m.run_id = r.run_id)
          ORDER BY run_id DESC LIMIT 1"
     )->fetch(PDO::FETCH_ASSOC);
     if (!$row) {

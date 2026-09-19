@@ -1,0 +1,15 @@
+# forecasting/requirements.txt
+#
+# Pins mirror forecast_service/requirements.txt exactly (see that file's
+# comments for why prophet/pandas/cmdstanpy are pinned to these specific
+# versions) -- this pipeline and that HTTP service both fit Prophet, so a
+# version drift between the two would mean the "same" forecast behaves
+# differently depending on which one produced it. fastapi/uvicorn are that
+# service's own web layer and are not needed here; sqlalchemy/pymysql are,
+# for db.py's direct MySQL connection (the HTTP service never touches the
+# database itself).
+prophet==1.1.6
+pandas==2.3.3
+cmdstanpy==1.2.0
+sqlalchemy==2.0.35
+pymysql==1.1.1

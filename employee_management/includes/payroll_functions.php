@@ -1352,8 +1352,6 @@ function renderPayslipCardHtml(array $payslip, array $extraEarnings, array $dedu
             <div class="ps-meta-row"><span>Frequency</span><span><?= htmlspecialchars(payFrequencyLabel($payslip['pay_frequency'])) ?></span></div>
             <div class="ps-meta-row"><span>Cutoff</span><span><?= date('M j', strtotime($payslip['cutoff_period_start'])) ?> – <?= date('M j, Y', strtotime($payslip['cutoff_period_end'])) ?></span></div>
             <div class="ps-meta-row"><span>Payout date</span><span><?= date('M j, Y', strtotime($payslip['payout_date'])) ?></span></div>
-            <div class="ps-meta-row"><span>Days worked</span><span><?= number_format((float)$payslip['days_worked'], 2) ?></span></div>
-            <div class="ps-meta-row"><span>Hours worked</span><span><?= number_format((float)$payslip['hours_worked'], 2) ?></span></div>
         </div>
     </div>
 
