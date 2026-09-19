@@ -220,6 +220,19 @@ $showTicket = in_array($reservation['status'], ['confirmed', 'seated', 'complete
             </button>
         </div>
     <?php endif; ?>
+
+    <?php if ($reservation['status'] === 'completed'): ?>
+        <?php // Links to the general feedback form, same as every other entry
+              // point into it -- feedback stays a testimonial, not a per-visit
+              // review, so this is a prompt to leave one, not a pre-filled
+              // report on this specific reservation (feedback has no
+              // reservation_id column to attribute it with). ?>
+        <div class="ca-detail-actions">
+            <a href="feedback.php" class="ca-btn ca-btn-primary ca-btn-block">
+                <i class="ph ph-chat-circle-text" aria-hidden="true"></i> Leave Feedback
+            </a>
+        </div>
+    <?php endif; ?>
 </main>
 
 <div class="ca-loading-overlay" id="loadingOverlay">
